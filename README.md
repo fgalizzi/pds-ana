@@ -4,7 +4,7 @@ A C++ analysis framework to estimate the performance of the [DUNE](https://www.d
 
 ## In this repo
 
-Here you can find macros (file.cpp in [Class/_c](this folder)) useful to plot the
+Here you can find macros (file.cpp in [this folder](Class/_c)) useful to plot the
 persistance of a set of waveforms, compute the Signal-to-Noise ratio from
 a calibration run, compute the FFTs of the electronic noise... In
 [Macro_description.txt](Macro_description.txt) you can find a brief overview of what the macros do.
