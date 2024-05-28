@@ -88,11 +88,13 @@ class cla{
     void LED_Analysis();
     void Noise_PSD();
     void SPE();
-    //void MuonDeco();
+    void upclass(cla A);
     void muonPDHD();
     void Avg_muon();
     void DCR();
+    void SelfTrigger();
     void configDCR();
+    void Jitter();
     void Saturation();
     void update();    
     void LoadFitParameters(TF1* f);
@@ -116,9 +118,10 @@ class cla{
 #include "_c/AverageWF.cpp"
 #include "_c/LED_Analysis.cpp"
 #include "_c/Noise_PSD.cpp"
-//#include "_c/MuonDeco.cpp"
+#include "_c/upclass.cpp"
 #include "_c/muonPDHD.cpp"
 #include "_c/Avg_muon.cpp"
+#include "_c/SelfTrigger.cpp"
 #include "_c/SPE.cpp"
 #include "_c/DCR.cpp"
 #include "_c/configDCR.cpp"
@@ -126,3 +129,4 @@ class cla{
 #include "_c/update.cpp"
 #include "_c/LoadFitParameters.cpp"
 #include "_c/TooAnnoying.cpp"
+#include "_c/Jitter.cpp"
