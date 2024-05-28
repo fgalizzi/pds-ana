@@ -1,0 +1,30 @@
+Average.cpp
+Code to plot some waveforms (or compare the ones from different channels),
+compute the average and disply the persistence plot. 
+
+Avg_muon.cpp
+Read wfs, subtract the baseline, plot the Fprompt-plot
+(prompt_integral/integral) to select muon wfs and save them in a file.
+
+DecoExt.cpp
+Deconvolve wfs through the Wiener filter
+
+LED_Analysis.cpp
+Compute the charge histogram for a LED run and the Cross-talk probability
+
+FFT_Comp.cpp
+Plot N-vector on the same TGraph
+
+Noise_PSD.cpp
+Read noise.dat fils, compute the power spectral density for each wf and write
+the average in a file
+
+MAX_Analysis.cpp
+Useful to plot couple of quantities of the waveforms (eg. charve vs max
+amplitude)
+
+WF_FFT.cpp
+Plot the TH2D graph of the PSD of some WF (They could be all the one in a file or just a selection)
+
+
+

@@ -1,0 +1,14 @@
+File 0_wave0_45V00_0ADC_Ch0.dat
+SNR = 8.2 [15200;1600]
+SPE_AMPL = 9 ADC
+
+WIN = 30
+DEN = 15
+ITE = 2
+->  Soglia = 2 sul grad
+
+# Idee
+  Lavorare con solo wfs di SPE
+  Matched
+  Calibtation histo col mio peak finder:w
+
