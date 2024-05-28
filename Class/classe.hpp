@@ -105,10 +105,10 @@ class cla{
     int oldprepulse_ticks;
 };
 
-#include "../Header2/G_Func.hpp"
-#include "../Header2/G_Read.hpp"
-#include "../Header2/G_WF.hpp"
-#include "../Header2/G_Utility.hpp"
+#include "../Header/G_Func.hpp"
+#include "../Header/G_Read.hpp"
+#include "../Header/G_WF.hpp"
+#include "../Header/G_Utility.hpp"
 
 #include "_c/set.cpp"
 #include "_c/read.cpp"
