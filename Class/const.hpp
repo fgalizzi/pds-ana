@@ -34,6 +34,8 @@ const double FIT_UP      = 1800;
 const double HMIN        = -1000;
 const double HMAX        = 9000;
 const double SPE_AMPL    = 10;
+const double SPE_CHARGE  = 10;
+const double PEDESTAL    = 10;
 //deconvolution
 const int INT_PROMPT     = 70;
 const double F_PROMPT    = 0.32;

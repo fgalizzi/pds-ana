@@ -112,6 +112,8 @@ void cla::LED_Analysis(){
   SNR = fgaus->GetParameter(1)/fgaus->GetParameter(2);
   q1  = fgaus->GetParameter(1)+fgaus->GetParameter(0);
   q1q2= fgaus->GetParameter(1);
+  pedestal = q1q2;
+  spe_charge = q1;
   s0  = fgaus->GetParameter(2);
   std::cout << "\n\nColdbox table SNR - q1 - q1q2 - s0" << std::endl;
   std::cout << SNR << "\t" << q1 << "\t" << q1q2 << "\t" << s0 << "\n\n" << std::endl; 

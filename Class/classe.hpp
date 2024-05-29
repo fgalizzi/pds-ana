@@ -22,6 +22,8 @@ class cla{
     int prepulse_ticks;   //Template pre-pulse ticks
     double tick_len;    //In mu_s
     double spe_ampl;
+    double spe_charge;
+    double pedestal;
 
     double sat_up;
     double sat_low;

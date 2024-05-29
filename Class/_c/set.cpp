@@ -40,7 +40,7 @@ void cla::set(){
   hmin      = HMIN;
   hmax      = HMAX;
   spe_ampl  = SPE_AMPL; 
-  
+  spe_chaege= SPE_CHARGE;  
   //Deconvolution
   int_prompt = INT_PROMPT;
   f_prompt   = F_PROMPT;

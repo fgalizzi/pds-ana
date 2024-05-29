@@ -7,6 +7,7 @@ void cla::LoadFitParameters(TF1* f) {
   mu0_up      = mu0+s0;
   spe_low     = mu0+gain-s0;
   spe_up      = mu0+gain+s0;
-
+  pedestal    = mu0;
+  spe_charge  = gain;
   return;
 };

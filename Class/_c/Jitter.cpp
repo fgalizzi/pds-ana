@@ -42,7 +42,7 @@ void cla::Jitter(){
 
   for (size_t i=0; i<trg_wf.size(); i++){
     t = TriggerTime(trg_wf[i]);
-    if(t>0) hTrg->Fill(t);
+    if(t>PRETRG && t<AFTTRG) hTrg->Fill(t);
     else no_trg_count++;
     //if(t>1490 && t<1520) bulk_wf.push_back(all_wf[i]);
   }

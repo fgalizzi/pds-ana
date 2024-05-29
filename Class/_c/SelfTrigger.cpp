@@ -1,8 +1,8 @@
 const int SHIIFT = 20;
 std::string ALLWF_FILE = "channel_1.dat";
 std::string TRGWF_FILE = "channel_2.dat";
-int PRETRG = 1442;
-int AFTTRG = 1455;
+int PRETRG = 1430;
+int AFTTRG = 1470;
 
 // With the entire set of WFs (all_wf) it  build the calibration histogram integrating [I_low;I_up]
 //*********************************************

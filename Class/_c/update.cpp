@@ -42,6 +42,8 @@ void cla::update(){
 	outputFile << "const double HMIN        = " << hmin << ";" << std::endl;
 	outputFile << "const double HMAX        = " << hmax << ";" << std::endl;
 	outputFile << "const double SPE_AMPL    = " << spe_ampl << ";" << std::endl;
+	outputFile << "const double SPE_CHARGE  = " << spe_charge << ";" << std::endl;
+	outputFile << "const double PEDESTAL    = " << pedestal << ";" << std::endl;
 	outputFile << "//deconvolution"  << std::endl;
 	outputFile << "const int INT_PROMPT     = " << int_prompt << ";"  << std::endl;
 	outputFile << "const double F_PROMPT    = " << f_prompt << ";"  << std::endl;
