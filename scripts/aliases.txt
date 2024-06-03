@@ -1,0 +1,4 @@
+My zsh aliases:
+
+alias c="source ~/load_class.sh"
+alias con="cp ~/pds-ana/Class/const.hpp ."
