@@ -11,6 +11,7 @@ class cla{
     std::string templ_f;
     std::string muon_f;
     std::string noise_f;
+    std::string trg_f;
     std::vector<std::vector<double>> wfs;    
 
     std::string data_format;
@@ -20,6 +21,8 @@ class cla{
     int n_wf;             //Number of WF in file
     int res;                //Resolution of the digitizer
     int prepulse_ticks;   //Template pre-pulse ticks
+    int pretrg;
+    int afttrg;
     double tick_len;    //In mu_s
     double spe_ampl;
     double spe_charge;
@@ -71,7 +74,7 @@ class cla{
     double den=9.;
 
     //Saving data into files
-    bool print = false;
+    bool print = true;
     //Set calibration parameters manually
     bool manual = false;
     //Apply moving window on calib wfs

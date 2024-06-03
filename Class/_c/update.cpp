@@ -10,6 +10,7 @@ void cla::update(){
 	outputFile << "std::string TEMPL_F = \"" << templ_f << "\";" << std::endl;
 	outputFile << "std::string NOISE_F = \"" << noise_f << "\";" << std::endl;
 	outputFile << "std::string MUON_F  = \"" << muon_f  << "\";" << std::endl;
+	outputFile << "std::string TRG_F  = \"" << trg_f  << "\";" << std::endl;
 	outputFile << "// daphne caen csv " << std::endl;
 	outputFile << "std::string DATA_FORMAT  = \"" << data_format << "\";" << std::endl;
 	outputFile << "bool INVERT              = " << invert << ";" << std::endl;
@@ -17,6 +18,8 @@ void cla::update(){
 	outputFile << "const int N_WF           = " << n_wf << ";" << std::endl;
 	outputFile << "const int RES            = " << res << ";" << std::endl;
 	outputFile << "const int PREPULSE_TICKS = " << prepulse_ticks << ";" << std::endl;
+	outputFile << "const int PRETRG         = " << pretrg << ";" << std::endl;
+	outputFile << "const int AFTTRG         = " << afttrg << ";" << std::endl;
 	outputFile << "const double TICK_LEN    = " << tick_len << ";" << std::endl;
 	outputFile << " " << std::endl;
 	outputFile << "const double SAT_UP      = " << sat_up << ";" << std::endl;

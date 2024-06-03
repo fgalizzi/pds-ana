@@ -10,13 +10,16 @@ void cla::set(){
   templ_f        = TEMPL_F;
   noise_f        = NOISE_F;
   muon_f         = MUON_F;
+  trg_f          = TRG_F;
 
-  memorydepth    = MEMORYDEPTH;
-  n_wf           = N_WF;
-  res            = RES;
-  prepulse_ticks = PREPULSE_TICKS;
+  memorydepth       = MEMORYDEPTH;
+  n_wf              = N_WF;
+  res               = RES;
+  prepulse_ticks    = PREPULSE_TICKS;
   oldprepulse_ticks = PREPULSE_TICKS;
-  tick_len       = TICK_LEN;
+  pretrg            = PRETRG;
+  afttrg            = AFTTRG;
+  tick_len          = TICK_LEN;
 
   sat_up         = SAT_UP;
   sat_low        = SAT_LOW;
@@ -40,7 +43,7 @@ void cla::set(){
   hmin      = HMIN;
   hmax      = HMAX;
   spe_ampl  = SPE_AMPL; 
-  spe_chaege= SPE_CHARGE;  
+  spe_charge= SPE_CHARGE;  
   //Deconvolution
   int_prompt = INT_PROMPT;
   f_prompt   = F_PROMPT;

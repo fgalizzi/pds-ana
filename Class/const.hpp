@@ -2,6 +2,7 @@ std::string WF_FILE = "channel_1.dat";
 std::string TEMPL_F = "Template.dat";
 std::string NOISE_F = "Noise.dat";
 std::string MUON_F  = "Muon.dat";
+std::string TRG_F   = "channel_2.dat";
 // daphne caen csv 
 std::string DATA_FORMAT  = "esteban";
 bool INVERT              = 1;
@@ -9,6 +10,8 @@ const int MEMORYDEPTH    = 4096;
 const int N_WF           = 3000;
 const int RES            = 14;
 const int PREPULSE_TICKS = 345;
+const int PRETRG         = 1430;
+const int AFTTRG         = 1470;
 const double TICK_LEN    = 0.016;
  
 const double SAT_UP      = 800;
