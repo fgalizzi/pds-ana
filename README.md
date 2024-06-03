@@ -41,7 +41,7 @@ a.Persistence()
 Check if everything is correct!
 
 You should see something like:
-![Alt text](Images/SingleWF.png)
+![Alt text](Images/SingleWf.png)
 Keep going with the Enter command.
 
 Hey, your pulse is negative! Let's invert it with:
@@ -61,9 +61,10 @@ a.update()
 This modifies the const.hpp file, so that the next time you lanch a session you
 will resume from the last checkpoint.
 
-
-Now you 
-
+ Keep going!
+ Run `AverageWF()`, find an integration window [`int_low`; `int_up`], run
+ `LED_Analysis()` and look at the
+ [Images](Images) folder to have an idea of what else you can do.
 
 ### Author
 Federico Galizzi - f.galizzi1@campus.unimib.it
