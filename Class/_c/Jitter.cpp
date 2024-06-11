@@ -1,7 +1,3 @@
-  
-double jit_low = 1473;
-double jit_up = 1482;
-
 
 //*** MAIN ************************************
 void cla::Jitter(){
@@ -14,7 +10,6 @@ void cla::Jitter(){
   vector<double> int_wf;
   vector<double> trgs;
   double t;
-  int no_trg_count = 0;
   int dark_trg_count = 0;
 
   CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
@@ -25,38 +20,29 @@ void cla::Jitter(){
 
   for (size_t i=0; i<trg_wf.size(); i++){
     trgs = TriggerTime(trg_wf[i]);
-    if (trgs.size() == 0) no_trg_count++;
-    else {
-      for (auto tr : trgs){
-        if (tr<pretrg) dark_trg_count++;
-        hTrg->Fill(tr);
-      }
+    for (auto tr : trgs){
+      if (tr<pretrg || tr>afttrg) dark_trg_count++;
+      if (tr >= 1) hTrg->Fill(tr); //Exclude triggers before the opening window
     }
-    if (t<pretrg && t>-1) dark_trg_count++;
-    //if(t>1490 && t<1520) bulk_wf.push_back(all_wf[i]);
   }
 
-  TF1 *f1 = new TF1("f1","gaus", pretrg-3, afttrg+3);
+  TF1* f1 = new TF1("f1","gaus", pretrg, afttrg);
+  if (manual == true ) f1 = new TF1("f1","gaus", fit_low, fit_up);
   f1->SetParameters(700, (pretrg+afttrg)*0.5, 1.4);
   f1->SetNpx(2000);
   
-
-  //DisplayWFs(trg_wf, 1., 30);
+  if (display == true) DisplayWFs(trg_wf, 1., 10);
   
-
-
-  TCanvas *c_tr = new TCanvas("c_tr","c_tr",20,20,1000,900);
-  c_tr->cd();
+  TCanvas *c_trg = new TCanvas("c_tr","c_tr",20,20,1000,900);
+  c_trg->cd();
   hTrg->Draw();
   hTrg->Fit(f1, "R");
-  c_tr->Modified();
-  c_tr->Update();
+  c_trg->Modified();
+  c_trg->Update();
  
-  t = dark_trg_count/(tick_len*pretrg*trg_wf.size())*1.e6;
-  std::cout << "\n\nNo triggers in " << no_trg_count << "/" << n_wf << std::endl;  
-  std::cout << "Dark trigger count " << dark_trg_count << std::endl;  
-  std::cout << "Dark trigger rate " << t << "\n\n"<< std::endl;
+  t = dark_trg_count/(tick_len*(memorydepth-afttrg+pretrg-1)*trg_wf.size())*1.e6;
 
-  std::cout << "Jitter - Dark trigger rate - No Trg"<< std::endl;
-  std::cout << f1->GetParameter(2) << "\t" << t << "\t" << no_trg_count << std::endl;  
+  std::cout << "\n\nTrg Abs Time - Jitter - Err - Dark trigger rate [Hz]"<< std::endl;
+  std::cout << f1->GetParameter(1) << "\t" << f1->GetParameter(2) << "\t" 
+    << f1->GetParError(2) << "\t" << t << "\n\n" << std::endl;  
 }

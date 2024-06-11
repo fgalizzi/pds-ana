@@ -73,8 +73,11 @@ class cla{
     int ite=2;
     double den=9.;
 
+    bool sub_bsl = true;
     //Saving data into files
     bool print = true;
+    //Display single waveforms
+    bool display = false;
     //Set calibration parameters manually
     bool manual = false;
     //Apply moving window on calib wfs

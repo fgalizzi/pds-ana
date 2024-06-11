@@ -8,8 +8,8 @@ void cla::read(){
     if(data_format == "esteban") CompleteWF_Binary_Swap(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csv")    CSV_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     
-    if(invert == false) SubBaseline(wfs, prepulse_ticks);
-    if(invert == true ) SubBaseline_Invert(wfs, prepulse_ticks);
+    if(invert == false && sub_bsl == true) SubBaseline(wfs, prepulse_ticks);
+    if(invert == true  && sub_bsl == true) SubBaseline_Invert(wfs, prepulse_ticks);
   }
 
 }

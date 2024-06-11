@@ -10,20 +10,11 @@
   double sf_hmax = 7.;
 #endif
 
-// Thr is in [N p.e.] unit
-#ifndef thr
-  double thr = 8./6.55;
-#endif
-
-#ifndef esteban
-  bool esteban = true;
-#endif
-
 std::vector<double> TriggerTime(std::vector<double>& waveform){
   std::vector<double> trgs;
   for(size_t i=0; i<waveform.size(); i++) if (waveform[i] > 0.5){
     trgs.push_back(i);
-    if(esteban == true) i += 258;
+    while(waveform[i]>0.5) i++;
   }
   return trgs;
 }
@@ -41,7 +32,7 @@ void SelfHistos(std::vector<std::vector<double>>& all_wf,
   double spe_norm = 1./spe_charge;
   double t;
   std::vector<double> trgs;
-  bool got_ya;
+  int got_ya;
    
   // All wf spectra
   for(auto wf : all_wf){
@@ -54,9 +45,9 @@ void SelfHistos(std::vector<std::vector<double>>& all_wf,
   // Spectra of true positive
   for(auto wf : trg_wf){
     trgs = TriggerTime(wf);
-    got_ya = 0;
+    got_ya = 0; //false
     for (auto tr : trgs){
-      if (tr > pretrg && tr < afttrg) got_ya = 1;
+      if (tr > pretrg && tr < afttrg) got_ya = 1; //true
     }
     trg_bool.push_back(got_ya);
   }
@@ -80,8 +71,10 @@ void cla::SelfTrigger(){
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 
   vector<vector<double>> trg_wf;
-  vector<double> int_wf, n_pe, eff_pe;
-  double t;
+  vector<double> int_wf, n_pe, eff_pe, fps, tps;
+  double t, thr = -1e6;
+  bool stop_search = false;
+  std::vector<double> thrs = {1,2,3,4,5}; // N pe
 
   // Read and subtract the baseline
   read();
@@ -94,33 +87,67 @@ void cla::SelfTrigger(){
 
   TH1D* hAll  = new TH1D("hAll" ,"hAll", sf_bins, sf_hmin, sf_hmax);
   TH1D* hTrg  = new TH1D("hTrg" ,"hTrg", sf_bins, sf_hmin, sf_hmax);
-  hAll->GetXaxis()->SetTitle("N p.e.");
-  hAll->GetYaxis()->SetTitle("Counts");
+  TH1D* hAcc  = new TH1D("hAcc" ,"hAcc", sf_bins, sf_hmin, sf_hmax);
+  hAll->GetXaxis()->SetTitle("N p.e."); hAcc->GetXaxis()->SetTitle("N p.e.");
+  hAll->GetYaxis()->SetTitle("Counts"); hAcc->GetYaxis()->SetTitle("Counts");
   hTrg->SetLineColor(kRed);
   
   SelfHistos(wfs, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge, pedestal, pretrg, afttrg);
 
-  TH1D* hTP = new TH1D("hTP", "", sf_bins, sf_hmin, sf_hmax);
-  TH1D* hFP = new TH1D("hFP", "", sf_bins, sf_hmin, sf_hmax);
   
+  // Efficiency as Trg/All + fit for effective threshold
+  TEfficiency* eTrg= 0;
+  eTrg = new TEfficiency(*hTrg,*hAll); eTrg->SetLineColor(kBlack);
   
   for (int i=1; i<hAll->GetNbinsX(); i++){
-    t = hAll->GetBinCenter(i);
-    if (t<thr){
-      hFP->SetBinContent(i, hTrg->GetBinContent(i));
-    }
-    else{
-      hTP->SetBinContent(i, hTrg->GetBinContent(i));
+    hAcc->SetBinContent(i,hAll->Integral(1,i)-hTrg->Integral(1,i)+hTrg->Integral(i,hAll->GetNbinsX()));
+    if (eTrg->GetEfficiency(i)>0.45 && stop_search==0){
+      thr = hAll->GetBinCenter(i);
+      stop_search = 1;
     }
   }
+
+  TF1* f1 = new TF1("f1","[2]/(1+exp(([0]-x)/[1]))",thr-3, thr+3);
+  f1->SetParameters(thr, 0.2, 0.8);
+  if(manual == true) {
+    f1 = new TF1("f1","[2]/(1+exp(([0]-x)/[1]))",fit_low, fit_up);
+    f1->SetParameters(t_0, 0.2, 0.8);
+  }
+  f1->SetParNames("t_{0}", "#tau", "#epsilon_{MAX}");
+  f1->SetParLimits(2, 0, 1);
+  f1->SetNpx(2000);
+
+  eTrg->Fit(f1, "R");
+  thr = f1->GetParameter(0);
+
+
+  // T = True ; P = Positive
+  TH1D* hTP = new TH1D("hTP", "", sf_bins, sf_hmin, sf_hmax);
+  TH1D* hFP = new TH1D("hFP", "", sf_bins, sf_hmin, sf_hmax);
+ 
+  for (auto thr_pe : thrs){
+    hTP->Reset(); hFP->Reset();
+    for (int i=1; i<hAll->GetNbinsX(); i++){
+      t = hAll->GetBinCenter(i);
+      if (t<thr_pe){
+        hFP->SetBinContent(i, hTrg->GetBinContent(i));
+      }
+      else{
+        hTP->SetBinContent(i, hTrg->GetBinContent(i));
+      }
+    }
+    fps.push_back( hTrg->Integral(1, hTrg->FindBin(thr_pe) ) /
+        hAll->Integral(1, hAll->FindBin(thr_pe) ) );
+    tps.push_back( hTrg->Integral(hTrg->FindBin(thr_pe), hAll->GetNbinsX()) /
+        hAll->Integral(hAll->FindBin(thr_pe), hAll->GetNbinsX()) );
+  }
+  
  
   TEfficiency* eTP = 0;
   TEfficiency* eFP = 0;
-  TEfficiency* eTrg= 0;
   
   eTP  = new TEfficiency(*hTP, *hAll); eTP->SetLineColor(kBlue);
   eFP  = new TEfficiency(*hFP, *hAll); eFP->SetLineColor(kBlack);
-  eTrg = new TEfficiency(*hTrg,*hAll); eTrg->SetLineColor(kBlack);
 
   eTP->SetLineWidth(0.); eTP->SetMarkerStyle(20); eTP->SetMarkerColor(kOrange+8);
   eFP->SetLineWidth(0.); eFP->SetMarkerStyle(20); eFP->SetMarkerColor(kAzure+6);
@@ -131,21 +158,16 @@ void cla::SelfTrigger(){
   hTrg->Draw("SAME");
   c_tr->Modified();
   c_tr->Update();
-
-  TF1 *f1 = new TF1("f1","1/(1+exp(([0]-x)/[1]))",thr-0.6, thr+0.6);
-  f1->SetParameters(thr, 0.2);
-  f1->SetParNames("t_{0}", "#tau");
-  f1->SetNpx(2000);
+  
   
   eTrg->SetTitle(";N pe; Probability");
   TCanvas *c_eff = new TCanvas("c_eff","c_eff",10,10,1000,900);
   c_eff->cd();
   eTrg->Draw();
-  eTrg->Fit(f1, "R");
   c_eff->Modified();
   c_eff->Update();
   
-  auto l = new TLine(thr,0.,thr,1.);
+  /*auto l = new TLine(thr,0.,thr,1.);
   l->SetLineWidth(4);
   l->SetLineStyle(2);
   l->SetLineColor(kGreen-3);
@@ -164,10 +186,22 @@ void cla::SelfTrigger(){
   legend->Draw("SAME");
   c_pos->Modified();
   c_pos->Update();
+  */
+  /*TCanvas *c_acc = new TCanvas("c_acc","c_acc",30,30,1000,900);
+  c_acc->cd();
+  hAcc->Draw();
+  c_acc->Modified();
+  c_acc->Update();*/
 
-  t = f1->Eval(thr);
-  std::cout << "\n\nSigmoid t0 - sigma - eff @ thr" << std::endl;
-  std::cout << f1->GetParameter(0) << "\t" << f1->GetParameter(1) << "\t" << t << std::endl;  
+  std::cout << "\n\nAccucarcy thr - err - Sigmoid thr - err - Tau - Err - Eff max - Err - Fps and Tps" << std::endl;
+  std::cout << hAcc->GetBinCenter(hAcc->GetMaximumBin()) << "\t" << hAcc->GetBinWidth(2) << "\t"
+    << thr << "\t" << f1->GetParError(0) << "\t"
+    << f1->GetParameter(1) << "\t" << f1->GetParError(1) << "\t"
+    << f1->GetParameter(2) << "\t" << f1->GetParError(2) << "\t"; 
+  
+  for (size_t i=0; i<thrs.size(); i++) std::cout << fps[i] << "\t" << tps[i] << "\t";
+
+  std::cout<< "\n\n" << std::endl;
 
   if(print== true){
     TString output_name = "Eff_";
@@ -179,20 +213,3 @@ void cla::SelfTrigger(){
     out->Close();
   }
 }
-
-/*
-  for (int i=1; i<hAll->GetNbinsX(); i++){
-    n_pe.push_back(hAll->GetBinCenter(i));
-    t = hAll->GetBinContent(i);
-    if (t==0) eff_pe.push_back(0);
-    else {
-      t = hTrg->GetBinContent(i)/t;
-      eff_pe.push_back(t);
-    }
-  }
-  std::cout << eff_pe.size() << " " << n_pe.size() << std::endl;  
-  TGraph *g1 = new TGraph(eff_pe.size(), &n_pe[0], &eff_pe[0]);
-  g1->GetXaxis()->SetTitle("N p.e.");
-  g1->GetYaxis()->SetTitle("Efficiency");
-  */
- 
