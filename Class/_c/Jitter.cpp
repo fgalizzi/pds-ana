@@ -16,7 +16,9 @@ void cla::Jitter(){
   //CompleteWF_Binary_Swap(ALLWF_FILE, all_wf, n_wf, memorydepth);
   
 
-  TH1D* hTrg  = new TH1D("hTrg" ,"hTrg", memorydepth, 0, memorydepth);
+  TH1D* hTrg  = new TH1D("hTrg" ,"hTrg:Ticks:Counts", memorydepth, 0, memorydepth);
+  hTrg->GetXaxis()->SetTitle("Time [ticks]");
+  hTrg->GetYaxis()->SetTitle("Counts");
 
   for (size_t i=0; i<trg_wf.size(); i++){
     trgs = TriggerTime(trg_wf[i]);

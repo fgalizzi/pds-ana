@@ -62,6 +62,8 @@ void cla::update(){
 	outputFile << "const double TAU_SLOW    = " << tau_slow << ";"  << std::endl;
 	outputFile << "const double SIGMA       = " << sigma << ";"  << std::endl;
 	outputFile << "const double T_0         = " << t_0 << ";"  << std::endl;
+	outputFile << "//ProtoDUNE"  << std::endl;
+  outputFile << "const size_t CHANNEL     = " << channel << ";" << std::endl; 
 
   
   outputFile.close();

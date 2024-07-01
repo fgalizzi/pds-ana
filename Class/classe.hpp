@@ -67,15 +67,17 @@ class cla{
     double sigma;
     double t_0; 
   
+    // ProtoDUNE
+    size_t channel;  
 
     // DCR
-    int win=10;
+    int win=20;
     int ite=2;
     double den=9.;
 
     bool sub_bsl = true;
     //Saving data into files
-    bool print = true;
+    bool print = false;
     //Display single waveforms
     bool display = false;
     //Set calibration parameters manually
@@ -113,7 +115,12 @@ class cla{
   private:
     std::string oldwf_file;
     int oldprepulse_ticks;
+    size_t oldchannel;
 };
+
+#define hdf5torootclass_cxx
+#include "ProtoduneHD/hdf5torootclass.h"
+#include "ProtoduneHD/wffunctions2.h"
 
 #include "../Header/G_Func.hpp"
 #include "../Header/G_Read.hpp"

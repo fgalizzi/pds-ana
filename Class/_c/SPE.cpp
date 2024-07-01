@@ -42,8 +42,8 @@ void cla::SPE() {
   c1->Modified();
   c1->Update();
 
-  std::cout << "\n\nColdbox table Ampl - r_time - f_time - under" << std::endl;
-  std::cout << spe_ampl << "\t" << r_time << "\t" << f_time << "\t" <<
+  std::cout << "\n\nColdbox table Ampl - under - r_time - f_time - under" << std::endl;
+  std::cout << spe_ampl << "\t" << undershoot*spe_ampl/100. << "\t" << r_time << "\t" << f_time << "\t" <<
     undershoot << "\n\n" << std::endl; 
 
 }

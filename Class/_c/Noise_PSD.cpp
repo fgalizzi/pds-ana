@@ -12,9 +12,9 @@ void cla::Noise_PSD(){
 
   // Read and subtract the baseline
   read();
-
-  SelCalib_WF(wfs, noise, prepulse_ticks, sat_low, bsl, bsl);
-  TH1D* hI = BuildRawChargeHisto(noise, int_wf, memorydepth, int_low, int_up);
+  
+  SelCalib_WF(wfs, noise, prepulse_ticks, -bsl, bsl, bsl);
+  TH1D* hI = BuildRawChargeHisto(noise, int_wf, int_low, int_up, nbins);
   Avg_Sel_WF (noise, noise2, avg, int_wf, mu0_low, mu0_up);
 
   avg_wf.push_back(avg);
@@ -26,8 +26,8 @@ void cla::Noise_PSD(){
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
   c2->cd();
-  gNoise_spectral_density->Draw();
-  gAvg->Draw("same");
+  //gNoise_spectral_density->Draw();
+  gAvg->Draw();
   c2->Modified();
   c2->Update();
   
@@ -43,15 +43,20 @@ void cla::Noise_PSD(){
   c3->Update();
 
   if(print==true){
-    std::ofstream OutFile ("FFT_file.dat", ios::binary);
+    std::ofstream OutFile  ("FFT_ch.dat", ios::binary);
+    std::ofstream OutFile2 ("FFT_ch_avg.dat", ios::binary);
     for(int i = 0; i < gNoise_spectral_density->GetN(); i++){
     t = gNoise_spectral_density->GetPointY(i);
     OutFile.write(reinterpret_cast<char*> (&t), sizeof(t));
+    t = gAvg->GetPointY(i);
+    OutFile2.write(reinterpret_cast<char*> (&t), sizeof(t));
     t = gNoise_spectral_density->GetPointX(i);
     OutFile.write(reinterpret_cast<char*> (&t), sizeof(t));
+    OutFile2.write(reinterpret_cast<char*> (&t), sizeof(t));
     }   
     std::cout << "Vector saved in ---> " << std::endl;
     OutFile.close();
+    OutFile2.close();
   }
   
 }

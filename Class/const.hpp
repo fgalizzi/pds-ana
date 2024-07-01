@@ -2,11 +2,11 @@ std::string WF_FILE = "channel_1.dat";
 std::string TEMPL_F = "Template.dat";
 std::string NOISE_F = "Noise.dat";
 std::string MUON_F  = "Muon.dat";
-std::string TRG_F   = "channel_2.dat";
+std::string TRG_F  = "channel_2.dat";
 // daphne caen csv 
 std::string DATA_FORMAT  = "esteban";
 bool INVERT              = 1;
-const int MEMORYDEPTH    = 4096;
+const int MEMORYDEPTH    = 1024;
 const int N_WF           = 3000;
 const int RES            = 14;
 const int PREPULSE_TICKS = 345;
@@ -38,7 +38,7 @@ const double HMIN        = -1000;
 const double HMAX        = 9000;
 const double SPE_AMPL    = 10;
 const double SPE_CHARGE  = 10;
-const double PEDESTAL    = 10;
+const double PEDESTAL    = 0;
 //deconvolution
 const int INT_PROMPT     = 70;
 const double F_PROMPT    = 0.32;
@@ -54,3 +54,5 @@ const double A_SLOW      = 25;
 const double TAU_SLOW    = 1.12;
 const double SIGMA       = 0.05;
 const double T_0         = 0.8;
+//ProtoDUNE
+const size_t CHANNEL     = 11147;

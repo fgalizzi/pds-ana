@@ -60,5 +60,7 @@ void cla::set(){
   sigma      = SIGMA;
   t_0        = T_0;      
 
+  //ProtoDUNE
+  channel = CHANNEL;
 }
 
