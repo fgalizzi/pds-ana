@@ -23,7 +23,7 @@ void cla::SPE() {
 
   double sum = 0;
   for(auto e : avg ) sum+=e;
-  std::cout << "SPE integral " << sum << std::endl;
+  std::cout << "SPE integral [0;memorydepth] " << sum << std::endl;
 
   TGraph* gAvg= build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);

@@ -39,33 +39,8 @@ void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, i
 //**********************************************************
   int len = 1024;
   int wf_counter = 0;
-  y.resize(WFs, vector<double>(len));
-
-  std::ifstream file_map("/Users/federico/pds-ana/Class/ProtoduneHD/channelmap.txt"); // reading channel map
-  Short_t sl, lk, dpch, ch;
-  std::stringstream ssmap;
-
-  std::map<Short_t, Short_t> detmap;
-  std::map<Short_t, Short_t> invdetmap;
-
-  std::string line;
-
-  if (file_map.is_open()){
-      while (getline(file_map, line)){
-          ssmap.clear();
-          ssmap.str(line);
-
-          while (ssmap >> dpch >> ch){
-              detmap[dpch] = ch;
-              invdetmap[ch] = dpch;
-          }
-      }
-      file_map.close();
-  }
-  else{
-    std::cerr << "Unable to open file!!!" << std::endl;
-    file_map.close();
-  }
+  std::vector<double> y2;
+  y2.resize(len, 0);
 
   wffunctions bs;
 
@@ -92,7 +67,8 @@ void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, i
 
             bs.setADCvector(event.adcs); // setting the adc vector to use function
 
-            for (int i = 0; i < len; i++)  y[wf_counter][i] = event.adcs->at(i);
+            for (int i = 0; i < len; i++)  y2[i] = event.adcs->at(i);
+            y.push_back(y2);
             wf_counter++;
           }
        }

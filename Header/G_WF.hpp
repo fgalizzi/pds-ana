@@ -109,7 +109,6 @@ double ComputeFprompt(H* h, U len, U I_low, U I_up, U I_pr){
 TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector<double>&int_wf, 
     int I_low, int I_up, int nbins){
 //*********************************************
-  double hmin, hmax;
   double mean = 0.;
   int len = all_wf[0].size();
   TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
@@ -120,11 +119,11 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
     hwf->Reset();
   }
 
-  for(auto val : int_wf) mean += val;
-  mean /= double(int_wf.size());
+  // Duplicate to preserve the int_wf order
+  std::vector int_dual = int_wf;
+  std::sort(int_dual.begin(), int_dual.end());
 
-  TH1D* hI  = new TH1D("hI" ,"hI", nbins, -0.7*mean, 6*mean);
-  std::cout <<"\n\n MEAN " << mean << "\n\n" << std::endl;  
+  TH1D* hI  = new TH1D("hI" ,"hI", nbins, int_dual[int(int_dual.size()*0.01)], int_dual[int(int_dual.size()*0.99)]);
   
   for (auto val : int_wf) hI->Fill(val);
  
@@ -227,7 +226,6 @@ TH2D* BuildChargeFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vect
   
   return hI;
 }
-
 // Select WFs on their integral basis, store them in sel_wf and compute their average spe_wf
 //*********************************************
 void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf,
@@ -248,6 +246,28 @@ void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf,
   avgWF(sel_wf, spe_wf);
   std::cout << "N_sel " << nspe_wf << std::endl;
 
+}
+
+// Same, without storing the selected WFs
+//*********************************************
+void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf, std::vector<double>& spe_wf, 
+    const std::vector<double>& int_wf, double I_low, double I_up){
+//*********************************************
+  int nspe_wf=0;
+  size_t len = all_wf[0].size();
+  spe_wf.erase(spe_wf.begin(), spe_wf.end());
+  spe_wf.resize(len, 0.);
+  
+  for (int i = 0; i < int_wf.size(); i++) {
+    if (int_wf[i] > I_low && int_wf[i] < I_up) {
+      nspe_wf += 1;
+      for (size_t j=0; j<len; j++) spe_wf[j] += all_wf[i][j];
+    }
+  }
+  
+  double norm = double(1./nspe_wf);
+  for (size_t j=0; j<len; j++) spe_wf[j] *= norm;
+  cout << "\nAvg_sel_WF() WFs candidates " << nspe_wf << endl;
 }
 
 // Build a TH2D with all the PSD of the waveform and compute the average

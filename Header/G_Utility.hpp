@@ -171,4 +171,15 @@ void min_max_element (vector<vector<double>>& y, double& ymin, double& ymax){
 
 }
 
+// Two functions to print the tuple's content easily
+template<typename Tuple, std::size_t... Is>
+void print_tuple_impl(const Tuple& t, std::index_sequence<Is...>) {
+  ((std::cout << std::get<Is>(t) << "\t"), ...);
+  std::cout << std::endl;
+}
+template<typename... Ts>
+void print_tuple(const std::tuple<Ts...>& t) {
+    print_tuple_impl(t, std::index_sequence_for<Ts...>{});
+}
+
 #endif /* G_Utility_hpp */
