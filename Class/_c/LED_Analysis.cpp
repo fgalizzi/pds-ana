@@ -15,14 +15,22 @@ void cla::LED_Analysis(){
   SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
   
   TH1D* hI = new TH1D();
-  if(mov_win == true){
-    MovingAverageWF(sel_wf, sel_wf, win);   
-    hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
-      hmin, hmax, nbins);
-  } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
-      hmin, hmax, nbins);
 
-  //TH1D* hI = BuildRawChargeHisto(sel_wf, int_wf, memorydepth, int_low, int_up);
+  if (manual == 0) {
+    if(mov_win == true){
+      MovingAverageWF(sel_wf, sel_wf, win);   
+      hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
+    } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
+  }
+  else {
+    if(mov_win == true){
+      MovingAverageWF(sel_wf, sel_wf, win);   
+      hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
+        hmin, hmax, nbins);
+    } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
+        hmin, hmax, nbins);
+  }
+    //TH1D* hI = BuildRawChargeHisto(sel_wf, int_wf, memorydepth, int_low, int_up);
   
   TH1D* hFind = new TH1D(*hI);
 

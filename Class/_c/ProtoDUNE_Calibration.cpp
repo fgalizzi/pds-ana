@@ -1,6 +1,6 @@
-size_t calibration_run = 27563;
-int pspe_low = 190;
-int pspe_up  = 490;
+size_t calibration_run = 27568;
+int pspe_low = 100;
+int pspe_up  = 390;
 
 vector<size_t> read_ch_map(){
   ifstream file_map("/Users/federico/CERN/PDHD/waffles/scripts/cpp_utils/functions/channelmap.txt");
@@ -43,8 +43,8 @@ void cla::ProtoDUNE_Calibration(){
    
   vector<TH1D*> h_charge;
   vector<TGraph*> g_spe;
-  // Run - Channel - Good/Bad - SNR - gain - spe ampl - 
-  vector<tuple<size_t, size_t, bool, double, double, double>> res_tuple;
+  // Run - Channel - Good/Bad - Auto peak - SNR - gain - spe ampl - 
+  vector<tuple<size_t, size_t, bool, bool, double, double, double>> res_tuple;
 
   for(size_t ch_index=0; ch_index<channels.size(); ch_index++) {
     
@@ -70,7 +70,10 @@ void cla::ProtoDUNE_Calibration(){
     std::vector<double> xp;
     for(int i=0; i<npeaks; i++) xp.push_back(xpeaks[i]);
     std::sort(xp.begin(), xp.end());
+    
+    bool auto_peak = true;
     if (xp.size()<2){
+      auto_peak = false;
       cout << "\nWARNING: using spe_low - spe_up\n" << endl; 
       xp = {0, (pspe_low+pspe_up)/2.};
     }
@@ -128,7 +131,7 @@ void cla::ProtoDUNE_Calibration(){
     double SNR = fgaus->GetParameter(1)/fgaus->GetParameter(2); 
     double gain = fgaus->GetParameter(1); 
     if (SNR > 5.) goodness = 1;
-    res_tuple.push_back(make_tuple(calibration_run, channel, goodness, SNR, gain, spe_ampl));
+    res_tuple.push_back(make_tuple(calibration_run, channel, goodness, auto_peak, SNR, gain, spe_ampl));
 
     int_wf.erase(int_wf.begin(), int_wf.end());
     sel_wf.erase(sel_wf.begin(), sel_wf.end());

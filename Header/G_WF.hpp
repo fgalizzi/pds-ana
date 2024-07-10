@@ -401,7 +401,51 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
   return g_avg_spectral_density;
 }
 
+// As build_avg_spectral_density but without TH2D stuff
+//*********************************************
+TGraph* build_ch_fft(int nsample, double t1, double t0,
+    std::vector<std::vector<double>>& wf, double res) {
+//*********************************************
+  double dt = (t1-t0)/nsample;
+  const int nsample_ = nsample;
+  double nwindow = wf.size();
+  double    xn[nsample_];
+  TComplex  xN[nsample_];
+  double    xN_re[nsample_];
+  double    xN_im[nsample_];
+  double scale = 1./nwindow;
+  double c_scale = 1./nsample;
+  double t;
+  
 
+  int nsample_fft = 0.5*nsample;
+  TGraph* g_avg_spectral_density = new TGraph(nsample_fft);
+  for (int j=0; j<nsample_fft; j++)
+    g_avg_spectral_density->SetPoint(j, j/t1, 0.);
+  double ymin = -100;
+  double ymax = -20;
+  int    nbinsy = 100;
+
+    //  FFT
+  TVirtualFFT* fft = TVirtualFFT::FFT(1, &nsample, "M R2C");
+
+  for (int iw=0; iw<nwindow; iw++) {
+    for (int ip=0; ip<nsample_; ip++) xn[ip] = (double) wf[iw][ip];
+    
+    fft->SetPoints(xn);
+    fft->Transform();
+    fft->GetPointsComplex(xN_re, xN_im);
+
+    for (int j=0; j<nsample_fft; j++) {
+      xN[j] = TComplex(xN_re[j], xN_im[j]);
+      t = 10*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res*2)));
+      //t = 20*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res)));
+      g_avg_spectral_density->GetY()[j] += (t*scale);
+    }
+  }
+
+    return g_avg_spectral_density;
+}
 //*********************************************
 template <typename T>
 void SubVec_to_WFs(vector<vector<T>>& y, vector<T>& sub){

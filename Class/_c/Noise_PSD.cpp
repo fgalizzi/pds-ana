@@ -24,6 +24,7 @@ void cla::Noise_PSD(){
   TGraph* gNoise_spectral_density = build_avg_spectral_density(memorydepth,
       tick_len*memorydepth, tick_len, noise2, res);
 
+
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
   c2->cd();
   //gNoise_spectral_density->Draw();

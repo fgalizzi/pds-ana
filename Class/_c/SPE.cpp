@@ -20,6 +20,7 @@ void cla::SPE() {
   //MovingAverageWF(avg_wf, avg_wf, 100);
 
   if(print==true) VecDouble_in_Binary("Template.dat", avg);
+  //if(print==true) for (auto e : avg) cout << e << endl;
 
   double sum = 0;
   for(auto e : avg ) sum+=e;

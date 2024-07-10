@@ -97,6 +97,7 @@ class cla{
     void AverageWF();
     void LED_Analysis();
     void ProtoDUNE_Calibration();
+    void Pdhd_FFT();
     void Noise_PSD();
     void SPE();
     void upclass(cla A);
@@ -145,5 +146,6 @@ class cla{
 #include "_c/update.cpp"
 #include "_c/LoadFitParameters.cpp"
 #include "_c/ProtoDUNE_Calibration.cpp"
+#include "_c/Pdhd_FFT.cpp"
 #include "_c/TooAnnoying.cpp"
 #include "_c/Jitter.cpp"
