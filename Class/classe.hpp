@@ -96,6 +96,7 @@ class cla{
     void Persistence();
     void AverageWF();
     void LED_Analysis();
+    void Full_Resolution();
     void ProtoDUNE_Calibration();
     void Pdhd_FFT();
     void Noise_PSD();
@@ -134,6 +135,7 @@ class cla{
 #include "_c/Persistence.cpp"
 #include "_c/AverageWF.cpp"
 #include "_c/LED_Analysis.cpp"
+#include "_c/Full_Resolution.cpp"
 #include "_c/Noise_PSD.cpp"
 #include "_c/upclass.cpp"
 #include "_c/muonPDHD.cpp"

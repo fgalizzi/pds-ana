@@ -182,4 +182,16 @@ void print_tuple(const std::tuple<Ts...>& t) {
     print_tuple_impl(t, std::index_sequence_for<Ts...>{});
 }
 
+std::string This_Directory_Name(){
+  try{
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::string currentDirName = currentPath.filename().string();
+  return currentDirName;
+  } 
+  catch (const std::filesystem::filesystem_error& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
+  return "DIRECTORY NOT FOUND !!";
+}
+
 #endif /* G_Utility_hpp */

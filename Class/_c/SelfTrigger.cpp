@@ -72,7 +72,7 @@ void cla::SelfTrigger(){
 
   vector<vector<double>> trg_wf;
   vector<double> int_wf, n_pe, eff_pe, fps, tps;
-  double t, thr = -1e6;
+  double t, max_eff, thr = -1e6;
   bool stop_search = false;
   std::vector<double> thrs = {1,2,3,4,5}; // N pe
 
@@ -80,10 +80,7 @@ void cla::SelfTrigger(){
   read();
   
   CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
-  //if(invert == false) SubBaseline(trg_wf, prepulse_ticks);
-  //if(invert == true ) SubBaseline_Invert(trg_wf, prepulse_ticks);
-  
-  //DisplayWFs(trg_wf, 1., 10);
+
 
   TH1D* hAll  = new TH1D("hAll" ,"hAll", sf_bins, sf_hmin, sf_hmax);
   TH1D* hTrg  = new TH1D("hTrg" ,"hTrg", sf_bins, sf_hmin, sf_hmax);
@@ -98,17 +95,21 @@ void cla::SelfTrigger(){
   // Efficiency as Trg/All + fit for effective threshold
   TEfficiency* eTrg= 0;
   eTrg = new TEfficiency(*hTrg,*hAll); eTrg->SetLineColor(kBlack);
+  max_eff = 0;
+  for (int i=1; i<hAll->GetNbinsX(); i++){
+    if(max_eff < eTrg->GetEfficiency(i)) max_eff = eTrg->GetEfficiency(i);
+  }
   
   for (int i=1; i<hAll->GetNbinsX(); i++){
     hAcc->SetBinContent(i,hAll->Integral(1,i)-hTrg->Integral(1,i)+hTrg->Integral(i,hAll->GetNbinsX()));
-    if (eTrg->GetEfficiency(i)>0.45 && stop_search==0){
+    if (eTrg->GetEfficiency(i)>max_eff*0.5 && stop_search==0){
       thr = hAll->GetBinCenter(i);
       stop_search = 1;
     }
   }
 
-  TF1* f1 = new TF1("f1","[2]/(1+exp(([0]-x)/[1]))",thr-3, thr+3);
-  f1->SetParameters(thr, 0.2, 0.8);
+  TF1* f1 = new TF1("f1","[2]/(1+exp(([0]-x)/[1]))", sf_hmin, sf_hmax);
+  f1->SetParameters(thr, 0.2, max_eff);
   if(manual == true) {
     f1 = new TF1("f1","[2]/(1+exp(([0]-x)/[1]))",fit_low, fit_up);
     f1->SetParameters(t_0, 0.2, 0.8);
@@ -163,37 +164,13 @@ void cla::SelfTrigger(){
   eTrg->SetTitle(";N pe; Probability");
   TCanvas *c_eff = new TCanvas("c_eff","c_eff",10,10,1000,900);
   c_eff->cd();
+  eTrg->SetTitle(This_Directory_Name().c_str());
+  eTrg->SetName(This_Directory_Name().c_str());
   eTrg->Draw();
   c_eff->Modified();
   c_eff->Update();
-  
-  /*auto l = new TLine(thr,0.,thr,1.);
-  l->SetLineWidth(4);
-  l->SetLineStyle(2);
-  l->SetLineColor(kGreen-3);
-  auto legend = new TLegend(0.7,0.45,0.88,0.55);
-  legend->SetBorderSize(0);
-  legend->AddEntry(eTP, "True Positive", "lep");
-  legend->AddEntry(eFP, "False Positive", "lep");
-  legend->AddEntry(l, "Trigger Threshold", "l");
-  eTP->SetTitle(";N pe; Probability");
 
-  TCanvas *c_pos = new TCanvas("c_pos","c_pos",20,20,1000,900);
-  c_pos->cd();
-  eTP->Draw();
-  eFP->Draw("SAME");
-  l->Draw("SAME");
-  legend->Draw("SAME");
-  c_pos->Modified();
-  c_pos->Update();
-  */
-  /*TCanvas *c_acc = new TCanvas("c_acc","c_acc",30,30,1000,900);
-  c_acc->cd();
-  hAcc->Draw();
-  c_acc->Modified();
-  c_acc->Update();*/
-
-  std::cout << "\n\nAccucarcy thr - err - Sigmoid thr - err - Tau - Err - Eff max - Err - Fps and Tps" << std::endl;
+  std::cout << "\n\nAccucarcy thr - err - Sigmoid thr - err - Tau - Err - Eff max - Err - Fps and Tps - pretrg - afttrg - n_trg" << std::endl;
   std::cout << hAcc->GetBinCenter(hAcc->GetMaximumBin()) << "\t" << hAcc->GetBinWidth(2) << "\t"
     << thr << "\t" << f1->GetParError(0) << "\t"
     << f1->GetParameter(1) << "\t" << f1->GetParError(1) << "\t"
@@ -201,14 +178,13 @@ void cla::SelfTrigger(){
   
   for (size_t i=0; i<thrs.size(); i++) std::cout << fps[i] << "\t" << tps[i] << "\t";
 
-  std::cout<< "\n\n" << std::endl;
+  std::cout<< pretrg << "\t" << afttrg << "\t" << hTrg->GetEntries() <<  "\n\n" << std::endl;
 
   if(print== true){
-    TString output_name = "Eff_";
-    output_name += Form("%.2f", thr);
-    TFile* out = new TFile(output_name+".root", "recreate");
-    auto eff_dir = out->mkdir("eff");
-    eff_dir->cd();
+    TString output_name = "../Self_FOM.root";
+    TFile* out = new TFile(output_name, "update");
+    //auto eff_dir = out->mkdir("eff");
+    out->cd("eff");
     eTrg->Write();
     out->Close();
   }
