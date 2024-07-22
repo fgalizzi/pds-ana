@@ -64,7 +64,7 @@ void SelfHistos(std::vector<std::vector<double>>& all_wf,
 
 
 //*** MAIN ************************************
-void cla::SelfTrigger(){
+void cla::Self_Trigger(){
 //*********************************************
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);

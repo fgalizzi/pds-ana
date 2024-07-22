@@ -101,11 +101,10 @@ class cla{
     void Pdhd_FFT();
     void Noise_PSD();
     void SPE();
-    void upclass(cla A);
-    void muonPDHD();
-    void Avg_muon();
+    void Muon_PDHD();
+    void Avg_Muon();
     void DCR();
-    void SelfTrigger();
+    void Self_Trigger();
     void configDCR();
     void Jitter();
     void Saturation();
@@ -137,10 +136,9 @@ class cla{
 #include "_c/LED_Analysis.cpp"
 #include "_c/Full_Resolution.cpp"
 #include "_c/Noise_PSD.cpp"
-#include "_c/upclass.cpp"
-#include "_c/muonPDHD.cpp"
-#include "_c/Avg_muon.cpp"
-#include "_c/SelfTrigger.cpp"
+#include "_c/Muon_PDHD.cpp"
+#include "_c/Avg_Muon.cpp"
+#include "_c/Self_Trigger.cpp"
 #include "_c/SPE.cpp"
 #include "_c/DCR.cpp"
 #include "_c/configDCR.cpp"

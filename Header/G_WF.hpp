@@ -109,14 +109,13 @@ double ComputeFprompt(H* h, U len, U I_low, U I_up, U I_pr){
 TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector<double>&int_wf, 
     int I_low, int I_up, int nbins){
 //*********************************************
-  double mean = 0.;
   int len = all_wf[0].size();
-  TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
-    
+  double t = 0.;
+
   for(auto wf : all_wf){
-    for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    ComputeIntegral(hwf, int_wf, I_low, I_up);
-    hwf->Reset();
+    t = 0;
+    for(int i=I_low; i<=I_up; i++) t += wf[i];
+    int_wf.push_back(t);
   }
 
   // Duplicate to preserve the int_wf order
@@ -136,12 +135,12 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
     int I_low, int I_up, double hmin, double hmax, int nbins){
 //*********************************************
   int len = all_wf[0].size();
-  TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
+  double t = 0.;
     
   for(auto wf : all_wf){
-    for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    ComputeIntegral(hwf, int_wf, I_low, I_up);
-    hwf->Reset();
+    t = 0;
+    for(int i=I_low; i<=I_up; i++) t += wf[i];
+    int_wf.push_back(t);
   }
 
   TH1D* hI  = new TH1D("hI" ,"hI", nbins, hmin, hmax);

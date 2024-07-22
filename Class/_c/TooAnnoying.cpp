@@ -1,6 +1,6 @@
 
 void cla::TooAnnoying(){
   print = 1;
-  SelfTrigger();
+  Self_Trigger();
   Jitter();
 }

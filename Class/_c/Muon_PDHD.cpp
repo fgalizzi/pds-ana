@@ -5,7 +5,7 @@ double func_fit(double *x, double *p) {
   return val;
 }
 
-void cla::muonPDHD(){
+void cla::Muon_PDHD(){
   
   gStyle->SetOptFit(1111);
   
