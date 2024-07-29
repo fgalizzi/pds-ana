@@ -110,6 +110,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
     int I_low, int I_up, int nbins){
 //*********************************************
   int len = all_wf[0].size();
+  int_wf.erase(int_wf.begin(), int_wf.end());
   double t = 0.;
 
   for(auto wf : all_wf){
@@ -135,6 +136,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
     int I_low, int I_up, double hmin, double hmax, int nbins){
 //*********************************************
   int len = all_wf[0].size();
+  int_wf.erase(int_wf.begin(), int_wf.end());
   double t = 0.;
     
   for(auto wf : all_wf){
@@ -585,6 +587,28 @@ void DisplayWFs (const vector<vector<T>>& y, const vector<vector<T>>& y2, T tt, 
   }
 }
 
+//
+//*********************************************
+void Build_Matched_Filter(TComplex* G, vector<double> t_template){
+//*********************************************
+  int len = t_template.size();
+
+  double xt[len];
+  double G_re[len]; double G_im[len];
+  TVirtualFFT* fft = TVirtualFFT::FFT(1, &len, "M R2C");
+  
+  for (int j=0; j<len; j++) xt[j] = t_template[len-j-1];
+
+  fft = TVirtualFFT::FFT(1, &len, "M R2C");
+  fft->SetPoints(xt);
+  fft->Transform();
+  fft->GetPointsComplex(G_re, G_im);
+
+
+  for (int j=0; j<len*0.5+1; j++) G[j] = TComplex(G_re[j], G_im[j]);
+  
+}
+
 // Filter all the wfs according to the G filter
 //*********************************************
 void FilterAllWF(const vector<vector<double>>& all_wf, vector<vector<double>>& filt_wf, TComplex G[]){
@@ -617,7 +641,7 @@ void FilterAllWF(const vector<vector<double>>& all_wf, vector<vector<double>>& f
     fft->Transform();
     xy = fft->GetPointsReal();
     
-    for (int j=0; j<len; j++) filt_wf[i].push_back(xy[j]*c_scale);
+    for (int j=0; j<len; j++) filt_wf[i][j] = xy[j]*c_scale;
      
   }
 }

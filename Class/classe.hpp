@@ -75,6 +75,7 @@ class cla{
     int ite=2;
     double den=9.;
 
+    //Subtract the baseline according to "prepulse_ticks"
     bool sub_bsl = true;
     //Saving data into files
     bool print = false;
@@ -84,6 +85,8 @@ class cla{
     bool manual = false;
     //Apply moving window on calib wfs
     bool mov_win = false;
+    //Apply matched/wiener filters (only in some macros)
+    bool apply_filter = false;
     //Select wfs also for post-trigger features in SPE()
     bool pde_selection = false;
     //Deco Muon
@@ -96,6 +99,7 @@ class cla{
     void Persistence();
     void AverageWF();
     void LED_Analysis();
+    void Filt_Analysis();
     void Full_Resolution();
     void ProtoDUNE_Calibration();
     void Pdhd_FFT();
@@ -134,6 +138,7 @@ class cla{
 #include "_c/Persistence.cpp"
 #include "_c/AverageWF.cpp"
 #include "_c/LED_Analysis.cpp"
+#include "_c/Filt_Analysis.cpp"
 #include "_c/Full_Resolution.cpp"
 #include "_c/Noise_PSD.cpp"
 #include "_c/Muon_PDHD.cpp"

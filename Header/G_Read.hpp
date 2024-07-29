@@ -33,6 +33,28 @@ void CompleteWF_Binary(std::string fileName, vector<vector<double>>& y, int WFs,
   std::cout << "The file has been correctly read \t \t" << std::endl;
 }
 
+// Single wf version
+//**********************************************************
+void CompleteWF_Binary(std::string fileName, vector<double>& y, int len){
+//**********************************************************
+  y.resize(len);
+  double t;
+  std::ifstream file;
+
+  file.open( fileName, std::ios::binary );
+  if (file.is_open()) std::cout << "Running on " << fileName << std::endl;
+  else {
+    std::cout << "Error opening file" << std::endl;
+    return;
+  }
+  
+  for (int i=0; i < len; i++) {
+    file.read( reinterpret_cast<char*>(&t), sizeof(t) );
+     y[i] = t;
+  }
+  
+  std::cout << "The file has been correctly read \t \t" << std::endl;
+}
 // Open a decoded ProtoDUNE .root file 
 //**********************************************************
 void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, int WFs){

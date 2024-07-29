@@ -1,36 +1,39 @@
 //*** MAIN ************************************
-void cla::LED_Analysis(){
+void cla::Filt_Analysis(){
 //*********************************************
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 
-  vector<vector<double>> sel_wf; // Wavefroms I select for the analysis
-  vector<double> int_wf;         // Integrals of the selected waveforms
+  vector<vector<double>> sel_wf, filt_wf;
+  vector<double> int_wf, t_templ, f_noise;
+  size_t nsample = memorydepth;
+  TComplex G[nsample];
+  string filt =  "matched";
 
   // Read and subtract the baseline
-  read();
-
-  // Select the with a baseline within the [-bsl; bsl] range and 
-  // fully contained in the [sat_low; sat_up] range
+  read(); // wfs to analyze
+  CompleteWF_Binary(templ_f, t_templ, memorydepth); // t_templ = time domain template
   SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
+
+  // Build the filter G in freq. domain
+  if (filt == "matched"){
+    Build_Matched_Filter(&G[0], t_templ);
+  } /*else if (filt = "wiener") {
+    CompleteWF_Binary(noise_f, f_noise, memorydepth); // f_noise = noise FFT
+    Build_Wiener_Filter(G, t_templ, f_noise); 
+  } */else {
+    std::cout << "\n\n This filter is not implemented: " << filt << std::endl;
+    return;
+  }
+
+  FilterAllWF(sel_wf, filt_wf, G);
   
+  if (display==true) DisplayWFs(filt_wf, 1., 10);
+
   TH1D* hI = new TH1D();
 
-  if (manual == 0) {
-    if(mov_win == true){
-      MovingAverageWF(sel_wf, sel_wf, win);   
-      hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
-    } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
-  }
-  else {
-    if(mov_win == true){
-      MovingAverageWF(sel_wf, sel_wf, win);   
-      hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
-        hmin, hmax, nbins);
-    } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
-        hmin, hmax, nbins);
-  }
+  hI = BuildRawChargeHisto(filt_wf, int_wf, 0, 1, nbins);
   
   TH1D* hFind = new TH1D(*hI);
 
@@ -140,5 +143,4 @@ void cla::LED_Analysis(){
   g_CX->Draw();
   c2->Modified();
   c2->Update();
-  
 }
