@@ -30,13 +30,12 @@ void avgWF (const vector<vector<T>>& y, vector<T>& avg_wf){
 // Subtract baseline to all the len-long waveform in all_wf. Baseline
 // computed in pre-trigger
 //*********************************************
-void SubBaseline(std::vector<std::vector<double>>& all_wf, int pre){
+void SubBaseline(std::vector<std::vector<double>>& all_wf, int pre, bool invert){
 //*********************************************
   if (pre<20) {
     std::cout << "Too few ticks to subtract the baseline \t \t " ;
     exit(0);
   }
-  
    
   int WFs = all_wf.size();
   int len = all_wf[0].size();
@@ -47,35 +46,43 @@ void SubBaseline(std::vector<std::vector<double>>& all_wf, int pre){
     for (int j = 0; j<pre; j++) baseline += all_wf[i][j];
 
     baseline /= (double) pre;
-    for (int j=0; j<len; j++) all_wf[i][j] -= baseline;
-
+    if(invert==false) for (int j=0; j<len; j++) all_wf[i][j] -= baseline;
+    else for (int j=0; j<len; j++) all_wf[i][j] = -all_wf[i][j]+baseline;
   }
 }
 
 
-// Subtract baseline and invert the wfs
+// Subtract baseline using the most provable value
 //********************************************
-void SubBaseline_Invert(std::vector<std::vector<double>>& all_wf, int pre){
+void SubBaseline2(std::vector<std::vector<double>>& all_wf, double rms, bool invert){
 //*********************************************
-  if (pre<20) {
-    std::cout << "Too few ticks to subtract the baseline \t \t " ;
-    exit(0);
-  }
+  double t, norm;
+  double low = -3*rms;
+  double up  =  3*rms;
+  double min_sampling = double(all_wf[0].size()*0.05);
   
-  int WFs = (int) all_wf.size();
-  int len = all_wf[0].size();
-  double baseline = 0.;
+  for (auto& wf : all_wf){
+    t = Vector_MPV(wf);
+    if(invert==false) for (auto& v : wf) v -= t;
+    else for (auto& v : wf) v = -v+t;
+  }
+
+  for (auto& wf : all_wf){
+    norm = 0.;
+    t = 0;
     
-  for(int i=0; i<WFs; i++){
-    baseline = 0.;
-    for (int j = 0; j<pre; j++) baseline += all_wf[i][j];
+    for (auto& v : wf){
+      if(v > low && v < up){
+        t += v; norm += 1;
+      }
+    }
 
-    baseline /= (double) pre;
-    for (int j=0; j<len; j++) all_wf[i][j] = -all_wf[i][j]+baseline;
-
+    if(norm > min_sampling){
+      t = t/norm;
+      for (auto& v : wf) v -= t; 
+    }
   }
 }
-
 
 // Compute the integral of a WF in [I_low ; I_up] range
 //*********************************************

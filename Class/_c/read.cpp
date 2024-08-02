@@ -18,9 +18,9 @@ void cla::read(){
       PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
       n_wf = wfs.size();
     }
-    
-    if(invert == false && sub_bsl == true) SubBaseline(wfs, prepulse_ticks);
-    if(invert == true  && sub_bsl == true) SubBaseline_Invert(wfs, prepulse_ticks);
+   
+    //Subtract the baseline and invert the wfs according to "invert"
+    if(sub_bsl == true) SubBaseline(wfs, prepulse_ticks, invert);
   }
 
 }

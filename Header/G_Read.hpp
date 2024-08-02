@@ -85,7 +85,7 @@ void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, i
           event.GetEntry(ievt);
 
           if (event.channel == this_ch){
-            if (event.is_fullstream) continue;
+           // if (event.is_fullstream) continue;
 
             bs.setADCvector(event.adcs); // setting the adc vector to use function
 

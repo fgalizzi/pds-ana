@@ -182,6 +182,7 @@ void print_tuple(const std::tuple<Ts...>& t) {
     print_tuple_impl(t, std::index_sequence_for<Ts...>{});
 }
 
+// Get the name of the current directory 
 std::string This_Directory_Name(){
   try{
     std::filesystem::path currentPath = std::filesystem::current_path();
@@ -192,6 +193,26 @@ std::string This_Directory_Name(){
     std::cerr << "Error: " << e.what() << std::endl;
   }
   return "DIRECTORY NOT FOUND !!";
+}
+
+// Take the most frequent value of a vector
+template<typename T>
+T Vector_MPV(std::vector<T> vec){
+  std::unordered_map<T, int> map;
+
+  // Count the occurrences of each value in the vector
+  for (T num : vec) map[num]++;
+  
+  // Find the most frequent value
+  int maxFrequency = 0;
+  T mostFrequentValue = vec[0]; // Initialize with the first value
+  for (const auto& pair : map) {
+      if (pair.second > maxFrequency) {
+          maxFrequency = pair.second;
+          mostFrequentValue = pair.first;
+      }
+  } 
+  return mostFrequentValue; 
 }
 
 #endif /* G_Utility_hpp */

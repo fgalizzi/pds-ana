@@ -17,39 +17,41 @@ class cla{
     std::string data_format;
     bool invert;
 
-    int memorydepth;     //Number of samples per waveform
+    int memorydepth;      //Number of samples per waveform
     int n_wf;             //Number of WF in file
-    int res;                //Resolution of the digitizer
+    int res;              //Resolution of the digitizer
     int prepulse_ticks;   //Template pre-pulse ticks
-    int pretrg;
-    int afttrg;
-    double tick_len;    //In mu_s
-    double spe_ampl;
+    int pretrg;           //Lower limit of acceptance window in selftrigger studies
+    int afttrg;           //Upper " " " "
+    double tick_len;      //In mu_s
+    double spe_ampl;      
     double spe_charge;
     double pedestal;
 
-    double sat_up;
-    double sat_low;
-    double bsl;
+    double sat_up;        //Saturation level - used to select wfs
+    double sat_low;       //Low saturation level
+    double bsl;           //To select wfs with baseline in [-bsl;+bsl]  
+    double rms;           //Baseline RMS - used in baseline subtraction
 
     //Calibration
-    int int_low;         //Lower limit of wf integration
-    int int_up;         //Upper fino a 3000
-    int nbins;       // " " number of bins
-    int nmaxpeaks;          // " " number of expected peaks
-    int mu0_low;     //
-    int mu0_up;       //Below an event is classified as noise
-    int spe_low;  
-    int spe_up;  
-    int s0_low;      //
-    int s0_up;
-    int sc_low;      //
-    int sc_up;
-    double fit_low;
-    double fit_up;
-    double hmin;
-    double hmax;
-    TF1* fgaus;
+    int int_low;          //Lower limit of wf integration
+    int int_up;           //Upper
+    int nbins;            //Number of bins
+    int nmaxpeaks;        //Number of expected peaks in calibration run
+    //Extra parameters for manual mode
+    int mu0_low;          //Lower bound of 0 pe peak integral
+    int mu0_up;           //Upper - below an event is classified as noise
+    int spe_low;          //Lower bound of spe peak - select spe cadidate 
+    int spe_up;           //Upper
+    int s0_low;           //Lower bound of 0 pe peak sigma
+    int s0_up;            //Upper
+    int sc_low;           //Lower bound of sigma channel
+    int sc_up;            //Upper
+    double fit_low;       //Fit lower limit 
+    double fit_up;        //Upper
+    double hmin;          //Histo lower limit 
+    double hmax;          //Upper
+    TF1* fgaus;           //Fit function
 
     //Deconvolution
     int int_prompt;
