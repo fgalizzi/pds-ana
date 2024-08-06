@@ -126,11 +126,14 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
     int_wf.push_back(t);
   }
 
+  //Find the best x-axis range of the histogram
   // Duplicate to preserve the int_wf order
   std::vector int_dual = int_wf;
   std::sort(int_dual.begin(), int_dual.end());
+  double x_low = int_dual[int(int_dual.size()*0.01)];
+  double x_up  = int_dual[int(int_dual.size()*0.99)];
 
-  TH1D* hI  = new TH1D("hI" ,"hI", nbins, int_dual[int(int_dual.size()*0.01)], int_dual[int(int_dual.size()*0.99)]);
+  TH1D* hI  = new TH1D("hI" ,"hI", nbins, x_low, x_up);
   
   for (auto val : int_wf) hI->Fill(val);
  

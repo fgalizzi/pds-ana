@@ -20,7 +20,10 @@ void cla::read(){
     }
    
     //Subtract the baseline and invert the wfs according to "invert"
-    if(sub_bsl == true) SubBaseline(wfs, prepulse_ticks, invert);
+    if(sub_bsl == true){
+      if(sub_bsl_mode == 1) SubBaseline(wfs, prepulse_ticks, invert);
+      if(sub_bsl_mode == 2) SubBaseline2(wfs, rms, invert);
+    }
   }
 
 }

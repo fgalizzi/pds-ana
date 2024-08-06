@@ -4,7 +4,8 @@
 class wffunctions
 {
 public:
-    void setADCvector(std::vector<short> *adcv);
+    void setADCvector(std::vector<float> *adcv);
+    // void setADCvector(std::vector<short> *adcv);
     // void setADChisto(TH1 *ha);
     // void setADChisto2D(TH2 *ha);
     void setWindowBaseline(int ll, int hh);
@@ -25,7 +26,8 @@ public:
     void fillBaselineHisto(TH1 *histo, int bs);
 
 private:
-    std::vector<short> adc;
+    std::vector<float> adc;
+    // std::vector<short> adc;
     // TH1F *histo;
     int low = -1;
     int high = -1;
@@ -39,7 +41,8 @@ private:
     int limitbaseline = -1;
 };
 
-void wffunctions::setADCvector(std::vector<short> *adcv)
+void wffunctions::setADCvector(std::vector<float> *adcv)
+// void wffunctions::setADCvector(std::vector<short> *adcv)
 {
     adc = *adcv;
 }

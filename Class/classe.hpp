@@ -79,6 +79,7 @@ class cla{
 
     //Subtract the baseline according to "prepulse_ticks"
     bool sub_bsl = true;
+    int sub_bsl_mode = 1;
     //Saving data into files
     bool print = false;
     //Display single waveforms
