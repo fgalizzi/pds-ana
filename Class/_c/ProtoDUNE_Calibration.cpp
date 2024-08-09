@@ -4,7 +4,7 @@
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 28494; //Needed create the root file with the results
+size_t calibration_run = 999; //Needed create the root file with the results
 size_t channel_low = 10900;     //Lower channel to look at (included)
 size_t channel_up  = 11000;     //Upper " "
 

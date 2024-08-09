@@ -97,8 +97,6 @@ class cla{
     bool FIX_CONST = false;
 
     //Macro
-    void set();
-    void read();
     void Persistence();
     void AverageWF();
     void LED_Analysis();
@@ -123,8 +121,12 @@ class cla{
 
   private:
     std::string oldwf_file;
+    std::string class_path = classe_path;
     int oldprepulse_ticks;
     size_t oldchannel;
+    void set();
+    void read();
+    vector<size_t> read_pdhd_ch_map();
 };
 
 #define hdf5torootclass_cxx
