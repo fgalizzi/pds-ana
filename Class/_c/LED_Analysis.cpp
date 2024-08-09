@@ -59,7 +59,7 @@ void cla::LED_Analysis(){
   par[0] = xp[0];               //peak 0
   par[1] = xp[1]-xp[0];         //peak 1
   par[2] = f0->GetParameter(2); //sigma_0
-  par[3] = par[2]*0.1;          //sigma_cell
+  par[3] = par[2]*0.4;          //sigma_cell
   
   // Set the initial guess manually 
   if(manual==true){

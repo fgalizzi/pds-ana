@@ -27,3 +27,25 @@ void cla::read(){
   }
 
 }
+
+//Read the ProtoDUNE-HD channel-map
+vector<size_t> read_pdhd_ch_map(){
+  ifstream file_map("../ProtoduneHD/channelmap.txt");
+  string line;
+  stringstream ssmap;
+  Short_t dpch, ch;
+  vector<size_t> channels;
+
+  if (file_map.is_open()){
+    while (getline(file_map, line)) {
+      ssmap.clear();
+      ssmap.str(line);
+
+      while (ssmap >> dpch >> ch) {
+        channels.push_back(int(dpch));
+      }
+    }
+  }
+
+  return channels;
+}

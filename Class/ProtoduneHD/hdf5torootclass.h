@@ -25,8 +25,8 @@ public :
    // Declaration of leaf types
    UInt_t          record;
    ULong64_t       daq_timestamp;
-   vector<float>   *adcs;
-   // vector<short>   *adcs;
+   // vector<float>   *adcs;
+   vector<short>   *adcs;
    ULong64_t       timestamp;
    Short_t         channel;
    Short_t         baseline;

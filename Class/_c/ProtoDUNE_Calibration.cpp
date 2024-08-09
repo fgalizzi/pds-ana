@@ -1,38 +1,33 @@
-size_t calibration_run = 28368;
-int pspe_low = 100;
-int pspe_up  = 390;
+//Read a calibration run file, build a charge histogram for each channel
+//fit it, estimate the spe amplitude, store the histogram and the average spe
+//waveform in a root file, print the results at termina//Read a calibration run file, build a charge histogram for each channel
+//fit it, estimate the spe amplitude, store the histogram and the average spe
+//waveform in a root file, print the results at terminal
 
-vector<size_t> read_ch_map(){
-  ifstream file_map("/Users/federico/CERN/PDHD/waffles/scripts/cpp_utils/functions/channelmap.txt");
-  string line;
-  stringstream ssmap;
-  Short_t dpch, ch;
-  vector<size_t> channels;
+size_t calibration_run = 28494; //Needed create the root file with the results
+size_t channel_low = 10900;     //Lower channel to look at (included)
+size_t channel_up  = 11000;     //Upper " "
 
-  if (file_map.is_open()){
-    while (getline(file_map, line)) {
-      ssmap.clear();
-      ssmap.str(line);
+//Output file name, then it adds "calibration_run.root"
+string outfile_name = "SCalRun_pre125_bsl20_FullStat_";
+int pspe_low = 100; //Lower limit for spe integral (like spe_low)
+int pspe_up  = 300; //Upper " " Remember: it depends on the integration window,
+                    //the overvoltage and the gain. You can also enable the peak finding
+                    //and don't use these
 
-      while (ssmap >> dpch >> ch) {
-        channels.push_back(int(dpch));
-      }
-    }
-  }
 
-  return channels;
-}
 void cla::ProtoDUNE_Calibration(){
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-  
+ 
+  //Choose the channels to read
   //vector<size_t> channels = {11147, 11147, 11147};//, 11145, 11147};
-  vector<size_t> channels = read_ch_map();
+  vector<size_t> channels = read_pdhd_ch_map();
   vector<vector<double>> sel_wf;
   vector<double> int_wf, spe_avg;
 
-  TFile hf(Form("CalRun2_%zu.root", calibration_run), "recreate");
+  TFile hf(Form("CalRun_pre125_bsl20_FullStat_%zu.root", calibration_run), "recreate");
   hf.mkdir("chargehistos");
   hf.mkdir("spe_wfs");
   
@@ -49,11 +44,14 @@ void cla::ProtoDUNE_Calibration(){
   for(size_t ch_index=0; ch_index<channels.size(); ch_index++) {
     
     channel = channels[ch_index];
-    if (channel < 11100 || channel > 11400) continue;
+    if (channel < channel_low || channel > channel_up) continue;
+    std::cout << "\nReading channel: " << channel << std::endl;
     // Read the wfs for this channel and subtract the baseline
     read();
+    if (wfs.size() == 0) continue;
 
     SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
+    if (sel_wf.size() == 0) continue;
     
     TH1D* hI = new TH1D();
     hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
@@ -72,18 +70,18 @@ void cla::ProtoDUNE_Calibration(){
     std::sort(xp.begin(), xp.end());
     
     bool auto_peak = true;
-    if (xp.size()<2){
+    // if (xp.size()<2){
       auto_peak = false;
       cout << "\nWARNING: using spe_low - spe_up\n" << endl; 
       xp = {0, (pspe_low+pspe_up)/2.};
-    }
+    // }
     
 
     // Parameters for the fit function
     double par[20] = {0}; //Norm_Consts, sigma_0 , sigma_cell, G
     
     // Fit on the first peak to estimate sigma_0
-    TF1* f0 = new TF1("f0", "gaus", -xp[1]*0.3, xp[1]*0.3);
+    TF1* f0 = new TF1("f0", "gaus", -xp[1]*0.35, xp[1]*0.2);
     f0->SetParameters(hI->GetBinContent(hI->GetMaximumBin()), xp[0], xp[1]*0.5);
     hI->Fit("f0", "R");
     
@@ -91,7 +89,7 @@ void cla::ProtoDUNE_Calibration(){
     par[0] = xp[0];               //peak 0
     par[1] = xp[1]-xp[0];         //peak 1
     par[2] = f0->GetParameter(2); //sigma_0
-    par[3] = par[2]*0.1;          //sigma_cell
+    par[3] = par[2]*0.4;          //sigma_cell
    
     if(hI->GetBinContent(hI->GetMaximumBin())<70) hI->Rebin(2);
     if(npeaks<nmaxpeaks) npeaks=nmaxpeaks;
@@ -130,11 +128,12 @@ void cla::ProtoDUNE_Calibration(){
     
     double SNR = fgaus->GetParameter(1)/fgaus->GetParameter(2); 
     double gain = fgaus->GetParameter(1); 
-    if (SNR > 5.) goodness = 1;
+    if (SNR > 4.) goodness = 1;
     res_tuple.push_back(make_tuple(calibration_run, channel, goodness, auto_peak, SNR, gain, spe_ampl));
 
     int_wf.erase(int_wf.begin(), int_wf.end());
     sel_wf.erase(sel_wf.begin(), sel_wf.end());
+    n_wf = 40000;
   } 
 
   for(auto tuple : res_tuple) print_tuple(tuple);
