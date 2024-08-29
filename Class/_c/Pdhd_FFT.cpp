@@ -1,4 +1,4 @@
-size_t noise_run = 27875;
+size_t noise_run = 27877;
 
 void cla::Pdhd_FFT(){
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
@@ -21,8 +21,8 @@ void cla::Pdhd_FFT(){
   for(size_t ch_index=0; ch_index<channels.size(); ch_index++) {
     
     channel = channels[ch_index];
-    // if (channel > 10900-1) continue;
-    if (channel < 11100 || channel > 11400) continue;
+    if (channel > 11000-1) continue;
+    // if (channel < 11100 || channel > 11400) continue;
     // Read the wfs for this channel and subtract the baseline
     n_wf = 10000;
     read();

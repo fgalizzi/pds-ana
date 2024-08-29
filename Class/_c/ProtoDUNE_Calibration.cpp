@@ -4,14 +4,14 @@
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 999; //Needed create the root file with the results
-size_t channel_low = 10900;     //Lower channel to look at (included)
-size_t channel_up  = 11000;     //Upper " "
+size_t calibration_run = 9090; //Needed create the root file with the results
+size_t channel_low = 11100;     //Lower channel to look at (included)
+size_t channel_up  = 11400;     //Upper " "
 
 //Output file name, then it adds "calibration_run.root"
-string outfile_name = "SCalRun_pre125_bsl20_FullStat_";
-int pspe_low = 100; //Lower limit for spe integral (like spe_low)
-int pspe_up  = 300; //Upper " " Remember: it depends on the integration window,
+string outfile_name = "CalRun_pre125_bsl20_";
+int pspe_low = 80; //Lower limit for spe integral (like spe_low)
+int pspe_up  = 180; //Upper " " Remember: it depends on the integration window,
                     //the overvoltage and the gain. You can also enable the peak finding
                     //and don't use these
 
@@ -27,7 +27,8 @@ void cla::ProtoDUNE_Calibration(){
   vector<vector<double>> sel_wf;
   vector<double> int_wf, spe_avg;
 
-  TFile hf(Form("CalRun_pre125_bsl20_FullStat_%zu.root", calibration_run), "recreate");
+  outfile_name = outfile_name+calibration_run+".root";
+  TFile hf(outfile_name.c_str(), "recreate");
   hf.mkdir("chargehistos");
   hf.mkdir("spe_wfs");
   
