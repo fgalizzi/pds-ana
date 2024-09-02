@@ -20,7 +20,7 @@ double fRandomName(Double_t *x, Double_t *par){
   double sg1  = par[3];
 
   Double_t result = 0;
-  for (int i = 0 ; i < 10; i++){
+  for (int i = 0 ; i < 6; i++){
     Double_t norm  = par[i+4];
     Double_t mean  = mu0+i*gain;
     Double_t sigma = sqrt(pow(sg0,2)+i*pow(sg1,2));

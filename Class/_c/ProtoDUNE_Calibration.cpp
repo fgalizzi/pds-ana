@@ -4,14 +4,14 @@
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 9090; //Needed create the root file with the results
-size_t channel_low = 11100;     //Lower channel to look at (included)
-size_t channel_up  = 11400;     //Upper " "
+size_t calibration_run = 27904; //Needed create the root file with the results
+size_t channel_low = 10700;     //Lower channel to look at (included)
+size_t channel_up  = 10800;     //Upper " "
 
 //Output file name, then it adds "calibration_run.root"
-string outfile_name = "CalRun_pre125_bsl20_";
-int pspe_low = 80; //Lower limit for spe integral (like spe_low)
-int pspe_up  = 180; //Upper " " Remember: it depends on the integration window,
+string outfile_name = "CalRun_prevar_bsl25_";
+int pspe_low = 120; //Lower limit for spe integral (like spe_low)
+int pspe_up  = 240; //Upper " " Remember: it depends on the integration window,
                     //the overvoltage and the gain. You can also enable the peak finding
                     //and don't use these
 
@@ -47,6 +47,25 @@ void cla::ProtoDUNE_Calibration(){
     channel = channels[ch_index];
     if (channel < channel_low || channel > channel_up) continue;
     std::cout << "\nReading channel: " << channel << std::endl;
+   
+   if (channel >= 10400 && channel < 10500){
+     prepulse_ticks = 629;
+     int_low = 631;
+     int_up  = 661;
+   }
+
+   if (channel >= 10500 && channel < 10600){
+     prepulse_ticks = 635;
+     int_low = 637;
+     int_up  = 667;
+   }
+
+   if (channel >= 10700 && channel < 10800){
+      prepulse_ticks = 616;
+      int_low = 620;
+      int_up  = 650;
+   }
+
     // Read the wfs for this channel and subtract the baseline
     read();
     if (wfs.size() == 0) continue;
@@ -71,11 +90,11 @@ void cla::ProtoDUNE_Calibration(){
     std::sort(xp.begin(), xp.end());
     
     bool auto_peak = true;
-    // if (xp.size()<2){
+    if (xp.size()<2){
       auto_peak = false;
       cout << "\nWARNING: using spe_low - spe_up\n" << endl; 
       xp = {0, (pspe_low+pspe_up)/2.};
-    // }
+    }
     
 
     // Parameters for the fit function
