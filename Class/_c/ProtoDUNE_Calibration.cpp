@@ -4,12 +4,12 @@
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 27904; //Needed create the root file with the results
+size_t calibration_run = 27906; //Needed create the root file with the results
 size_t channel_low = 10700;     //Lower channel to look at (included)
 size_t channel_up  = 10800;     //Upper " "
 
 //Output file name, then it adds "calibration_run.root"
-string outfile_name = "CalRun_prevar_bsl25_";
+string outfile_name = "CalRun_prevar_bsl30_";
 int pspe_low = 120; //Lower limit for spe integral (like spe_low)
 int pspe_up  = 240; //Upper " " Remember: it depends on the integration window,
                     //the overvoltage and the gain. You can also enable the peak finding
@@ -61,9 +61,9 @@ void cla::ProtoDUNE_Calibration(){
    }
 
    if (channel >= 10700 && channel < 10800){
-      prepulse_ticks = 616;
-      int_low = 620;
-      int_up  = 650;
+      prepulse_ticks = 612;
+      int_low = 617;
+      int_up  = 647;
    }
 
     // Read the wfs for this channel and subtract the baseline

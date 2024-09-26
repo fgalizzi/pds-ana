@@ -23,7 +23,7 @@ std::vector<double> TriggerTime(std::vector<double>& waveform){
 void SelfHistos(std::vector<std::vector<double>>& all_wf,
     std::vector<std::vector<double>>& trg_wf, TH1D* h_all, TH1D* h_trg,
     std::vector<double>& int_wf, int I_low, int I_up, double spe_charge, double pedestal,
-    double pretrg, double afttrg){
+    double pretrg, double afttrg, bool apply_filter){
 //*********************************************
   int len = all_wf[0].size();
   int count = 0;
@@ -37,7 +37,8 @@ void SelfHistos(std::vector<std::vector<double>>& all_wf,
   // All wf spectra
   for(auto wf : all_wf){
     for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    ComputeIntegral(hwf, int_wf, I_low, I_up);
+    if(apply_filter == 0) ComputeIntegral(hwf, int_wf, I_low, I_up);
+    if(apply_filter == 1) ComputeIntegral(hwf, int_wf, 0, 1);
     hwf->Reset();
   }
   
@@ -70,17 +71,19 @@ void cla::Self_Trigger(){
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 
-  vector<vector<double>> trg_wf;
-  vector<double> int_wf, n_pe, eff_pe, fps, tps;
+  vector<vector<double>> trg_wf, filt_wf;
+  vector<double> int_wf, t_templ, n_pe, eff_pe, fps, tps;
   double t, max_eff, thr = -1e6;
   bool stop_search = false;
+  size_t nsample = memorydepth;
+  TComplex G[nsample];
   std::vector<double> thrs = {1,2,3,4,5}; // N pe
 
   // Read and subtract the baseline
   read();
   
   CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
-
+  if (display == true) DisplayWFs (wfs, trg_wf, tick_len, 10);
 
   TH1D* hAll  = new TH1D("hAll" ,"hAll", sf_bins, sf_hmin, sf_hmax);
   TH1D* hTrg  = new TH1D("hTrg" ,"hTrg", sf_bins, sf_hmin, sf_hmax);
@@ -88,8 +91,16 @@ void cla::Self_Trigger(){
   hAll->GetXaxis()->SetTitle("N p.e."); hAcc->GetXaxis()->SetTitle("N p.e.");
   hAll->GetYaxis()->SetTitle("Counts"); hAcc->GetYaxis()->SetTitle("Counts");
   hTrg->SetLineColor(kRed);
-  
-  SelfHistos(wfs, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge, pedestal, pretrg, afttrg);
+ 
+
+  if(apply_filter == 1){
+    Build_Matched_Filter(&G[0], t_templ);
+    FilterAllWF(wfs, filt_wf, G);
+    SelfHistos(filt_wf, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
+             pedestal, pretrg, afttrg, apply_filter);
+  }
+  if(apply_filter == 0)SelfHistos(wfs, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
+             pedestal, pretrg, afttrg, apply_filter);
 
   
   // Efficiency as Trg/All + fit for effective threshold
