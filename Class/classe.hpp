@@ -51,7 +51,7 @@ class cla{
     double fit_up;        //Upper
     double hmin;          //Histo lower limit 
     double hmax;          //Upper
-    TF1* fgaus;           //Fit function
+    TF1* fgaus = nullptr; //Fit function
 
     //Deconvolution
     int int_prompt;
@@ -120,13 +120,17 @@ class cla{
     cla(){set();}
 
   private:
+    // old = indicator to decide whether re-read the file or not
     std::string oldwf_file;
     std::string class_path = classe_path;
     int oldprepulse_ticks;
     size_t oldchannel;
-    void set();
-    void read();
+    void set(); //Initialize the class according to const.hpp
+    void read();//Read the wf_file and store the waveforms in wfs
     vector<size_t> read_pdhd_ch_map();
+    TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
+    double spe_ampl_correction;
+    double compute_spe_correction(TF1* f);
 };
 
 #define hdf5torootclass_cxx
@@ -137,6 +141,8 @@ class cla{
 #include "../Header/G_Read.hpp"
 #include "../Header/G_WF.hpp"
 #include "../Header/G_Utility.hpp"
+
+#include "private_methods.hpp"
 
 #include "_c/set.cpp"
 #include "_c/read.cpp"

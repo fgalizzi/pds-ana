@@ -23,26 +23,25 @@ std::vector<double> TriggerTime(std::vector<double>& waveform){
 void SelfHistos(std::vector<std::vector<double>>& all_wf,
     std::vector<std::vector<double>>& trg_wf, TH1D* h_all, TH1D* h_trg,
     std::vector<double>& int_wf, int I_low, int I_up, double spe_charge, double pedestal,
-    double pretrg, double afttrg, bool apply_filter){
+    double pretrg, double afttrg, bool apply_filter, int nbins){
 //*********************************************
   int len = all_wf[0].size();
   int count = 0;
   std::vector<int> trg_bool;
-  TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   double spe_norm = 1./spe_charge;
   double t;
   std::vector<double> trgs;
   int got_ya;
    
-  // All wf spectra
-  for(auto wf : all_wf){
-    for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    if(apply_filter == 0) ComputeIntegral(hwf, int_wf, I_low, I_up);
-    if(apply_filter == 1) ComputeIntegral(hwf, int_wf, 0, 1);
-    hwf->Reset();
+  TH1D* hI = new TH1D();
+  
+  if(apply_filter == 0){
+    hI = BuildRawChargeHisto(all_wf, int_wf, I_low, I_up, nbins);
+  } 
+  else{
+    hI = BuildRawChargeHisto(all_wf, int_wf, 0, 1, nbins);
   }
-  
-  
+ 
   // Spectra of true positive
   for(auto wf : trg_wf){
     trgs = TriggerTime(wf);
@@ -94,13 +93,14 @@ void cla::Self_Trigger(){
  
 
   if(apply_filter == 1){
+    CompleteWF_Binary(templ_f, t_templ, memorydepth); // t_templ = time domain template
     Build_Matched_Filter(&G[0], t_templ);
     FilterAllWF(wfs, filt_wf, G);
     SelfHistos(filt_wf, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
-             pedestal, pretrg, afttrg, apply_filter);
+             pedestal, pretrg, afttrg, apply_filter, sf_bins);
   }
   if(apply_filter == 0)SelfHistos(wfs, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
-             pedestal, pretrg, afttrg, apply_filter);
+             pedestal, pretrg, afttrg, apply_filter, sf_bins);
 
   
   // Efficiency as Trg/All + fit for effective threshold
@@ -194,7 +194,7 @@ void cla::Self_Trigger(){
   if(print== true){
     TString output_name = "../Self_FOM.root";
     TFile* out = new TFile(output_name, "update");
-    //auto eff_dir = out->mkdir("eff");
+    auto eff_dir = out->mkdir("eff");
     out->cd("eff");
     eTrg->Write();
     out->Close();

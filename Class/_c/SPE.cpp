@@ -40,6 +40,7 @@ void cla::SPE() {
   RiseFallTimeUndershoot(avg, tick_len, r_time, f_time, undershoot);
   spe_ampl = *std::max_element(avg.begin(), avg.end());
 
+
   if(print==true) VecDouble_in_Binary("Template.dat", avg);
 
   //Draw the spe FFT
@@ -48,8 +49,7 @@ void cla::SPE() {
   gAvg->Draw("l");
   
   TCanvas *c_Spe_FFT = new TCanvas("c_Spe_FFT","c_Spe_FFT",20,20,1000,900);
-  cNoise->SetLogy(1);          cNoise->SetLogx(1);
-  cNoise->SetTicks(1, 1);      cNoise->SetGrid(1, 1);
+  c_Spe_FFT->SetTicks(1, 1);      c_Spe_FFT->SetGrid(1, 1);
   c_Spe_FFT->cd();
   gAvg->Draw();
   c_Spe_FFT->Modified(); c_Spe_FFT->Update();
@@ -80,5 +80,13 @@ void cla::SPE() {
   std::cout << "\n\nColdbox table Ampl - under - r_time - f_time - under" << std::endl;
   std::cout << spe_ampl << "\t" << undershoot*spe_ampl/100. << "\t" << r_time << "\t" << f_time << "\t" <<
     undershoot << "\n\n" << std::endl; 
+
+  if (fgaus != nullptr){
+    spe_ampl_correction = compute_spe_correction(fgaus);
+    spe_ampl /= spe_ampl_correction;
+    std::cout << "\nSpe ampl corrected = " << spe_ampl << std::endl;
+  }
+
+
 
 }
