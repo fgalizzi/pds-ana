@@ -4,7 +4,7 @@
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 29758; //Needed create the root file with the results
+size_t calibration_run = 29760; //Needed create the root file with the results
 size_t channel_low = 11100;     //Lower channel to look at (included)
 size_t channel_up  = 11400;     //Upper " "
 
@@ -18,10 +18,6 @@ int pspe_up  = 270;//Upper " " Remember: it depends on the integration window,
 
 
 void cla::ProtoDUNE_Calibration(){
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
- 
   //Choose the channels to read
   //vector<size_t> channels = {11147, 11147, 11147};//, 11145, 11147};
   vector<size_t> channels = read_pdhd_ch_map();

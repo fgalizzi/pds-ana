@@ -135,6 +135,7 @@ class cla{
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
     void read();//Read the wf_file and store the waveforms in wfs
     vector<size_t> read_pdhd_ch_map();
+    vector<string> read_chs(string ch_file_name);
     TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
     double spe_ampl_correction;
     double compute_spe_correction(TF1* f);

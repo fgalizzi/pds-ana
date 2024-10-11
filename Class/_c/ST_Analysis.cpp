@@ -16,10 +16,6 @@ void cla::ST_Analysis(){
 
   feature_value.push_back({"Channel", (double)extract_channel_from_filename(wf_file)});
 
-  if(pretrg < prepulse_ticks){
-    std::cout << "\n\npretrg<prepulse_ticks !!\n\n" << std::endl;
-    return;
-  }
   
   CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
 
@@ -51,6 +47,11 @@ void cla::ST_Analysis(){
     if (h_Trg_Time->GetBinContent(i+1)<thr_counts) i=memorydepth;
   }
 
+  if(pretrg < prepulse_ticks){
+    std::cout << "\n\npretrg<prepulse_ticks !!\n\n" << std::endl;
+    pretrg = prepulse_ticks+1;
+    return;
+  }
 
   TF1* f1 = new TF1("f1", Form("%f+gaus",avg_trg_counts), pretrg, afttrg);
   if (manual == true ) f1 = new TF1("f1",Form("%f+gaus", avg_trg_counts), fit_low, fit_up);

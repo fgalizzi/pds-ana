@@ -29,8 +29,11 @@ void cla::read(){
 }
 
 //Read the ProtoDUNE-HD channel-map
-vector<size_t> cla::read_pdhd_ch_map(){
-  string file = class_path+"/Class/ProtoduneHD/channelmap.txt";
+vector<size_t> cla::read_pdhd_ch_map(int mask = 0){
+  string file;
+  if(mask==0) file = class_path+"/Class/ProtoduneHD/channelmap.txt";
+  if(mask!=0) file = class_path+"/Class/ProtoduneHD/channel_led.txt";
+  
   ifstream file_map(file);
   string line;
   stringstream ssmap;
@@ -50,4 +53,22 @@ vector<size_t> cla::read_pdhd_ch_map(){
   else std::cout << "The PDHD channel map is not here: " << file << std::endl;
 
   return channels;
+}
+
+// Read file.txt with single column (channel name)
+//**********************************************************
+vector<string> cla::read_chs(string ch_file_name){
+//**********************************************************
+  string file_folder = class_path+"/Class/ProtoduneHD/";
+  ifstream ch_file(file_folder+ch_file_name);
+  string line;
+  vector<string> chs;
+
+  if (ch_file.is_open()){
+    while (getline(ch_file, line)) {
+      chs.push_back(line);
+    }
+  }
+
+  return chs;
 }
