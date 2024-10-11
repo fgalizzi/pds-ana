@@ -6,7 +6,6 @@ void cla::Jitter(){
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 
-  vector<vector<double>> trg_wf, all_wf, bulk_wf;
   vector<double> int_wf;
   vector<double> trgs;
   double t;
@@ -94,7 +93,7 @@ if(print== true){
     TFile* out = new TFile(output_name, "update");
     auto jit_dir = out->mkdir("jitter");
     out->cd("jitter");
-    hTrg->Write();
+    hTrg->Write(("jit_"+wf_file).c_str());
     out->Close();
   }
 

@@ -19,7 +19,7 @@ void avgWF (const vector<vector<T>>& y, vector<T>& avg_wf){
   
   if (avg_wf.size() < 5) avg_wf.resize(len, 0);
   
-  for (auto wf : y) {
+  for (auto& wf : y) {
     for (unsigned int j = 0; j < len; j++) avg_wf[j] += wf[j];
   }
 
@@ -120,7 +120,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
   int_wf.erase(int_wf.begin(), int_wf.end());
   double t = 0.;
 
-  for(auto wf : all_wf){
+  for(auto& wf : all_wf){
     t = 0;
     for(int i=I_low; i<=I_up; i++) t += wf[i];
     int_wf.push_back(t);
@@ -135,7 +135,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
 
   TH1D* hI  = new TH1D("hI" ,"hI", nbins, x_low, x_up);
   
-  for (auto val : int_wf) hI->Fill(val);
+  for (auto& val : int_wf) hI->Fill(val);
  
   return hI;
 }
@@ -149,7 +149,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
   int_wf.erase(int_wf.begin(), int_wf.end());
   double t = 0.;
     
-  for(auto wf : all_wf){
+  for(auto& wf : all_wf){
     t = 0;
     for(int i=I_low; i<=I_up; i++) t += wf[i];
     int_wf.push_back(t);
@@ -157,7 +157,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
 
   TH1D* hI  = new TH1D("hI" ,"hI", nbins, hmin, hmax);
   
-  for (auto val : int_wf) hI->Fill(val);
+  for (auto& val : int_wf) hI->Fill(val);
   
   return hI;
  
@@ -173,7 +173,7 @@ TH1D* BuildFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std
   std::vector<double> f_wf;
   TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   
-  for(auto wf: ns_wf){
+  for(auto& wf: ns_wf){
     for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
     t = ComputeFprompt(hwf, len, I_low, I_up, I_pr);
     f_wf.push_back(t);
@@ -182,7 +182,7 @@ TH1D* BuildFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std
   }
 
   TH1D* hI  = new TH1D("hI" ,"hI", 1000, 0., 1.);
-  for (auto val : f_wf) hI->Fill(val);
+  for (auto& val : f_wf) hI->Fill(val);
   
   return hI;
 }
@@ -196,7 +196,7 @@ TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_
   std::vector<double> f_wf;
   TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   
-  for(auto wf: ns_wf){
+  for(auto& wf: ns_wf){
     for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
     t = ComputeFprompt(hwf, len, I_low, I_up, I_pr);
     f_wf.push_back(t);
@@ -204,7 +204,7 @@ TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_
   }
 
   TH1D* h_p  = new TH1D("h_prompt" ,"h_prompt", 500, 0., 1.);
-  for (auto val : f_wf) h_p->Fill(val);
+  for (auto& val : f_wf) h_p->Fill(val);
   
   return h_p;
 }
@@ -219,7 +219,7 @@ TH2D* BuildChargeFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vect
   std::vector<double> f_wf, i_wf;
   TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   
-  for(auto wf: ns_wf){
+  for(auto& wf: ns_wf){
     for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
     ty = ComputeFprompt(hwf, len, I_low, I_up, I_pr);
     f_wf.push_back(ty);
@@ -462,7 +462,7 @@ template <typename T>
 void SubVec_to_WFs(vector<vector<T>>& y, vector<T>& sub){
 //*********************************************
   size_t len = sub.size();
-  for(auto wf : y)
+  for(auto& wf : y)
     for (size_t j = 0; j < len; j++) wf[j] -= sub[j];
 }
 
@@ -722,4 +722,17 @@ void AllignWFs (vector<vector<T>> wfs){
   }
 
 }
+
+//*********************************************
+vector<double> TriggerTime(vector<double>& waveform){
+//*********************************************
+  vector<double> trgs;
+  for(size_t i=0; i<waveform.size(); i++) if (waveform[i] > 0.5){
+    trgs.push_back(i);
+    while(waveform[i]>0.5) i++;
+  }
+  return trgs;
+}
+
+
 #endif /* G_WF_hpp */

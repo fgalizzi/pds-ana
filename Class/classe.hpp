@@ -110,27 +110,39 @@ class cla{
     void Avg_Muon();
     void DCR();
     void Self_Trigger();
-    void configDCR();
     void Jitter();
+    void ST_Analysis();
+    void configDCR();
     void Saturation();
     void update();    
     void LoadFitParameters(TF1* f);
     void TooAnnoying();    
+    
+    //Loops: to repeat the analysis on many files : )
+    void Loop_ST_Analysis();
+
     //Constructor
     cla(){set();}
 
   private:
     // old = indicator to decide whether re-read the file or not
     std::string oldwf_file;
-    std::string class_path = classe_path;
     int oldprepulse_ticks;
     size_t oldchannel;
-    void set(); //Initialize the class according to const.hpp
+    
+    std::string class_path = classe_path;
+    std::vector<std::vector<double>> trg_wf;
+    void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
     void read();//Read the wf_file and store the waveforms in wfs
     vector<size_t> read_pdhd_ch_map();
     TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
     double spe_ampl_correction;
     double compute_spe_correction(TF1* f);
+    void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
+    int sf_bin = 100;
+    double sf_hmin = -2.;
+    double sf_hmax =  7.;
+
 };
 
 #define hdf5torootclass_cxx
@@ -155,6 +167,8 @@ class cla{
 #include "_c/Muon_PDHD.cpp"
 #include "_c/Avg_Muon.cpp"
 #include "_c/Self_Trigger.cpp"
+#include "_c/Jitter.cpp"
+#include "_c/ST_Analysis.cpp"
 #include "_c/SPE.cpp"
 #include "_c/DCR.cpp"
 #include "_c/configDCR.cpp"
@@ -164,4 +178,4 @@ class cla{
 #include "_c/ProtoDUNE_Calibration.cpp"
 #include "_c/Pdhd_FFT.cpp"
 #include "_c/TooAnnoying.cpp"
-#include "_c/Jitter.cpp"
+#include "_c/Loops.cpp"

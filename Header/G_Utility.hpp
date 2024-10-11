@@ -172,7 +172,9 @@ void min_max_element (vector<vector<double>>& y, double& ymin, double& ymax){
 }
 
 // Two functions to print the tuple's content easily
+//*********************************************
 template<typename Tuple, std::size_t... Is>
+//*********************************************
 void print_tuple_impl(const Tuple& t, std::index_sequence<Is...>) {
   ((std::cout << std::get<Is>(t) << "\t"), ...);
   std::cout << std::endl;
@@ -183,7 +185,9 @@ void print_tuple(const std::tuple<Ts...>& t) {
 }
 
 // Get the name of the current directory 
+//*********************************************
 std::string This_Directory_Name(){
+//*********************************************
   try{
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::string currentDirName = currentPath.filename().string();
@@ -196,8 +200,10 @@ std::string This_Directory_Name(){
 }
 
 // Take the most frequent value of a vector
+//*********************************************
 template<typename T>
 T Vector_MPV(std::vector<T> vec){
+//*********************************************
   std::unordered_map<T, int> map;
 
   // Count the occurrences of each value in the vector
@@ -214,5 +220,49 @@ T Vector_MPV(std::vector<T> vec){
   } 
   return mostFrequentValue; 
 }
+
+//Print the keys as header and the values in columns in a .csv file
+//*********************************************
+void print_vec_pair_csv(std::string filename, std::vector<std::pair<std::string,double>> my_map){
+  std::vector<std::pair<std::string,double>>::iterator it;
+//*********************************************
+  // Check if the file already exists
+  std::ifstream infile(filename);
+  bool file_exists = infile.good();
+  infile.close();
+  // Open the file in append mode
+  std::ofstream outfile;
+  outfile.open(filename, std::ios_base::app); // Append to file if exists
+  // If the file doesn't exist, add the header row
+  if (!file_exists) {
+    for(it = my_map.begin(); it!=my_map.end(); it++) outfile << it->first << ",";
+    outfile << std::endl;
+  }
+  // Append new data lines
+  for(it = my_map.begin(); it!=my_map.end(); it++) outfile << it->second << ",";
+  
+  outfile << std::endl;
+  // Close the file
+  outfile.close();
+  return;
+}
+
+
+int extract_channel_from_filename(std::string filename) {
+  // Find the position of the first underscore and the dot
+  std::size_t underscore_pos = filename.find('_');
+  std::size_t dot_pos = filename.find('.');
+  int ch = -999;
+  // Extract the number part between the underscore and dot
+  if (underscore_pos != std::string::npos && dot_pos != std::string::npos) {
+    std::string number_str = filename.substr(underscore_pos + 1, dot_pos - underscore_pos - 1);
+    // Convert the extracted string to an integer
+    ch = std::stoi(number_str);
+  }
+  else std::cout << "Invalid channel name" << std::endl;
+
+ return ch;
+}
+
 
 #endif /* G_Utility_hpp */

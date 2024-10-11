@@ -1,5 +1,7 @@
 
+//*********************************************
 TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false){
+//*********************************************
   if(hFind==nullptr) TH1D* hFind = new TH1D(*hI);
   // Go for peaks: create an instance of TSpectrum
   hFind->Rebin(8);
@@ -90,6 +92,43 @@ double cla::compute_spe_correction(TF1* f){
   return f_corr;
 }
 
+//*********************************************
+void cla::self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf){
+//*********************************************
+  int len = wfs[0].size();
+  int count = 0;
+  std::vector<int> trg_bool;
+  double spe_norm = 1./spe_charge;
+  double t;
+  std::vector<double> trgs;
+  int got_ya;
+   
+  TH1D* hI = new TH1D();
+  
+  if(apply_filter == 0){
+    hI = BuildRawChargeHisto(wfs, int_wf, int_low, int_up, nbins);
+  } 
+  else{
+    hI = BuildRawChargeHisto(wfs, int_wf, 0, 1, nbins);
+  }
+ 
+  // Spectra of true positive
+  for(auto wf : trg_wf){
+    trgs = TriggerTime(wf);
+    got_ya = 0; //false
+    for (auto tr : trgs){
+      if (tr > pretrg && tr < afttrg) got_ya = 1; //true
+    }
+    trg_bool.push_back(got_ya);
+  }
 
+  for (size_t i=0; i<int_wf.size(); i++){
+    t = (int_wf[i]-pedestal)*spe_norm;
+    h_all->Fill(t);
+    if (trg_bool[i] == 1) h_trg->Fill(t);
+  }
+  std::cout << "#Self-Trigger in coincedence with LED " << count << std::endl;
+ 
+}
 
 

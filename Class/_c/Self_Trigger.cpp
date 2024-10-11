@@ -10,17 +10,9 @@
   double sf_hmax = 7.;
 #endif
 
-std::vector<double> TriggerTime(std::vector<double>& waveform){
-  std::vector<double> trgs;
-  for(size_t i=0; i<waveform.size(); i++) if (waveform[i] > 0.5){
-    trgs.push_back(i);
-    while(waveform[i]>0.5) i++;
-  }
-  return trgs;
-}
 
 //*********************************************
-void SelfHistos(std::vector<std::vector<double>>& all_wf,
+void SelfHistos_(std::vector<std::vector<double>>& all_wf,
     std::vector<std::vector<double>>& trg_wf, TH1D* h_all, TH1D* h_trg,
     std::vector<double>& int_wf, int I_low, int I_up, double spe_charge, double pedestal,
     double pretrg, double afttrg, bool apply_filter, int nbins){
@@ -96,10 +88,10 @@ void cla::Self_Trigger(){
     CompleteWF_Binary(templ_f, t_templ, memorydepth); // t_templ = time domain template
     Build_Matched_Filter(&G[0], t_templ);
     FilterAllWF(wfs, filt_wf, G);
-    SelfHistos(filt_wf, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
+    SelfHistos_(filt_wf, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
              pedestal, pretrg, afttrg, apply_filter, sf_bins);
   }
-  if(apply_filter == 0)SelfHistos(wfs, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
+  if(apply_filter == 0)SelfHistos_(wfs, trg_wf, hAll, hTrg, int_wf, int_low, int_up, spe_charge,
              pedestal, pretrg, afttrg, apply_filter, sf_bins);
 
   
@@ -196,7 +188,10 @@ void cla::Self_Trigger(){
     TFile* out = new TFile(output_name, "update");
     auto eff_dir = out->mkdir("eff");
     out->cd("eff");
-    eTrg->Write();
+    eTrg->Write(("eff_"+wf_file).c_str());
+    auto his_dir = out->mkdir("his");
+    out->cd("his");
+    hAll->Write(("hAll_"+wf_file).c_str());hTrg->Write(("hTrg_"+wf_file).c_str());
     out->Close();
   }
 }

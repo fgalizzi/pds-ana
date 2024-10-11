@@ -199,4 +199,21 @@ void CompleteWF(std::string fileName, vector<double>& y){
   return;
 }
 
+// Read file.txt with single column (channel name)
+//**********************************************************
+vector<string> read_chs(string ch_file_name){
+//**********************************************************
+  ifstream ch_file(ch_file_name);
+  string line;
+  vector<string> chs;
+
+  if (ch_file.is_open()){
+    while (getline(ch_file, line)) {
+      chs.push_back(line);
+    }
+  }
+
+  return chs;
+}
+
 #endif /* G_Read_hpp */
