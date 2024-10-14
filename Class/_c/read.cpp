@@ -1,3 +1,13 @@
+#include "../classe.hpp"
+
+using namespace std;
+
+#include <iostream>
+#include <fstream>
+#include <string>
+// #include <basic_stringstream>
+// #include <stringstream>
+
 void cla::read(){
   if(wfs.size()!=n_wf || oldwf_file!=wf_file || oldprepulse_ticks != prepulse_ticks ||
       oldchannel!=channel){
@@ -13,7 +23,7 @@ void cla::read(){
     if(data_format == "esteban") CompleteWF_Binary_Swap(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csv")     CSV_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     
-    //ProtoDUNE-HD: update n_wf because the reading function stops automatically
+    // ProtoDUNE-HD: update n_wf because the reading function stops automatically
     if(data_format == "pdhd"){
       PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
       n_wf = wfs.size();
@@ -37,7 +47,7 @@ vector<size_t> cla::read_pdhd_ch_map(int mask = 0){
   ifstream file_map(file);
   string line;
   stringstream ssmap;
-  Short_t dpch, ch;
+  short dpch, ch, mk;
   vector<size_t> channels;
 
   if (file_map.is_open()){
@@ -45,9 +55,18 @@ vector<size_t> cla::read_pdhd_ch_map(int mask = 0){
       ssmap.clear();
       ssmap.str(line);
 
-      while (ssmap >> dpch >> ch) {
-        channels.push_back(int(dpch));
+      if(mask==0){
+        while (ssmap >> dpch >> ch) {
+          channels.push_back(size_t(dpch));
+        }
       }
+
+      if(mask!=0){
+        while (ssmap >> dpch >> mk) {
+          if(mask==mk) channels.push_back(size_t(dpch));
+        }
+      }
+
     }
   }
   else std::cout << "The PDHD channel map is not here: " << file << std::endl;

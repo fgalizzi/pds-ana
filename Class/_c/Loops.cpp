@@ -1,3 +1,5 @@
+#include "../classe.hpp"
+
 void cla::Loop_ST_Analysis(){
   vector<string> signal_files = read_chs("ch_sipm.txt");
   vector<string> self_files   = read_chs("ch_self.txt");

@@ -1,3 +1,5 @@
+#include "../classe.hpp"
+
 #ifndef sf_bins
   int sf_bins = 100;
 #endif

@@ -1,3 +1,4 @@
+#include "../classe.hpp"
 
 TH2D* X_Histo(vector<vector<double>>& all_wf, int I_low, int I_up,
              int L_up, int window, int x_bins, int y_bins){

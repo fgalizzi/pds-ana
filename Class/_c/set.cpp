@@ -1,7 +1,7 @@
 //
 //Set all the constant values I need from cost.hpp
 //
-
+#include "../classe.hpp"
 void cla::set(){
   wf_file        = WF_FILE;
   oldwf_file     = WF_FILE;

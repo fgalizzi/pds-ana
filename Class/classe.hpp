@@ -1,9 +1,14 @@
-//
-//List at the bottom the name of the .cpp macro you use
-//
+#ifndef CLASSE_HPP
+#define CLASSE_HPP
 
+#include <vector>
+#include <string>
+#include <TF1.h>
+#include <TH1D.h>
 
 #pragma once
+
+using namespace std;
 
 class cla{
   public:
@@ -102,8 +107,8 @@ class cla{
     void LED_Analysis();
     void Filt_Analysis();
     void Full_Resolution();
-    void ProtoDUNE_Calibration();
-    void Pdhd_FFT();
+    // void ProtoDUNE_Calibration();
+    // void Pdhd_FFT();
     void Noise_PSD();
     void SPE();
     void Muon_PDHD();
@@ -134,7 +139,7 @@ class cla{
     std::vector<std::vector<double>> trg_wf;
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
     void read();//Read the wf_file and store the waveforms in wfs
-    vector<size_t> read_pdhd_ch_map();
+    vector<size_t> read_pdhd_ch_map(int mask=0);
     vector<string> read_chs(string ch_file_name);
     TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
     double spe_ampl_correction;
@@ -146,37 +151,5 @@ class cla{
 
 };
 
-#define hdf5torootclass_cxx
-#include "ProtoduneHD/hdf5torootclass.h"
-#include "ProtoduneHD/wffunctions2.h"
 
-#include "../Header/G_Func.hpp"
-#include "../Header/G_Read.hpp"
-#include "../Header/G_WF.hpp"
-#include "../Header/G_Utility.hpp"
-
-#include "private_methods.hpp"
-
-#include "_c/set.cpp"
-#include "_c/read.cpp"
-#include "_c/Persistence.cpp"
-#include "_c/AverageWF.cpp"
-#include "_c/LED_Analysis.cpp"
-#include "_c/Filt_Analysis.cpp"
-#include "_c/Full_Resolution.cpp"
-#include "_c/Noise_PSD.cpp"
-#include "_c/Muon_PDHD.cpp"
-#include "_c/Avg_Muon.cpp"
-#include "_c/Self_Trigger.cpp"
-#include "_c/Jitter.cpp"
-#include "_c/ST_Analysis.cpp"
-#include "_c/SPE.cpp"
-#include "_c/DCR.cpp"
-#include "_c/configDCR.cpp"
-#include "_c/Saturation.cpp"
-#include "_c/update.cpp"
-#include "_c/LoadFitParameters.cpp"
-#include "_c/ProtoDUNE_Calibration.cpp"
-#include "_c/Pdhd_FFT.cpp"
-#include "_c/TooAnnoying.cpp"
-#include "_c/Loops.cpp"
+#endif // !CLASSE_HPP

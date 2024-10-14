@@ -1,4 +1,4 @@
-
+#include "../classe.hpp"
 void cla::Saturation() {
   double y0, y1;
   vector<double> x;

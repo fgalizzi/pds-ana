@@ -1,4 +1,4 @@
-// Here
+#include "../classe.hpp"// Here
 //
 //*** MAIN ************************************
 void cla::configDCR(){

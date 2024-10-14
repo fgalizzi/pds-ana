@@ -1,4 +1,4 @@
-
+#include "../classe.hpp"
 void cla::update(){
   std::ofstream outputFile("const.hpp");
 

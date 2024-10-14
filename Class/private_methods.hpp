@@ -1,3 +1,8 @@
+#include "classe.hpp"
+#include <iostream>
+#include <ostream>
+
+using namespace std;
 
 //*********************************************
 TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false){
@@ -20,7 +25,6 @@ TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto
     xp = {0, (spe_low+spe_up)/2.};
   }
   
-
   // Parameters for the fit function
   double par[20] = {0}; //Norm_Consts, sigma_0 , sigma_cell, G
   

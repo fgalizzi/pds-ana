@@ -1,3 +1,4 @@
+#include "../classe.hpp"
 // Define apply_filter, spe_low, spe_up before running this macro!
 // You can do it with LED_Analysis.cpp or Filt_Analysis.cpp and updating these
 // variables with LoadFitParameters(fgaus)

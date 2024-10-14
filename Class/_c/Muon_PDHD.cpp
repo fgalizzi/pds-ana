@@ -1,3 +1,4 @@
+#include "../classe.hpp"
 const unsigned NSAMPLE = 1024;
 
 double func_fit(double *x, double *p) {

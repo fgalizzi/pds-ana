@@ -1,3 +1,4 @@
+#include "../classe.hpp"
 size_t noise_run = 27877;
 
 void cla::Pdhd_FFT(){

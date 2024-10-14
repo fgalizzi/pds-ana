@@ -7,9 +7,15 @@
 #ifndef G_WF_hpp
 #define G_WF_hpp
 
+#include <iostream>
+#include <ostream>
 #include <stdio.h>
+#include <vector>
 #include "G_Read.hpp"
 #include "G_Utility.hpp"
+
+using namespace std;
+
 
 //*********************************************
 template <typename T>

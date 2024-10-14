@@ -1,3 +1,5 @@
+#include "../classe.hpp"
+
 // Self-Trigger Analysis
 // External assumption: spe_charge, pedestal (pay attention to use the same integration
 //                      window). To re-normalize the charge spectrum in p.e. units

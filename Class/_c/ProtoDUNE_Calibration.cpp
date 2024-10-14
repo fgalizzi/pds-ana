@@ -1,15 +1,16 @@
+#include "../classe.hpp"
 //Read a calibration run file, build a charge histogram for each channel
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at termina//Read a calibration run file, build a charge histogram for each channel
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 29760; //Needed create the root file with the results
+size_t calibration_run = 9999; //Needed create the root file with the results
 size_t channel_low = 11100;     //Lower channel to look at (included)
 size_t channel_up  = 11400;     //Upper " "
-
+int mask = 1400;
 //Output file name, then it adds "calibration_run.root":w
-string outfile_name = "CalRun_prep124_bsl18_intlow129_up152_";
+string outfile_name = "try_mapping_";
 bool avoid_auto_peak = true;
 int pspe_low = 110; //Lower limit for spe integral (like spe_low)
 int pspe_up  = 270;//Upper " " Remember: it depends on the integration window,
@@ -20,7 +21,7 @@ int pspe_up  = 270;//Upper " " Remember: it depends on the integration window,
 void cla::ProtoDUNE_Calibration(){
   //Choose the channels to read
   //vector<size_t> channels = {11147, 11147, 11147};//, 11145, 11147};
-  vector<size_t> channels = read_pdhd_ch_map();
+  vector<size_t> channels = read_pdhd_ch_map(mask);
   vector<vector<double>> sel_wf;
   vector<double> int_wf, spe_avg;
 
@@ -104,7 +105,7 @@ void cla::ProtoDUNE_Calibration(){
 
     int_wf.erase(int_wf.begin(), int_wf.end());
     sel_wf.erase(sel_wf.begin(), sel_wf.end());
-    n_wf = 50000;
+    n_wf = 500;
   } 
 
   for(auto tuple : res_tuple) print_tuple(tuple);

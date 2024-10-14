@@ -1,3 +1,4 @@
+#include "../classe.hpp"
 
 void cla::Persistence() {
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
