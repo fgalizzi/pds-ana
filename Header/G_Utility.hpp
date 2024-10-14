@@ -8,6 +8,12 @@
 #define G_Utility_hpp
 
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <utility>
+#include <vector>
+
+using namespace std;
 
 //*********************************************
 template <typename T>
@@ -16,6 +22,7 @@ template <typename T>
   std::vector<T> xs(N);
   typename std::vector<T>::iterator x;
   T val;
+  
   for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h)
     *x = val;
   return xs;     // delta function
@@ -204,15 +211,15 @@ std::string This_Directory_Name(){
 template<typename T>
 T Vector_MPV(std::vector<T> vec){
 //*********************************************
-  std::unordered_map<T, int> map;
+  std::unordered_map<T, int> my_map;
 
   // Count the occurrences of each value in the vector
-  for (T num : vec) map[num]++;
+  for (T num : vec) my_map[num]++;
   
   // Find the most frequent value
   int maxFrequency = 0;
   T mostFrequentValue = vec[0]; // Initialize with the first value
-  for (const auto& pair : map) {
+  for (const auto& pair : my_map) {
       if (pair.second > maxFrequency) {
           maxFrequency = pair.second;
           mostFrequentValue = pair.first;

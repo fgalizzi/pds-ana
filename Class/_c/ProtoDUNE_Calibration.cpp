@@ -5,20 +5,24 @@
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at terminal
 
-size_t calibration_run = 9999; //Needed create the root file with the results
-size_t channel_low = 11100;     //Lower channel to look at (included)
-size_t channel_up  = 11400;     //Upper " "
-int mask = 1400;
-//Output file name, then it adds "calibration_run.root":w
-string outfile_name = "try_mapping_";
-bool avoid_auto_peak = true;
-int pspe_low = 110; //Lower limit for spe integral (like spe_low)
-int pspe_up  = 270;//Upper " " Remember: it depends on the integration window,
-                    //the overvoltage and the gain. You can also enable the peak finding
-                    //and don't use these
-
 
 void cla::ProtoDUNE_Calibration(){
+  //////////////////////////////////////////////////////////////////////
+  // HARD CODE HERE
+  //
+  calibration_run = 9999; //Needed create the root file with the results
+  channel_low = 11100;     //Lower channel to look at (included)
+  channel_up  = 11400;     //Upper " "
+  mask = 1400;
+  //Output file name, then it adds "calibration_run.root":w
+  string outfile_name = "try_mapping_";
+  avoid_auto_peak = true;
+  pspe_low = 110; //Lower limit for spe integral (like spe_low)
+  pspe_up  = 270;//Upper " " Remember: it depends on the integration window,
+                    //the overvoltage and the gain. You can also enable the peak finding
+                    //and don't use these
+  //////////////////////////////////////////////////////////////////////
+
   //Choose the channels to read
   //vector<size_t> channels = {11147, 11147, 11147};//, 11145, 11147};
   vector<size_t> channels = read_pdhd_ch_map(mask);

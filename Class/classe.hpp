@@ -75,7 +75,8 @@ class cla{
     double t_0; 
   
     // ProtoDUNE
-    size_t channel;  
+    size_t channel;   // e.g. 11245 <-> ep 112 ch 45
+    size_t ep;        // Daphne - Endpoint
 
     // DCR
     int win=20;
@@ -144,10 +145,20 @@ class cla{
     TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
     double spe_ampl_correction;
     double compute_spe_correction(TF1* f);
+    
+    // Self trigger stuff
     void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
-    int sf_bin = 100;
-    double sf_hmin = -2.;
-    double sf_hmax =  7.;
+    int sf_bin = 100;       //Number of bins in self-trigger histos
+    double sf_hmin = -2.;   //Lower limit [pe] self-trigger histos
+    double sf_hmax =  7.;   //Upper " " " "
+
+    // When running many channels from the same run
+    size_t calibration_run; //Needed create the root file with the results
+    size_t channel_low;     //Lower channel to look at (included)
+    size_t channel_up;      //Upper " "
+    int mask = 0;           //LED mask
+    bool avoid_auto_peak = true;
+    int pspe_low, pspe_up;  //ProtoDUNE spe_low and spe_up initial guess
 
 };
 

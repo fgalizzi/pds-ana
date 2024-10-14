@@ -12,7 +12,7 @@
 
 
 void cla::AverageWF() {
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
+  // gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
 
   double y0, y1, r_time, f_time, undershoot;
   vector<double> x, avg_wf, avg_wf2;
@@ -25,7 +25,7 @@ void cla::AverageWF() {
   
   SelCalib_WF(wfs, y2, prepulse_ticks, sat_low, sat_up, bsl);
   
-  if(mov_win == true) MovingAverageWF(y2, y2, win);
+  if(mov_win == true) MovingAverageWF<double>(y2, y2, win);
   
   avgWF(y2 , avg_wf);
 
