@@ -39,7 +39,7 @@ void cla::read(){
 }
 
 //Read the ProtoDUNE-HD channel-map
-vector<size_t> cla::read_pdhd_ch_map(int mask = 0){
+vector<size_t> cla::read_pdhd_ch_map(int mask){
   string file;
   if(mask==0) file = class_path+"/Class/ProtoduneHD/channelmap.txt";
   if(mask!=0) file = class_path+"/Class/ProtoduneHD/channel_led.txt";

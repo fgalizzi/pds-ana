@@ -2,10 +2,6 @@
 //*** MAIN ************************************
 void cla::Jitter(){
 //*********************************************
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-
   vector<double> int_wf;
   vector<double> trgs;
   double t;
@@ -83,7 +79,7 @@ void cla::Jitter(){
   c_trg->Modified();c_trg->Update();
  
   t = dark_trg_count/(tick_len*(prepulse_ticks-1)*trg_wf.size())*1.e6;
-  double coincidences = dark_trg_count*(afttrg-pretrg) / prepulse_ticks;
+  double coincidences = double(dark_trg_count*(afttrg-pretrg) / prepulse_ticks);
   std::cout << "\n\nTrg Abs Time - Jitter - Err - FWHM - Dark trigger rate [Hz] - Coincidences"<< std::endl;
   std::cout << f1->GetParameter(1) << "\t" << f1->GetParameter(2) << "\t" 
     << f1->GetParError(2) << "\t" << fwhm << "\t" << t << "\t" << coincidences << "\n\n" << std::endl;  

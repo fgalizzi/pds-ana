@@ -1,3 +1,4 @@
 *.dat
 *.swp
 .DS_Store
+.clangd

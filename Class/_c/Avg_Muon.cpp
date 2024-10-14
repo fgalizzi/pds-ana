@@ -1,11 +1,8 @@
 #include "../classe.hpp"
+
 //*********************************************
 void cla::Avg_Muon(){
 //*********************************************
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-
   std::vector<double> avg_mu;
   std::vector<std::vector<double>> sel_wf, mu_wf;
 

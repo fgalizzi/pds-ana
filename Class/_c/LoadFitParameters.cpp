@@ -1,4 +1,5 @@
 #include "../classe.hpp"
+
 void cla::LoadFitParameters(TF1* f) {
   double mu0  = f->GetParameter(0);
   double gain = f->GetParameter(1);

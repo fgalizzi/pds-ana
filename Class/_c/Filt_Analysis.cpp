@@ -3,9 +3,6 @@
 //*** MAIN ************************************
 void cla::Filt_Analysis(){
 //*********************************************
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 
   vector<vector<double>> sel_wf, filt_wf;
   vector<double> int_wf, t_templ, f_noise;
@@ -24,7 +21,8 @@ void cla::Filt_Analysis(){
   } /*else if (filt = "wiener") {
     CompleteWF_Binary(noise_f, f_noise, memorydepth); // f_noise = noise FFT
     Build_Wiener_Filter(G, t_templ, f_noise); 
-  } */else {
+  } */
+  else {
     std::cout << "\n\n This filter is not implemented: " << filt << std::endl;
     return;
   }
@@ -69,9 +67,9 @@ void cla::Filt_Analysis(){
   // Set the initial guess manually 
   if(manual==true){
     par[0] = 0.;                //peak 0
-    par[1] = (spe_low+spe_up)/2;//peak 1
-    par[2] = (s0_low+s0_up)/2;  //sigma_0
-    par[3] = (sc_low+sc_up)/2;  //sigma_cell
+    par[1] = double(spe_low+spe_up)/2;//peak 1
+    par[2] = double(s0_low+s0_up)/2;  //sigma_0
+    par[3] = double(sc_low+sc_up)/2;  //sigma_cell
   }
  
   if(hI->GetBinContent(hI->GetMaximumBin())<70) hI->Rebin(2);

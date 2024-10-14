@@ -60,10 +60,6 @@ void SelfHistos_(std::vector<std::vector<double>>& all_wf,
 //*** MAIN ************************************
 void cla::Self_Trigger(){
 //*********************************************
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-
   vector<vector<double>> trg_wf, filt_wf;
   vector<double> int_wf, t_templ, n_pe, eff_pe, fps, tps;
   double t, max_eff, thr = -1e6;

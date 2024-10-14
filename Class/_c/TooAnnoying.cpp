@@ -1,4 +1,5 @@
 #include "../classe.hpp"
+
 void cla::TooAnnoying(){
   vector<string> signal_files = read_chs("ch_sipm.txt");
   vector<string> self_files   = read_chs("ch_self.txt");

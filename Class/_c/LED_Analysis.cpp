@@ -2,10 +2,6 @@
 //*** MAIN ************************************
 void cla::LED_Analysis(){
 //*********************************************
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-
   vector<vector<double>> sel_wf; // Wavefroms I select for the analysis
   vector<double> int_wf;         // Integrals of the selected waveforms
 

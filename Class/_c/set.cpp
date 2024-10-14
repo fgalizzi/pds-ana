@@ -67,6 +67,7 @@ void cla::set(){
 
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
+  gStyle->SetPalette(kSunset);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 }
 

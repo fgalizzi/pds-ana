@@ -7,7 +7,24 @@
 #ifndef G_Read_hpp
 #define G_Read_hpp
 
+
+
+#include <iostream>
+#include <ostream>
 #include <stdio.h>
+#include <string>
+#include <vector>
+
+#include <TChain.h>
+#include <TString.h>
+
+
+#ifndef hdf5torootclass_cxx
+#include "../Class/ProtoduneHD/wffunctions2.h"
+#include "../Class/ProtoduneHD/hdf5torootclass.h"
+#endif // !hdf5torootclass_cxx
+using namespace std;
+
 
 // Read Binary file with #WF=WFs len-tick long
 //**********************************************************
@@ -23,7 +40,7 @@ void CompleteWF_Binary(std::string fileName, vector<vector<double>>& y, int WFs,
     std::cout << "Error opening file" << std::endl;
     return;
   }
-  
+
   for (int n_wf=0; n_wf < WFs; n_wf++) {
     for (int i=0; i < len; i++) {
       file.read( reinterpret_cast<char*>(&t), sizeof(t) );

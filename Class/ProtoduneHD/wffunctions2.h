@@ -1,5 +1,9 @@
 #include <iostream>
 #include <TH1.h>
+#include <TH2.h>
+
+#ifndef wffunctions2
+#define wffunctions2
 
 class wffunctions
 {
@@ -93,8 +97,8 @@ int wffunctions::getWindowBaseline(void)
 {
     if (low == -1 || high == -1)
     {
-        cerr << "\n\nWindow not define! First define setWindowBaseline(int first, int last)\n"
-             << endl;
+    std::cerr << "\n\nWindow not define! First define setWindowBaseline(int first, int last)\n"
+             << std::endl;
         exit(0);
     }
 
@@ -116,8 +120,8 @@ int wffunctions::getLimitBaseline(void)
 {
     if (low == -1 || high > -1)
     {
-        cerr << "\n\nWindow not define! First define setWindowBaseline(int first)\n"
-             << endl;
+      std::cerr << "\n\nWindow not define! First define setWindowBaseline(int first)\n"
+             << std::endl;
         exit(0);
     }
 
@@ -185,9 +189,9 @@ bool wffunctions::filterleft(int adcutlw, int adcuthg, int bsl)
 
     if (lowfilter == -1 || highfilter == -1)
     {
-        cerr << "\n\nWindow not define! First define setWindowFilter(int first, int last)\n"
-             << endl;
-        exit(0);
+      std::cerr << "\n\nWindow not define! First define setWindowFilter(int first, int last)\n"
+             << std::endl;
+      exit(0);
     }
 
     bool cutlowup = false;
@@ -222,8 +226,8 @@ bool wffunctions::filterright(int adcutlw, int adcuthg, int bsl)
 
     if (lowfilter == -1 || highfilter == -1)
     {
-        cerr << "\n\nWindow not define! First define setWindowFilter(int first, int last)\n"
-             << endl;
+      std::cerr << "\n\nWindow not define! First define setWindowFilter(int first, int last)\n"
+             << std::endl;
         exit(0);
     }
 
@@ -252,3 +256,6 @@ bool wffunctions::filterright(int adcutlw, int adcuthg, int bsl)
 
     return endcutright;
 }
+
+
+#endif // !wffunctions

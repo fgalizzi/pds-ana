@@ -13,6 +13,10 @@
 #include <utility>
 #include <vector>
 
+#include <TF1.h>
+#include <TH1.h>
+#include <TGraph.h>
+
 using namespace std;
 
 //*********************************************

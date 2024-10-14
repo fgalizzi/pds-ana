@@ -8,6 +8,7 @@
 #define G_Func_hpp
 
 #include <stdio.h>
+#include <TF1.h>
 
 // Charge Histogram - Calibration Function (multi-Gaussians)
 //**********************************************************

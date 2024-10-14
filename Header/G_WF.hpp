@@ -11,8 +11,14 @@
 #include <ostream>
 #include <stdio.h>
 #include <vector>
-#include "G_Read.hpp"
+// #include "G_Read.hpp"
 #include "G_Utility.hpp"
+
+#include <TH2.h>
+#include <TComplex.h>
+#include <TVirtualFFT.h>
+#include <TCanvas.h>
+
 
 using namespace std;
 

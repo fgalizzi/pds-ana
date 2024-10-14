@@ -2,10 +2,6 @@
 size_t noise_run = 27877;
 
 void cla::Pdhd_FFT(){
-  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
-  gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-  
   //vector<size_t> channels = {11145, 11147};//, 11145, 11147};
   vector<size_t> channels = read_pdhd_ch_map();
   vector<vector<double>> sel_wf;

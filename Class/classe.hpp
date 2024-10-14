@@ -1,17 +1,37 @@
 #ifndef CLASSE_HPP
 #define CLASSE_HPP
 
+#ifndef my_headers_hpp
+  #define my_headers_hpp
+  #include "../Header/G_Func.hpp"
+  #include "../Header/G_Read.hpp"
+  #include "../Header/G_WF.hpp"
+  #include "../Header/G_Utility.hpp"
+#endif // !my_headers_hpp
+
 #include <vector>
 #include <string>
+
+//ROOT 
+#include <TEfficiency.h>
 #include <TF1.h>
 #include <TH1D.h>
+#include <TSpectrum.h>
 
-#pragma once
+
+
+
 
 using namespace std;
 
+
+
+#pragma once
+
+
 class cla{
   public:
+    std::string class_path;
     std::string wf_file;
     std::string templ_f;
     std::string muon_f;
@@ -108,8 +128,8 @@ class cla{
     void LED_Analysis();
     void Filt_Analysis();
     void Full_Resolution();
-    // void ProtoDUNE_Calibration();
-    // void Pdhd_FFT();
+    void ProtoDUNE_Calibration();
+    void Pdhd_FFT();
     void Noise_PSD();
     void SPE();
     void Muon_PDHD();
@@ -136,7 +156,6 @@ class cla{
     int oldprepulse_ticks;
     size_t oldchannel;
     
-    std::string class_path = classe_path;
     std::vector<std::vector<double>> trg_wf;
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
     void read();//Read the wf_file and store the waveforms in wfs
@@ -148,7 +167,7 @@ class cla{
     
     // Self trigger stuff
     void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
-    int sf_bin = 100;       //Number of bins in self-trigger histos
+    int sf_bins = 100;      //Number of bins in self-trigger histos
     double sf_hmin = -2.;   //Lower limit [pe] self-trigger histos
     double sf_hmax =  7.;   //Upper " " " "
 

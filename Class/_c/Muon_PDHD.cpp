@@ -17,9 +17,9 @@ void cla::Muon_PDHD(){
 
   // Create the template vector
   //CompleteWF(TEMFIT, templat);
-  CompleteWF_Binary(TEMPL_F, templ_v, 1, NSAMPLE);
+  CompleteWF_Binary(templ_f, templ_v, 1, NSAMPLE);
   //CompleteWF_Binary(NOISE_F, noise_v, 1, NSAMPLE);
-  CompleteWF_Binary(MUON_F , avg_muon_v, 1, NSAMPLE);
+  CompleteWF_Binary(muon_f, avg_muon_v, 1, NSAMPLE);
 
   //SubVec_to_WFs(templ_v, noise_v[0]);
   

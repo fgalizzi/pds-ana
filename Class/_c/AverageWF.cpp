@@ -1,18 +1,6 @@
 #include "../classe.hpp"
-#include <iostream>
-#include <ostream>
-
-#ifndef my_headers_hpp
-  #define my_headers_hpp
-  #include "../../Header/G_Func.hpp"
-  #include "../../Header/G_Read.hpp"
-  #include "../../Header/G_WF.hpp"
-  #include "../../Header/G_Utility.hpp"
-#endif // !my_headers_hpp
-
 
 void cla::AverageWF() {
-  // gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
 
   double y0, y1, r_time, f_time, undershoot;
   vector<double> x, avg_wf, avg_wf2;

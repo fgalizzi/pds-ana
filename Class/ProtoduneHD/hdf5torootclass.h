@@ -5,6 +5,7 @@
 // found on file: ../../test/run_26683_0_dataflow0_datawriter_0_decode.root
 //////////////////////////////////////////////////////////
 
+
 #ifndef hdf5torootclass_h
 #define hdf5torootclass_h
 
@@ -14,6 +15,8 @@
 
 // Header file for the classes stored in the TTree if any.
 #include "vector"
+
+using namespace std;
 
 class hdf5torootclass {
 public :
