@@ -4,6 +4,7 @@ void cla::Loop_ST_Analysis(){
   //////////////////////////////////////////////////////////////////////
   // HARD CODE HERE
   //
+  calibration_run = 9999; //Needed create the root file with the results
   ep = 112;
   mask = 1400;
   channel_low = ep*100;     //Lower channel to look at (included)
