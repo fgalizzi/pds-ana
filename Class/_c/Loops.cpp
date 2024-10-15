@@ -6,6 +6,8 @@ void cla::Loop_ST_Analysis(){
   //
   ep = 112;
   mask = 1400;
+  channel_low = ep*100;     //Lower channel to look at (included)
+  channel_up  = (ep+1)*100;     //Upper " "
   //////////////////////////////////////////////////////////////////////
 
   vector<string> signal_files = read_chs("ch_sipm.txt");
@@ -19,7 +21,7 @@ void cla::Loop_ST_Analysis(){
     //Check wether the LED mask was good for this channel
     size_t this_channel = (size_t)extract_channel_from_filename(wf_file);
     int cnt = std::count(channels.begin(), channels.end(), ep*100+this_channel);
-    if (cnt == 0) continue;
+    if (cnt == 0 || this_channel < channel_low || this_channel > channel_up) continue;
     
     //Calibrate and perform the self-trigger analisys
     LED_Analysis();

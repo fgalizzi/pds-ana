@@ -226,9 +226,7 @@ void cla::ST_Analysis(){
 
 
 
-  if(print==true) print_vec_pair_csv("fileee.csv", feature_value);
-
-
+  if(print==true) print_vec_pair_csv(Form("ST_results_run_%zu.csv",calibration_run), feature_value);
 
 
   if(print== true){
@@ -242,32 +240,6 @@ void cla::ST_Analysis(){
     hAll->Write(("hAll_"+wf_file).c_str());hTrg->Write(("hTrg_"+wf_file).c_str());
     out->Close();
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if(print== true){
