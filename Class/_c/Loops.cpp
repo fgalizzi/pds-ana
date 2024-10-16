@@ -20,9 +20,11 @@ void cla::Loop_ST_Analysis(){
     wf_file = signal_files[i];
     trg_f = self_files[i];
     //Check wether the LED mask was good for this channel
-    size_t this_channel = (size_t)extract_channel_from_filename(wf_file);
-    int cnt = std::count(channels.begin(), channels.end(), ep*100+this_channel);
-    if (cnt == 0 || this_channel < channel_low || this_channel > channel_up) continue;
+    channel = size_t(extract_channel_from_filename(wf_file))+ep*100;
+    int cnt = std::count(channels.begin(), channels.end(), channel);
+    std::cout << cnt << std::endl;
+    if (cnt == 0 || channel < channel_low || channel > channel_up) continue;
+    std::cout << i << std::endl;
     
     //Calibrate and perform the self-trigger analisys
     LED_Analysis();

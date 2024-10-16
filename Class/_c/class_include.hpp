@@ -33,7 +33,7 @@
 #include "Noise_PSD.cpp"
 // #include "Pdhd_FFT.cpp"
 #include "Persistence.cpp"
-// #include "ProtoDUNE_Calibration.cpp"
+#include "ProtoDUNE_Calibration.cpp"
 #include "SPE.cpp"
 #include "Saturation.cpp"
 #include "Self_Trigger.cpp"

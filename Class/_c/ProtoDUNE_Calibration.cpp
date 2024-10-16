@@ -1,4 +1,6 @@
 #include "../classe.hpp"
+#include <cstddef>
+#include <vector>
 //Read a calibration run file, build a charge histogram for each channel
 //fit it, estimate the spe amplitude, store the histogram and the average spe
 //waveform in a root file, print the results at termina//Read a calibration run file, build a charge histogram for each channel
@@ -10,12 +12,13 @@ void cla::ProtoDUNE_Calibration(){
   //////////////////////////////////////////////////////////////////////
   // HARD CODE HERE
   //
-  calibration_run = 9999; //Needed create the root file with the results
-  channel_low = 11100;     //Lower channel to look at (included)
-  channel_up  = 11400;     //Upper " "
-  mask = 1400;
+  calibration_run = 30003; //Needed create the root file with the results
+  channel_low = 10400;     //Lower channel to look at (included)
+  channel_up  = 10450;     //Upper " "
+  mask = 0;
+  int number_of_wf_here = 9000;
   //Output file name, then it adds "calibration_run.root":w
-  string outfile_name = "try_mapping_";
+  string outfile_name = "CalRun_pre125_low130_up155_bsl10_";
   avoid_auto_peak = true;
   pspe_low = 110; //Lower limit for spe integral (like spe_low)
   pspe_up  = 270;//Upper " " Remember: it depends on the integration window,
@@ -24,8 +27,19 @@ void cla::ProtoDUNE_Calibration(){
   //////////////////////////////////////////////////////////////////////
 
   //Choose the channels to read
+  std::cout << "\n\n READING THE CH LIST \n\n" << std::endl;
   //vector<size_t> channels = {11147, 11147, 11147};//, 11145, 11147};
-  vector<size_t> channels = read_pdhd_ch_map(mask);
+  // vector<size_t> channels = read_pdhd_ch_map(mask);
+  vector<size_t> channels;
+  for(size_t i=1040; i<1045; i++){
+    for(size_t j=0; j<8; j++){
+      channels.push_back(i*10+j);
+      std::cout << i*10+j << std::endl;
+    }
+  }
+
+  return;
+
   vector<vector<double>> sel_wf;
   vector<double> int_wf, spe_avg;
 
@@ -109,7 +123,7 @@ void cla::ProtoDUNE_Calibration(){
 
     int_wf.erase(int_wf.begin(), int_wf.end());
     sel_wf.erase(sel_wf.begin(), sel_wf.end());
-    n_wf = 500;
+    n_wf = number_of_wf_here;
   } 
 
   for(auto tuple : res_tuple) print_tuple(tuple);

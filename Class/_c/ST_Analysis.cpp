@@ -16,7 +16,8 @@ void cla::ST_Analysis(){
   double t;
   int dark_trg_count = 0;
 
-  feature_value.push_back({"Channel", (double)extract_channel_from_filename(wf_file)});
+  feature_value.push_back({"Run", (double)calibration_run});
+  feature_value.push_back({"Channel", (double)channel});
 
   
   CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
