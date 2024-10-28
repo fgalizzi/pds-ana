@@ -43,8 +43,8 @@ void cla::SPE() {
   spe_under = *std::min_element(avg.begin(), avg.end());
 
 
-  if(print==true) VecDouble_in_Binary("Template.dat", avg);
-
+  //if(print==true) VecDouble_in_Binary("Template.dat", avg);
+/*
   //Draw the spe FFT
   TGraph* gAvg= build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
   gAvg->SetLineColor(kGray+2); gAvg->SetLineWidth(2);
@@ -89,6 +89,6 @@ void cla::SPE() {
     std::cout << "\nSpe ampl corrected = " << spe_ampl << std::endl;
   }
 
-
+*/
 
 }

@@ -12,35 +12,35 @@ void cla::LED_Analysis(){
   // fully contained in the [sat_low; sat_up] range
   SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
   
-  TH1D* hI = new TH1D();
+  h_charge = new TH1D();
 
   if (manual == 0) {
     if(mov_win == true){
       MovingAverageWF(sel_wf, sel_wf, win);   
-      hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
-    } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
+      h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
+    } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
   }
   else {
     if(mov_win == true){
       MovingAverageWF(sel_wf, sel_wf, win);   
-      hI = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
+      h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
         hmin, hmax, nbins);
-    } else hI = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
+    } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
         hmin, hmax, nbins);
   }
   
-  TH1D* hFind = new TH1D(*hI); //Delcared to plot it later
+  TH1D* hFind = new TH1D(*h_charge); //Delcared to plot it later
  
   // See private_methods.hpp
   // "fgaus" is the function to fit the chargehistogram, it is initialized 
   // by looking for peaks in the histo or manually by setting manual=true
-  fgaus = set_charge_fit_function(hI, hFind);
+  fgaus = set_charge_fit_function(h_charge, hFind);
   cout << "Fit ... " << endl;
-  hI->Fit("fgaus", "R");
+  h_charge->Fit("fgaus", "R");
   cout << "... end fit. " << endl;
 
   if(display==true){
-    hI->Draw();fgaus->Draw("same");gPad->Update();gPad->WaitPrimitive();
+    h_charge->Draw();fgaus->Draw("same");gPad->Update();//gPad->WaitPrimitive();
     std::cout << "Want to repeat with manual mode?: 0=no - 1=yes" << std::endl;
     cin >> manual;
     if(manual==1){
@@ -65,10 +65,9 @@ void cla::LED_Analysis(){
       fgaus->SetParameter(2,(s0_low+s0_up)/2.);fgaus->SetParLimits(2,s0_low,s0_up);
       fgaus->SetParameter(3,(sc_low+sc_up)/2.);fgaus->SetParLimits(3,sc_low,sc_up);
 
-      hI->Fit("fgaus", "R");
+      h_charge->Fit("fgaus", "R");
+      }
     }
-
-  }
 /*  
   TCanvas *c3 = new TCanvas("c3","c3",0,0,500,450);
   c3->cd();
@@ -78,7 +77,7 @@ void cla::LED_Analysis(){
 
   TCanvas *c1 = new TCanvas("c1","c1",0,0,1000,900);
   c1->cd();
-  hI->Draw();// Fit histogram
+  h_charge->Draw();// Fit histogram
   c1->Modified();c1->Update();
 */ 
   double SNR, q1, q1q2, s0;
@@ -93,7 +92,7 @@ void cla::LED_Analysis(){
   // std::cout << q1q2 << "\t" << sigma_zero << "\t" << SNR << "\n\n" << std::endl; 
   return; 
   //fit CX
-  auto g_CX = Build_CX_Graph(fgaus, hI);
+  auto g_CX = Build_CX_Graph(fgaus, h_charge);
   TF1* f_CX = new TF1("f_CX", fCX, -0.5, 5.5, 2);
   fCX_set(f_CX);
   

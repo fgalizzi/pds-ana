@@ -44,12 +44,12 @@ void cla::ProtoDUNE_Calibration(){
   hf.mkdir("chargehistos");
   hf.mkdir("spe_wfs");
   
-  TTree results("calib_results", "calib_results");
+  //TTree results("calib_results", "calib_results");
   TH1D h1d; TF1 fun1;
-  results.Branch("chg_histo", &h1d);
-  results.Branch("fit_fun", &fun1);
+  //results.Branch("chg_histo", &h1d);
+  //results.Branch("fit_fun", &fun1);
    
-  vector<TH1D*> h_charge;
+  vector<TH1D*> h_charge_vec;
   vector<TGraph*> g_spe;
   // Run - Channel - Good/Bad - Auto peak - SNR - gain - spe ampl - spe_peak_peak
   vector<tuple<size_t, size_t, bool, bool, double, double, double, double>> res_tuple;
@@ -107,10 +107,10 @@ void cla::ProtoDUNE_Calibration(){
     double spe_undersh = *min_element(spe_avg.begin()+int_up, spe_avg.end());
    
     h1d = *hI; fun1 = *fgaus;
-    results.Fill();
+    //results.Fill();
 
     hI->SetTitle(Form("Channel_%lu", channels[ch_index]));
-    h_charge.push_back(hI);
+    h_charge_vec.push_back(hI);
     TGraph* gr = new TGraph(spe_avg.size(), data(spe_avg));
     gr->SetTitle(Form("Channel_%lu", channels[ch_index]));
     g_spe.push_back(gr);
@@ -138,7 +138,7 @@ void cla::ProtoDUNE_Calibration(){
  
   // Save in file.root
   // results.Write();
-  hf.cd("chargehistos"); for(auto h : h_charge) h->Write();
+  hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
   hf.cd("spe_wfs");      for(auto g : g_spe)    g->Write();
   
   hf.Close();

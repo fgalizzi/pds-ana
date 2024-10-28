@@ -182,6 +182,7 @@ class cla{
     bool avoid_auto_peak = true;
     int pspe_low, pspe_up;  //ProtoDUNE spe_low and spe_up initial guess
 
+    TH1D* h_charge = nullptr;
 };
 
 
