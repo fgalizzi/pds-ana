@@ -35,7 +35,7 @@ void cla::AverageWF() {
   TH2D* h2 = new TH2D("h2", Form("%s;%s;%s", "Persistence", "Ticks", "ADC Counts"), memorydepth/2, 0., memorydepth, 
       120, ymin, ymax);
   
-  for (auto wf : y2) for (int j=0; j<memorydepth; j=j+2) h2->Fill(j, wf[j]);
+  for (auto& wf : y2) for (int j=0; j<memorydepth; j=j+2) h2->Fill(j, wf[j]);
   
   h2->Draw("COLZ");
   gPad->SetLogz();

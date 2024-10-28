@@ -1,6 +1,7 @@
 #ifndef CLASSE_HPP
 #define CLASSE_HPP
 
+#include <string_view>
 #ifndef my_headers_hpp
   #define my_headers_hpp
   #include "../Header/G_Func.hpp"
@@ -11,14 +12,13 @@
 
 #include <vector>
 #include <string>
+#include <cstddef>
 
 //ROOT 
 #include <TEfficiency.h>
 #include <TF1.h>
 #include <TH1D.h>
 #include <TSpectrum.h>
-
-
 
 
 
@@ -146,6 +146,7 @@ class cla{
     
     //Loops: to repeat the analysis on many files : )
     void Loop_ST_Analysis();
+    void Loop_RMS_Analysis();
 
     //Constructor
     cla(){set();}

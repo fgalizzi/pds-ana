@@ -1,4 +1,6 @@
 #include "../classe.hpp"
+#include <cstddef>
+#include <utility>
 
 void cla::Loop_ST_Analysis(){
   //////////////////////////////////////////////////////////////////////
@@ -33,3 +35,57 @@ void cla::Loop_ST_Analysis(){
   }
 
 }
+
+void cla::Loop_RMS_Analysis(){
+  size_t run = 27877; //Needed create the root file with the results
+  channel_low = 10400;     //Lower channel to look at (included)
+  channel_up  = 11050;     //Upper " "
+  vector<size_t> channels = read_pdhd_ch_map(mask);
+  print = 1;
+  int nwf_here = 20000;
+  prepulse_ticks = 1023;
+  vector<vector<double>> y2;
+  vector<pair<size_t,double>> ch_rms;
+
+
+  for(auto ch : channels){
+    if(ch<channel_low || ch>channel_up) continue;
+
+    this->channel = ch;
+    n_wf = nwf_here;
+    read();
+    SelCalib_WF(wfs, y2, prepulse_ticks, sat_low, sat_up, bsl);
+
+
+    TH2D* h2 = new TH2D("h2", Form("%s;%s;%s", "Persistence", "Ticks", "ADC Counts"),
+                      memorydepth, 0., memorydepth, int(bsl*4), -bsl*2, bsl*2);
+  
+    for (auto& wf : y2) for (int j=0; j<memorydepth; j=j+2) h2->Fill(j, wf[j]);
+  
+
+    TH1D* h_bsl = h2->ProjectionY("h_bsl", 0, prepulse_ticks);
+    ch_rms.push_back(make_pair(channel, h_bsl->GetRMS()));
+    h_bsl->Delete();
+    h2->Delete();
+
+  }
+ 
+    std::ofstream outfile(Form("Ch_rms_bsl_%f_run_%zu", bsl, run));
+
+    for (const auto& pair : ch_rms) {
+        outfile << pair.first << "\t" << pair.second << std::endl;
+    }
+    outfile.close();
+
+}
+
+
+
+
+
+
+
+
+
+
+

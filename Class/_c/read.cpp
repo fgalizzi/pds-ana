@@ -1,12 +1,11 @@
 #include "../classe.hpp"
 
-using namespace std;
-
 #include <iostream>
 #include <fstream>
 #include <string>
-// #include <basic_stringstream>
-// #include <stringstream>
+#include <sstream>
+
+using namespace std;
 
 void cla::read(){
   if(wfs.size()!=n_wf || oldwf_file!=wf_file || oldprepulse_ticks != prepulse_ticks ||
