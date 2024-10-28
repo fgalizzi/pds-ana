@@ -39,7 +39,8 @@ void cla::SPE() {
   
   avg_wf.push_back(avg);
   RiseFallTimeUndershoot(avg, tick_len, r_time, f_time, undershoot);
-  spe_ampl = *std::max_element(avg.begin(), avg.end());
+  spe_ampl  = *std::max_element(avg.begin(), avg.end());
+  spe_under = *std::min_element(avg.begin(), avg.end());
 
 
   if(print==true) VecDouble_in_Binary("Template.dat", avg);

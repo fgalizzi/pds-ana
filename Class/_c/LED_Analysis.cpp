@@ -35,34 +35,62 @@ void cla::LED_Analysis(){
   // "fgaus" is the function to fit the chargehistogram, it is initialized 
   // by looking for peaks in the histo or manually by setting manual=true
   fgaus = set_charge_fit_function(hI, hFind);
-  
+  cout << "Fit ... " << endl;
+  hI->Fit("fgaus", "R");
+  cout << "... end fit. " << endl;
+
+  if(display==true){
+    hI->Draw();fgaus->Draw("same");gPad->Update();gPad->WaitPrimitive();
+    std::cout << "Want to repeat with manual mode?: 0=no - 1=yes" << std::endl;
+    cin >> manual;
+    if(manual==1){
+      cout << "mu0_low" << endl;
+      cin  >> mu0_low;
+      cout << "mu0_up" << endl;
+      cin  >> mu0_up;
+      cout << "spe_low" << endl;
+      cin  >> spe_low;
+      cout << "spe_up" << endl;
+      cin  >> spe_up;
+      cout << "s0_low" << endl;
+      cin  >> s0_low;
+      cout << "s0_up" << endl;
+      cin  >> s0_up;
+      cout << "sc_low" << endl;
+      cin  >> sc_low;
+      cout << "sc_up" << endl;
+      cin  >> sc_up;
+      fgaus->SetParameter(0,(mu0_low+mu0_up)/2.);fgaus->SetParLimits(0,mu0_low,mu0_up);
+      fgaus->SetParameter(1,(spe_low+spe_up/2.));fgaus->SetParLimits(1,spe_low,spe_up);
+      fgaus->SetParameter(2,(s0_low+s0_up)/2.);fgaus->SetParLimits(2,s0_low,s0_up);
+      fgaus->SetParameter(3,(sc_low+sc_up)/2.);fgaus->SetParLimits(3,sc_low,sc_up);
+
+      hI->Fit("fgaus", "R");
+    }
+
+  }
+/*  
   TCanvas *c3 = new TCanvas("c3","c3",0,0,500,450);
   c3->cd();
   hFind->Draw();
-  c3->Modified();
-  c3->Update();
+  c3->Modified();c3->Update();
  
 
   TCanvas *c1 = new TCanvas("c1","c1",0,0,1000,900);
   c1->cd();
   hI->Draw();// Fit histogram
-  cout << "Fit ... " << endl;
-  hI->Fit("fgaus", "R");
-  cout << "... end fit. " << endl;
-  
-  c1->Modified();
-  c1->Update();
- 
+  c1->Modified();c1->Update();
+*/ 
   double SNR, q1, q1q2, s0;
   SNR = fgaus->GetParameter(1)/fgaus->GetParameter(2);
   q1  = fgaus->GetParameter(1)+fgaus->GetParameter(0);
   q1q2= fgaus->GetParameter(1);
   spe_charge = q1;
-  s0  = fgaus->GetParameter(2);
+  sigma_zero  = fgaus->GetParameter(2);
   //std::cout << "\n\nColdbox table SNR - q1 - q1q2 - s0" << std::endl;
   //std::cout << SNR << "\t" << q1 << "\t" << q1q2 << "\t" << s0 << "\n\n" << std::endl; 
-  std::cout << "\n\nColdbox June: Gain - S0 - SNR" << std::endl;
-  std::cout << q1q2 << "\t" << s0 << "\t" << SNR << "\n\n" << std::endl; 
+  // std::cout << "\n\nColdbox June: Gain - S0 - SNR" << std::endl;
+  // std::cout << q1q2 << "\t" << sigma_zero << "\t" << SNR << "\n\n" << std::endl; 
   return; 
   //fit CX
   auto g_CX = Build_CX_Graph(fgaus, hI);

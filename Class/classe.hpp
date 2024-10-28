@@ -50,7 +50,9 @@ class cla{
     int afttrg;           //Upper " " " "
     double tick_len;      //In mu_s
     double spe_ampl;      
+    double spe_under;
     double spe_charge;
+    double sigma_zero;
     double pedestal;
 
     double sat_up;        //Saturation level - used to select wfs
