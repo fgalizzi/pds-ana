@@ -35,6 +35,7 @@
 #include "Persistence.cpp"
 #include "ProtoDUNE_Calibration.cpp"
 #include "SPE.cpp"
+#include "Build_Template.cpp"
 #include "Saturation.cpp"
 #include "Self_Trigger.cpp"
 #include "ST_Analysis.cpp"

@@ -134,6 +134,7 @@ class cla{
     void Pdhd_FFT();
     void Noise_PSD();
     void SPE();
+    void Build_Template();
     void Muon_PDHD();
     void Avg_Muon();
     void DCR();

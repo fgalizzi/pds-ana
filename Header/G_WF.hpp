@@ -569,6 +569,57 @@ void SelCalib_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, T sat_low
   return;
 }
 
+// Select waveforms used for calibration on their integral (from spe_low to inf)
+// and shape: it must be equal to the one of an average wf up to 5*bsl fluctuations
+//*********************************************
+template <typename T>
+void SelTemplate_WF(const vector<vector<T>>& calib_wfs, vector<vector<T>>& template_wfs,
+                    const vector<T>& int_wfs, const T spe_low, const T bsl,
+                    const int int_low, const int int_up){
+//*********************************************
+  T max_el, min_el, norm, norm_bsl;
+  size_t len = y[0].size();
+  size_t wfs = y.size();
+
+  vector<T> calib_avg_wf;
+  vector<bool> selection_flag;
+  
+  avgWF(calib_wfs, calib_avg_wf);
+  max_el = *max_element( calib_avg_wf.begin()+int_low, calib_avg_wf.begin()+int_up);
+  norm = 1/max_el;
+  for (auto& e : calib_avg_wf) e *= norm;
+
+  for (size_t i=0; i<wfs; i++){
+    if(int_wfs[i]>spe_low){
+      max_el = *max_element( calib_wfs[i].begin()+int_low, calib_wfs[i].begin()+int_up);
+      norm = 1/max_el;
+      norm_bsl = bsl*norm*5.;
+      for (auto& e : wf) e *= norm;
+      bool flag = true;
+      for (size_t i=0; i<len; i++){
+        if (wf[i] > calib_avg_wf[i]+norm_bsl || wf[i] < calib_avg_wf[i]-norm_bsl){
+          flag = false;
+          continue;
+        }
+      }
+      selection_flag.push_back(flag);
+    }
+    else{
+      selection_flag.push_back(false);
+    }
+  }
+
+  if(selection_flag.size()!=wfs){
+    std::cout << "Problem in selecting template wfs" << std::endl;
+    return;
+  }
+
+  for (size_t i=0; i<wfs; i++){
+    if (selection_flag[i]==true) template_wfs.push_back(calib_wfs[i]);
+  }
+
+  return;
+}
 
 // Display num waveforms belonging to a single vector
 //*********************************************
