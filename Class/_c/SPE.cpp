@@ -36,7 +36,10 @@ void cla::SPE() {
   //Using sel_wf to preserve the raw information -> spe_wf are the single pe 
   //cadidates, avg their average 
   Avg_Sel_WF (sel_wf, spe_wf, avg, int_wf, spe_low, spe_up);
-  
+  if (spe_wf.size() == 0){
+    class_skip = 1;
+    return;
+  }
   avg_wf.push_back(avg);
   RiseFallTimeUndershoot(avg, tick_len, r_time, f_time, undershoot);
   spe_ampl  = *std::max_element(avg.begin(), avg.end());
@@ -44,7 +47,7 @@ void cla::SPE() {
 
 
   //if(print==true) VecDouble_in_Binary("Template.dat", avg);
-/*
+
   //Draw the spe FFT
   TGraph* gAvg= build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
   gAvg->SetLineColor(kGray+2); gAvg->SetLineWidth(2);
@@ -89,6 +92,6 @@ void cla::SPE() {
     std::cout << "\nSpe ampl corrected = " << spe_ampl << std::endl;
   }
 
-*/
+
 
 }

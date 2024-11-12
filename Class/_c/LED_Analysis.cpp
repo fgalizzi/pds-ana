@@ -11,7 +11,10 @@ void cla::LED_Analysis(){
   // Select the with a baseline within the [-bsl; bsl] range and 
   // fully contained in the [sat_low; sat_up] range
   SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
-  
+  if (sel_wf.size() == 0){
+    class_skip = 1;
+    return;
+  }
   h_charge = new TH1D();
 
   if (manual == 0) {
