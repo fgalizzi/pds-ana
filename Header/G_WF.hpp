@@ -7,7 +7,10 @@
 #ifndef G_WF_hpp
 #define G_WF_hpp
 
+#include <algorithm>
+#include <cstddef>
 #include <iostream>
+#include <numeric>
 #include <ostream>
 #include <stdio.h>
 #include <vector>
@@ -96,32 +99,6 @@ void SubBaseline2(std::vector<std::vector<double>>& all_wf, double rms, bool inv
   }
 }
 
-// Compute the integral of a WF in [I_low ; I_up] range
-//*********************************************
-template <typename T, typename U, typename H>
-void ComputeIntegral(H* h, std::vector<T>& int_wf, U I_low, U I_up){
-//*********************************************
-  T I = 0;
-  for(U i = I_low; i < I_up; i++) I += h->GetBinContent(i);
-
-  int_wf.push_back(I);
-}
-//*********************************************
-template <typename U, typename H>
-double ComputeFprompt(H* h, U len, U I_low, U I_up, U I_pr){
-//*********************************************
-  double I = 0;
-  double P = 0;
-  double t = 0;
-
-  for(int ibin = I_low; ibin < I_up; ibin++){
-    t = h->GetBinContent(ibin);
-    I += t;
-    if(ibin < I_pr) P += t;
-  }
-
-  return P/I;
-}
 
 // With the entire set of WFs (all_wf) it  build the calibration histogram integrating [I_low;I_up]
 //*********************************************
@@ -180,17 +157,17 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
 TH1D* BuildFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std::vector<double>>& mu_wf, 
     int I_low, int I_up, int I_pr, double f_pr){
 //*********************************************
-  double t;
+  double t, prompt_integral, integral;
   int len = ns_wf[0].size();
   std::vector<double> f_wf;
-  TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   
   for(auto& wf: ns_wf){
-    for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    t = ComputeFprompt(hwf, len, I_low, I_up, I_pr);
+    prompt_integral= accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
+    integral= accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
+    t = prompt_integral/integral;
+
     f_wf.push_back(t);
     if (t < f_pr) mu_wf.push_back(wf);
-    hwf->Reset();
   }
 
   TH1D* hI  = new TH1D("hI" ,"hI", 1000, 0., 1.);
@@ -199,20 +176,21 @@ TH1D* BuildFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std
   return hI;
 }
 
-// With the non-saturating WFs (ns_wf) it  build the F_prompt histogram integrating [I_low;I_up] and [I_low;I_prompt]
+// With the non-saturating WFs (ns_wf) build the F_prompt histogram
+// integrating [I_low;I_up] and [I_low;I_prompt]
 //*********************************************
 TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_up, int I_pr){
 //*********************************************
-  double t;
+  double t, prompt_integral, integral;
   int len = ns_wf[0].size();
   std::vector<double> f_wf;
   TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   
   for(auto& wf: ns_wf){
-    for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    t = ComputeFprompt(hwf, len, I_low, I_up, I_pr);
+    prompt_integral= accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
+    integral= accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
+    t = prompt_integral/integral;
     f_wf.push_back(t);
-    hwf->Reset();
   }
 
   TH1D* h_p  = new TH1D("h_prompt" ,"h_prompt", 500, 0., 1.);
@@ -223,29 +201,28 @@ TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_
 
 // With the non-saturating WFs (ns_wf) it  build the F_prompt histogram integrating [I_low;I_up] and [I_low;I_prompt]
 //*********************************************
-TH2D* BuildChargeFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std::vector<double>>& mu_wf, 
-    int I_low, int I_up, int I_pr, double f_pr){
+TH2D* BuildChargeFpromptHisto(vector<vector<double>>& ns_wf, vector<vector<double>>& mu_wf, 
+                              int I_low, int I_up, int I_pr, double f_pr){
 //*********************************************
-  double tx, ty;
+  double tx, ty, prompt_integral, integral;
   int len = ns_wf[0].size();
+  size_t wfs = ns_wf.size();
   std::vector<double> f_wf, i_wf;
-  TH1D* hwf = new TH1D("hwf","hwf",len,0,len);
   
   for(auto& wf: ns_wf){
-    for(int i=0; i<len; i++) hwf->SetBinContent(i, wf[i]);
-    ty = ComputeFprompt(hwf, len, I_low, I_up, I_pr);
-    f_wf.push_back(ty);
-    ComputeIntegral(hwf, i_wf, I_low, I_up);
+    prompt_integral= accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
+    integral= accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
+    f_wf.push_back(prompt_integral/integral);
+    i_wf.push_back(integral);
     
-    if (ty < f_pr) mu_wf.push_back(wf);
-    hwf->Reset();
+    if (prompt_integral/integral < f_pr) mu_wf.push_back(wf);
   }
   
   tx = *min_element(std::begin(i_wf), std::end(i_wf));
   ty = *max_element(std::begin(i_wf), std::end(i_wf));
   
   TH2D* hI  = new TH2D("hI" ,"hI", 500, tx, ty, 500, 0., 1.);
-  for (size_t i=0; i<i_wf.size(); i++) hI->Fill(i_wf[i], f_wf[i]);
+  for (size_t i=0; i<wfs; i++) hI->Fill(i_wf[i], f_wf[i]);
   
   return hI;
 }
@@ -505,7 +482,7 @@ void Sat_WF(vector<vector<T>>& y, vector<vector<T>>& y2, T sat_up){
 //*********************************************
 template <typename T>
 void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_prompt,
-    T sat_low, T range_low, T range_up,  T bsl){
+               T sat_low, T range_low, T range_up, T bsl, T rms){
 //*********************************************
   T max_el, min_el, t;
   size_t len = y[0].size();
@@ -513,6 +490,12 @@ void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_pro
   int bsl_counter = 0;
   int amp_counter = 0;
   int sel_counter = 0;
+
+  vector<double> first_avg(len, 0.0);
+  vector<bool> preliminary_selection(wfs, false);
+  vector<bool> final_selection(wfs, false);
+
+  y2.reserve(wfs);
     
   for (size_t i=0; i<wfs; i++) {
     max_el = *max_element( y[i].begin(), y[i].begin()+pre);
@@ -520,26 +503,53 @@ void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_pro
    
     // Select wfs with no pulses in the pre-trigger
     if (max_el<bsl && min_el > -bsl) {
+      bsl_counter++; 
       max_el = *max_element( y[i].begin()+pre, y[i].begin()+int_prompt);
       min_el = *min_element( y[i].begin()+pre, y[i].begin()+int_prompt);
-      bsl_counter += 1; 
       // Select wfs with amplitude in given range and with no lower saturation
-      if (max_el<range_up && max_el>range_low  && min_el > sat_low){
+      if (max_el<range_up && max_el>range_low && min_el > sat_low){
+        amp_counter++;
         t = max_el;
         max_el = *max_element( y[i].begin()+int_prompt, y[i].end());
         min_el = *min_element( y[i].begin()+int_prompt, y[i].end());
-        amp_counter += 1;
         //
         if (max_el <  t && min_el > sat_low){
-        y2.push_back(y[i]);
-        sel_counter += 1;
+          sel_counter++;
+          for(size_t j=0; j<len; j++) first_avg[j] += y[i][j];
+          preliminary_selection[i]=true;
         } 
       }     
     }
   }  
-  std::cout << "WFs selected on the baseline "  << bsl_counter << "/" << wfs << std::endl;
-  std::cout << "WFs selected on the amplitude " << amp_counter << "/" << wfs << std::endl;
-  std::cout << "WFs selected " << sel_counter << "/" << wfs << std::endl;
+ 
+  double norm = 1./ *max_element(first_avg.begin(), first_avg.end());
+  for (auto& e : first_avg) e*=norm;
+
+  for (size_t i=0; i<wfs; i++) {
+    if(preliminary_selection[i]==true){
+      vector wf = y[i];
+      norm = 1./ *max_element(wf.begin(), wf.end());
+      double norm_bsl = rms*norm*5.;
+      for (auto& e : wf) e *= norm;
+      for (size_t j=0; j<len; j++){
+        if (wf[j] > first_avg[j]+norm_bsl ||
+            wf[j] < first_avg[j]-norm_bsl){
+          continue;
+        }
+        else {
+          final_selection[i]=true;
+        }
+      }
+    }
+
+    if(final_selection[i]==true) y2.push_back(y[i]);
+  }
+  
+  cout << "WFs selected on the baseline "  << bsl_counter << "/" << wfs << endl;
+  cout << "WFs selected on the amplitude " << amp_counter << "/" << wfs << endl;
+  cout << "WFs preliminary selected " << sel_counter << "/" << wfs << endl;
+  cout << "WFs selected " << y2.size() << "/" << wfs << endl;
+
   return;
 }
 
@@ -578,8 +588,8 @@ void SelTemplate_WF(const vector<vector<T>>& calib_wfs, vector<vector<T>>& templ
                     const int int_low, const int int_up){
 //*********************************************
   T max_el, min_el, norm, norm_bsl;
-  size_t len = y[0].size();
-  size_t wfs = y.size();
+  size_t len = calib_wfs[0].size();
+  size_t wfs = calib_wfs.size();
 
   vector<T> calib_avg_wf;
   vector<bool> selection_flag;
@@ -591,13 +601,15 @@ void SelTemplate_WF(const vector<vector<T>>& calib_wfs, vector<vector<T>>& templ
 
   for (size_t i=0; i<wfs; i++){
     if(int_wfs[i]>spe_low){
-      max_el = *max_element( calib_wfs[i].begin()+int_low, calib_wfs[i].begin()+int_up);
+      auto wf = calib_wfs[i];
+      max_el = *max_element(wf.begin()+int_low, wf.begin()+int_up);
       norm = 1/max_el;
       norm_bsl = bsl*norm*5.;
       for (auto& e : wf) e *= norm;
       bool flag = true;
-      for (size_t i=0; i<len; i++){
-        if (wf[i] > calib_avg_wf[i]+norm_bsl || wf[i] < calib_avg_wf[i]-norm_bsl){
+      for (size_t j=0; j<len; j++){
+        if (wf[j] > calib_avg_wf[j]+norm_bsl ||
+            wf[j] < calib_avg_wf[j]-norm_bsl){
           flag = false;
           continue;
         }
@@ -705,7 +717,7 @@ void FilterAllWF(const vector<vector<double>>& all_wf, vector<vector<double>>& f
     
     for (int j=0; j<len*0.5+1; j++) {
       xV[j] = TComplex(xV_re[j], xV_im[j]);
-      xY[j] = G[j]*xV[j]; //G[j]*P[j]*xV[j]
+      xY[j] = G[j]*xV[j]; 
       xY_re[j] = xY[j].Re(); xY_im[j] = xY[j].Im();
     }
     

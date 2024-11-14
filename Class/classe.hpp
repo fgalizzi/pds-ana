@@ -19,6 +19,9 @@
 #include <TF1.h>
 #include <TH1D.h>
 #include <TSpectrum.h>
+#include <TStyle.h>
+#include <TGraphErrors.h>
+#include <TGraphSmooth.h>
 
 
 
@@ -112,6 +115,8 @@ class cla{
     bool print = false;
     //Display single waveforms
     bool display = false;
+    //Display plots
+    bool plot = true;
     //Set calibration parameters manually
     bool manual = false;
     //Apply moving window on calib wfs
@@ -135,6 +140,7 @@ class cla{
     void Noise_PSD();
     void SPE();
     void Build_Template();
+    void Convolution();
     void Muon_PDHD();
     void Avg_Muon();
     void DCR();

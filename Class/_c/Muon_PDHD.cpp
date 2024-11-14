@@ -1,5 +1,9 @@
 #include "../classe.hpp"
-const unsigned NSAMPLE = 1024;
+#include <cmath>
+#include <ctime>
+#include <vector>
+
+const unsigned NSAMPLE = 5000;
 
 double func_fit(double *x, double *p) {
   double val =(p[0]*exp(-(x[0]-p[5])/p[1])*exp(p[4]*p[4]/(2*p[1]*p[1])))*TMath::Erfc(((p[5]-x[0])/p[4]+p[4]/p[1])/TMath::Power(2,0.5))/2. + (p[2]*exp(-(x[0]-p[5])/p[3])*exp(p[4]*p[4]/(2*p[3]*p[3])))*TMath::Erfc(((p[5]-x[0])/p[4]+p[4]/p[3])/TMath::Power(2,0.5))/2. + p[6];
@@ -7,41 +11,25 @@ double func_fit(double *x, double *p) {
 }
 
 void cla::Muon_PDHD(){
-  
-  gStyle->SetOptFit(1111);
-  
+
   double t=0;
-  
-  std::vector<std::vector<double>> templ_v, avg_muon_v, noise_v;
-  std::vector<double> templ, templat, avg_muon, y, noise;
+ 
+  templ_f = "/Users/federico/PhD/PDE/Templates/Template.dat";
+  muon_f = "/Users/federico/PhD/PDE/Muon.dat";
+  std::vector<std::vector<double>> templ_v, avg_muon_v;
+  std::vector<double> templ, avg_muon, y, noise;
 
   // Create the template vector
-  //CompleteWF(TEMFIT, templat);
   CompleteWF_Binary(templ_f, templ_v, 1, NSAMPLE);
-  //CompleteWF_Binary(NOISE_F, noise_v, 1, NSAMPLE);
   CompleteWF_Binary(muon_f, avg_muon_v, 1, NSAMPLE);
-
-  //SubVec_to_WFs(templ_v, noise_v[0]);
   
   for(size_t i=0; i<NSAMPLE; i++){
     templ.push_back(templ_v[0][i]);
-    //noise.push_back(noise_v[0][i]);
     avg_muon.push_back(avg_muon_v[0][i]);
   }
 
-  /*
-  for(size_t i=0; i<5000; i++){
-    t += templat[i+5000-4096];
-    if(i%4==0){
-      templ.push_back(t);
-      t = 0;
-    }
-  }*/
-
   double max_avg = *max_element(std::begin(templ), std::end(templ));
   for (int i=0; i<NSAMPLE; i++) templ[i] = templ[i]*(spe_ampl/max_avg);
-  
-  //smooth_all_wf(templ);
   
   // prepare auxiliary arrays
   double t0 = 0.;      // in us
@@ -65,50 +53,14 @@ void cla::Muon_PDHD(){
     xs[i] = NSAMPLE*TMath::Gaus(i, 6, 0.09, false); // signal = delta function
     xt[i] = t;
     time.push_back(t);
-    t+=TICK_LEN;
+    t+=tick_len;
    }
   
-  for (int ip=0; ip<NSAMPLE-prepulse_ticks; ip++) xh[ip] = templ[ip+prepulse_ticks]; // template=spe
+  for (int ip=0; ip<NSAMPLE; ip++) xh[ip] = templ[ip]; // template=spe
   
-  //---------------P L O T S----------------------
-    
-  // display waveform and noise
-  TGraph* gv = new TGraph(nsample, xt, xv);  //waveform
-  TGraph* gs = new TGraph(nsample, xt, xs);  //delta funtion
-  TGraph* gh = new TGraph(nsample, xt, xh);  //spe
-  TGraph* gm = new TGraph(nsample, xt, xm);  //spe template
-  
-    
-  gv->SetLineColor(kRed+1);
-  gs->SetLineColor(kBlue+1);
-  gh->SetLineColor(kMagenta+1);
-
-  gStyle->SetOptTitle(0);
-  TCanvas* cTime = new TCanvas("wavedec","wavedec");
-  cTime->Divide(1, 2);
-  cTime->cd(1);
-  gv->Draw("awlx+");
-  gh->Draw("same");
-  gv->SetNameTitle("gv", "Syntetic waveform");
-  gv->GetXaxis()->SetTitle("Time [#mus]");
-  gv->GetYaxis()->SetTitle("Amplitude (ADC counts)");
-  gv->GetXaxis()->CenterTitle();
-  gv->GetYaxis()->CenterTitle();
-  gv->GetYaxis()->SetTitleSize(0.06);
-  gv->GetYaxis()->SetLabelSize(0.06);
-  gv->GetXaxis()->SetTitleSize(0.06);
-  gv->GetXaxis()->SetLabelSize(0.06);
-  //gs->Draw("l");
-  gPad->SetTopMargin(0.14);
-  gPad->SetRightMargin(0.05);
-  gPad->SetBottomMargin(0.01);
-  gPad->SetTicks(1, 1); gPad->SetGrid(1, 1);
-
-
   //******************************
   //  Perform FFT
   //******************************
-
   int nsample_ = nsample;
   // xV: FFT of waveform
   TComplex xV[nsample]; double xV_re[nsample]; double xV_im[nsample];  //waveform
@@ -179,7 +131,109 @@ void cla::Muon_PDHD(){
     xY[i] = G[i]*xV[i];
     xY_re[i] = xY[i].Re(); xY_im[i] = xY[i].Im();
   }
+
+  //*****************************************
+  // Backward transform of the filtered signal
+  //*****************************************
   
+  fft = TVirtualFFT::FFT(1, &nsample_, "M C2R");
+  fft->SetPointsComplex(xY_re, xY_im);
+  fft->Transform();
+  xy = fft->GetPointsReal();
+
+  vector<double> deco_wf(memorydepth, 0.0);
+  vector<double> e_x(memorydepth, 0.0);
+  vector<double> e_y(memorydepth, 0.0);
+  for (int i=0; i<nsample; i++){
+    deco_wf[i] = xy[i]*0.01;
+    e_x[i] = 0.004;
+    e_y[i] = sqrt(abs(deco_wf[i]));
+    std::cout << deco_wf[i] << " " << e_y[i] << std::endl;
+  }
+
+  rotate(deco_wf.begin(), deco_wf.begin()+deco_wf.size()-prepulse_ticks, deco_wf.end());
+  //Consider to subtract the baseline
+
+  //TF1* f1 = new TF1("f1", func_fit , FIT_L , FIT_U , 7);
+  TF1 *f1 = new TF1("f1","([0]*exp(-(x-[5])/[1])*exp([4]*[4]/(2*[1]*[1])))*TMath::Erfc((([5]-x)/[4]+[4]/[1])/TMath::Power(2,0.5))/2. + ([2]*exp(-(x-[5])/[3])*exp([4]*[4]/(2*[3]*[3])))*TMath::Erfc((([5]-x)/[4]+[4]/[3])/TMath::Power(2,0.5))/2. + [6]",
+                    fit_l,fit_u);
+  f1->SetParameters(a_fast, tau_fast, a_slow, tau_slow, sigma, t_0);
+  f1->SetParNames("A_{s}", "#tau_{s}", "A_{t}", "#tau_{t}", "#sigma", "t_{0}", "c");
+  f1->SetNpx(2000);
+  if(FIX_CONST == true) f1->FixParameter( 6 , 0. );
+
+  TGraphErrors* g_er = new TGraphErrors(time.size(), &time[0], &deco_wf[0], &e_x[0], &e_y[0]);
+  TGraph* gy = new TGraphErrors(time.size(), &time[0], &deco_wf[0]);
+  
+  TGraphSmooth* sk1 = new TGraphSmooth("normal");
+  gy = sk1->SmoothKern(g_er, "normal", deco_sm);
+
+  if (FFUNC == true){
+    auto fitResult = g_er->Fit(f1 ,"RS");
+    f1->Draw("SAME");
+  }
+  if (FFUNC == false){ f1->Draw("SAME");}
+
+
+  double A_s   = f1->GetParameter(0);
+  double tau_s = f1->GetParameter(1);
+  double A_t   = f1->GetParameter(2);
+  double tau_t = f1->GetParameter(3);
+  std::cout <<"\n \nFast/Slow intensities" << std::endl;
+  std::cout <<"Is = " << A_s*tau_s/(A_s*tau_s+A_t*tau_t) << std::endl;  
+  std::cout <<"It = " << A_t*tau_t/(A_s*tau_s+A_t*tau_t) << std::endl;  
+
+  std::cout << "\n \nDeco_sm - As - tau_s - At - tau_t - Sigma - [ns]" << std::endl;  
+  std::cout << deco_sm*1000 << "\t" << A_s << "\t" << tau_s*1000 << "\t" 
+    << A_t << "\t" << tau_t*1000 << "\t" << f1->GetParameter(4)*1000 << std::endl;  
+
+
+
+
+
+    
+
+
+
+
+
+    //---------------P L O T S----------------------
+      
+    // display waveform and noise
+    TGraph* gv = new TGraph(nsample, xt, xv);  //waveform
+    TGraph* gs = new TGraph(nsample, xt, xs);  //delta funtion
+    TGraph* gh = new TGraph(nsample, xt, xh);  //spe
+    TGraph* gm = new TGraph(nsample, xt, xm);  //spe template
+    
+      
+    gv->SetLineColor(kRed+1);
+    gs->SetLineColor(kBlue+1);
+    gh->SetLineColor(kMagenta+1);
+
+    gStyle->SetOptTitle(0);
+    TCanvas* cTime = new TCanvas("wavedec","wavedec");
+    cTime->Divide(1, 2);
+    cTime->cd(1);
+    gv->Draw("awlx+");
+    gh->Draw("same");
+    gv->SetNameTitle("gv", "Syntetic waveform");
+    gv->GetXaxis()->SetTitle("Time [#mus]");
+    gv->GetYaxis()->SetTitle("Amplitude (ADC counts)");
+    gv->GetXaxis()->CenterTitle();
+    gv->GetYaxis()->CenterTitle();
+    gv->GetYaxis()->SetTitleSize(0.06);
+    gv->GetYaxis()->SetLabelSize(0.06);
+    gv->GetXaxis()->SetTitleSize(0.06);
+    gv->GetXaxis()->SetLabelSize(0.06);
+    //gs->Draw("l");
+    gPad->SetTopMargin(0.14);
+    gPad->SetRightMargin(0.05);
+    gPad->SetBottomMargin(0.01);
+    gPad->SetTicks(1, 1); gPad->SetGrid(1, 1);
+
+
+
+     
   // display delta and spe template in the time domain
   TCanvas* cDelta = new TCanvas("cDelta","cDelta");
   gh->Draw("aDwpl");
@@ -207,71 +261,26 @@ void cla::Muon_PDHD(){
   gM2->Draw("l");
   gS2->Draw("l");
 
-  //*****************************************
-  // Backward transform of the filtered signal
-  //*****************************************
-  
-  fft = TVirtualFFT::FFT(1, &nsample_, "M C2R");
-  fft->SetPointsComplex(xY_re, xY_im);
-  fft->Transform();
-  xy = fft->GetPointsReal();
-  
-  
-  //---------------P L O T ----------------------
-  double e_x[nsample] = {0};
-  double e_y[nsample] = {0};
-  for (int i=0; i<nsample; i++){
-    xy[i] *= 0.01;
-    e_x[i] = 0.01;
-    e_y[i] = 0.5;
-  }
-  
-  t=0;
-  for (int i=memorydepth/2; i<memorydepth; i++) t +=xy[i];
-  t = t/((double) memorydepth/2);
-  for (int i=0; i<nsample; i++) xy[i] -=t;
-  
-  //TF1* f1 = new TF1("f1", func_fit , FIT_L , FIT_U , 7);
-  TF1 *f1 = new TF1("f1","([0]*exp(-(x-[5])/[1])*exp([4]*[4]/(2*[1]*[1])))*TMath::Erfc((([5]-x)/[4]+[4]/[1])/TMath::Power(2,0.5))/2. + ([2]*exp(-(x-[5])/[3])*exp([4]*[4]/(2*[3]*[3])))*TMath::Erfc((([5]-x)/[4]+[4]/[3])/TMath::Power(2,0.5))/2. + [6]",FIT_L,FIT_U);
-  f1->SetParameters(a_fast, tau_fast, a_slow, tau_slow, sigma, t_0);
-  f1->SetParNames("A_{s}", "#tau_{s}", "A_{t}", "#tau_{t}", "#sigma", "t_{0}", "c");
-  f1->SetNpx(2000);
-  if(FIX_CONST == true) f1->FixParameter( 6 , 0. );
-  //f1->FixParameter (1, 0.007);
-  //f1->FixParameter( 2 , 3.8 );
-  //f1->SetParLimits(2, 3.75 , 3.8);
-  
   cTime->cd(2);
   
   TCanvas *f_canv = new TCanvas("FitCanv","FitCanv",20,20,1000,900);
   f_canv->cd();
   
-  TGraphErrors* g_er = new TGraphErrors(nsample, xt, xy, e_x, e_y);
-  TGraph* gy = new TGraphErrors(nsample, xt, xy);
-  
-  TGraphSmooth* sk1 = new TGraphSmooth("normal");
-  gy = sk1->SmoothKern(gy, "normal", deco_sm);
-  //g_er = sk1->SmoothKern(g_er, "normal", 4);
-  
-  //g_scale(gy, 1./10000000);
   //f_canv->SetLogy(1);
-  gy->GetXaxis()->SetTitle("Time [#mus]");
-  gy->GetYaxis()->SetTitle("Amplitude [A.U.]");
-  gy->SetTitle("Deconvolved waveform");
+  g_er->GetXaxis()->SetTitle("Time [#mus]");
+  g_er->GetYaxis()->SetTitle("Amplitude [A.U.]");
+  g_er->SetTitle("Deconvolved waveform");
   //gy->GetXaxis()->CenterTitle();
   //gy->GetYaxis()->CenterTitle();
   //gy->GetYaxis()->SetTitleSize(0.06);
   //gy->GetYaxis()->SetLabelSize(0.06);
   //gy->GetXaxis()->SetTitleSize(0.06);
   //gy->GetXaxis()->SetLabelSize(0.06);
-  gy->SetLineColor(kBlue);
-  gy->SetLineWidth(2);
-  gy->Draw("al");
-  if (FFUNC == true){
-    auto fitResult = gy->Fit(f1 ,"RS");
-    f1->Draw("SAME");
-  }
-  if (FFUNC == false){ f1->Draw("SAME");}
+  g_er->SetLineColor(kBlue);
+  g_er->SetLineWidth(2);
+  g_er->Draw("al");
+ 
+
   gPad->SetTopMargin(0.01);
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.14);
@@ -279,15 +288,4 @@ void cla::Muon_PDHD(){
   gPad->BuildLegend(0.5, 0.88, 0.88, 0.8, "", "l");
 
 
-  double A_s   = f1->GetParameter(0);
-  double tau_s = f1->GetParameter(1);
-  double A_t   = f1->GetParameter(2);
-  double tau_t = f1->GetParameter(3);
-  std::cout <<"\n \nFast/Slow intensities" << std::endl;
-  std::cout <<"Is = " << A_s*tau_s/(A_s*tau_s+A_t*tau_t) << std::endl;  
-  std::cout <<"It = " << A_t*tau_t/(A_s*tau_s+A_t*tau_t) << std::endl;  
-
-  std::cout << "\n \nDeco_sm - As - tau_s - At - tau_t - Sigma - [ns]" << std::endl;  
-  std::cout << deco_sm*1000 << "\t" << A_s << "\t" << tau_s*1000 << "\t" 
-    << A_t << "\t" << tau_t*1000 << "\t" << f1->GetParameter(4)*1000 << std::endl;  
 }

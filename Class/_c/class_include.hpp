@@ -30,6 +30,7 @@
 // #include "MAX_Analysis.cpp"
 // #include "MuonDeco.cpp"
 #include "Muon_PDHD.cpp"
+#include "Convolution.cpp"
 #include "Noise_PSD.cpp"
 // #include "Pdhd_FFT.cpp"
 #include "Persistence.cpp"
