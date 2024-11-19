@@ -2,3 +2,4 @@
 *.swp
 .DS_Store
 .clangd
+*TF1.cpp

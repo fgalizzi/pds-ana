@@ -105,7 +105,7 @@ void cla::Convolution(){
   std::vector<double> sin_muon(memorydepth, 0.0); 
   std::vector<double> time(memorydepth, 0.0); 
   std::vector<double> e_x(memorydepth, 0.001); 
-  std::vector<double> e_y(memorydepth, 0.5); 
+  std::vector<double> e_y(memorydepth, 10.); 
   
   // Create the template vector
   CompleteWF_Binary(templ_f, templ_v, 1, memorydepth);
@@ -160,9 +160,12 @@ void cla::Convolution(){
       double err = g_muon->GetErrorY(i);
       chi2 += d*d/(err*err);
     }
-    return chi2/double(int_fit_u-int_fit_l);
+    // return chi2/double(int_fit_u-int_fit_l);
+    return chi2;
   };
 
+  int int_fit_l = int(fit_l/tick_len);
+  int int_fit_u = int(fit_u/tick_len);
   ROOT::Math::Functor fnc(chi2Function, 7);
   ROOT::Fit::Fitter fitter;
   fitter.SetFCN(fnc, par);
@@ -177,6 +180,7 @@ void cla::Convolution(){
   bool ok;
   if(!no_fit){
     ok = fitter.FitFCN();
+    fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
     const ROOT::Fit::FitResult &result = fitter.Result();
     result.Print(std::cout);
   }

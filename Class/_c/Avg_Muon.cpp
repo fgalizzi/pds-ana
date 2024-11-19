@@ -1,6 +1,27 @@
 #include "../classe.hpp"
 #include <cstdio>
 
+// ****************************************************************
+// This macro is used to create an average muon waveform and save it
+// in a binary file, setting print=true, once you are happy with the
+// selection cuts. The idea is to select the muon waveforms on an
+// f_prompt basis and remove the ones that have light in coincidence.
+//
+// Parameters you can tune:
+// - int_low, int_prompt, int_up <-> integration limits
+// - f_prompt (integral[int_low;int_prompt]/integral[int_low;int_up])
+//      We select waveforms with f_prompt lower than this value.
+// - sat_low <-> discard wfs with samples below this level
+// - amp_low, amp_up <-> the max element in the [int_low;int_prompt]
+//      range must fall in [amp_low;amp_up]
+// - bsl <-> accept only wfs with sample whithin [-bsl;+bsl] in the
+//      pre trigger [0;prepulse_ticks]
+// - rms <-> the selected wfs can differ from the average only by random
+//      fluctuation, we must ensure there are no pulses in the tail of
+//      our signal.
+// ****************************************************************
+
+
 //*********************************************
 void cla::Avg_Muon(){
 //*********************************************

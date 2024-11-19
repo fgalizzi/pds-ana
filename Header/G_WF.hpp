@@ -513,7 +513,7 @@ void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_pro
         max_el = *max_element( y[i].begin()+int_prompt, y[i].end());
         min_el = *min_element( y[i].begin()+int_prompt, y[i].end());
         //
-        if (max_el <  t && min_el > sat_low){
+        if (max_el < t && min_el > sat_low){
           sel_counter++;
           for(size_t j=0; j<len; j++) first_avg[j] += y[i][j];
           preliminary_selection[i]=true;
@@ -531,15 +531,15 @@ void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_pro
       norm = 1./ *max_element(wf.begin(), wf.end());
       double norm_bsl = rms*norm*5.;
       for (auto& e : wf) e *= norm;
+
+      bool select_shape = true;
       for (size_t j=0; j<len; j++){
-        if (wf[j] > first_avg[j]+norm_bsl ||
-            wf[j] < first_avg[j]-norm_bsl){
-          continue;
-        }
-        else {
-          final_selection[i]=true;
+        if (wf[j] > first_avg[j]+norm_bsl || wf[j] < first_avg[j]-norm_bsl){
+          select_shape = false;
+          j = len+1;
         }
       }
+      final_selection[i]=select_shape;
     }
 
     if(final_selection[i]==true) y2.push_back(y[i]);

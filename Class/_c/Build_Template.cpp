@@ -16,7 +16,9 @@ string noise_td_file = "/Users/federico/PhD/PDE/Noise/Noise_NewEl_20241004_TimeD
 ////////////////////////////////////////////////////////
 
 
+//*********************************************
 void cla::Build_Template() {
+//*********************************************
   vector<double> x, avg_calib, avg_template, int_wf, noise_td;
   vector<vector<double>> calib_wfs, template_wfs;
   size_t nsample = memorydepth;
