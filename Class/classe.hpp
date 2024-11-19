@@ -85,6 +85,7 @@ class cla{
 
     //Deconvolution
     int int_prompt;
+    int roll;
     double f_prompt;
     double n2_;
     double deco_sm;
@@ -105,7 +106,7 @@ class cla{
 
     // DCR
     int win=20;
-    int ite=2;
+    int ite=1;
     double den=9.;
 
     //Subtract the baseline according to "prepulse_ticks"
@@ -119,13 +120,15 @@ class cla{
     bool plot = true;
     //Set calibration parameters manually
     bool manual = false;
+    //Avoid fit (useful to initialize the parameters)
+    bool no_fit = false;
     //Apply moving window on calib wfs
     bool mov_win = false;
     //Apply matched/wiener filters (only in some macros)
     bool apply_filter = false;
     //Select wfs also for post-trigger features in SPE()
     bool pde_selection = false;
-    //Deco Muon
+    //(De)convolution stuff
     bool FFUNC = true;
     bool FIX_CONST = false;
 

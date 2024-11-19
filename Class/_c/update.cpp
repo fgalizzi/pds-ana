@@ -50,6 +50,7 @@ void cla::update(){
 	outputFile << "const double PEDESTAL    = " << pedestal << ";" << std::endl;
 	outputFile << "//deconvolution"  << std::endl;
 	outputFile << "const int INT_PROMPT     = " << int_prompt << ";"  << std::endl;
+	outputFile << "const int ROLL           = " << roll << ";"  << std::endl;
 	outputFile << "const double F_PROMPT    = " << f_prompt << ";"  << std::endl;
 	outputFile << "const double AMP_LOW     = " << amp_low<< ";"  << std::endl;
 	outputFile << "const double AMP_UP      = " << amp_up << ";"  << std::endl;

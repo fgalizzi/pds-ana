@@ -47,6 +47,7 @@ void cla::set(){
   spe_charge= SPE_CHARGE;  
   //Deconvolution
   int_prompt = INT_PROMPT;
+  roll = ROLL;
   f_prompt   = F_PROMPT;
   amp_low    = AMP_LOW;
   amp_up     = AMP_UP;
@@ -68,8 +69,6 @@ void cla::set(){
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
   gStyle->SetPalette(kSunset);
-  // ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
-  // ROOT::Math::MinimizerOptions::SetMaxIterations(10); 
-  // ROOT::Math::MinimizerOptions::SetMaxFunctionCalls(10); 
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 }
 
