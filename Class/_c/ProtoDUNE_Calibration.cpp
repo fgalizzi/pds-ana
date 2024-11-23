@@ -1,11 +1,16 @@
 #include "../classe.hpp"
-//Read a calibration run file, build a charge histogram for each channel
-//fit it, estimate the spe amplitude, store the histogram and the average spe
-//waveform in a root file, print the results at termina//Read a calibration run file, build a charge histogram for each channel
-//fit it, estimate the spe amplitude, store the histogram and the average spe
-//waveform in a root file, print the results at terminal
+
+// ****************************************************************
+// Read a calibration run file, build a charge histogram for each channel
+// fit it, estimate the spe amplitude, store the histogram and the average spe
+// waveform in a root file, print the results at termina//Read a calibration run file, build a charge histogram for each channel
+// fit it, estimate the spe amplitude, store the histogram and the average spe
+// waveform in a root file, print the results at terminal
+// ****************************************************************
 
 
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::ProtoDUNE_Calibration(){
   //////////////////////////////////////////////////////////////////////
   // HARD CODE HERE

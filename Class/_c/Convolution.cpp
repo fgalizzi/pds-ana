@@ -1,4 +1,9 @@
 #include "../classe.hpp"
+
+// ****************************************************************
+// Description
+// ****************************************************************
+
 #include "Fit/FitResult.h"
 #include "Rtypes.h"
 #include "TComplex.h"
@@ -92,6 +97,8 @@ double* conv_templ_dexp(const double* p,
 }
 
 
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Convolution(){
 
   templ_f = "/Users/federico/PhD/PDE/Templates/Template.dat";

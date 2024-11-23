@@ -1,5 +1,6 @@
 #include "../classe.hpp"
 #include <cstdio>
+#include <string>
 
 // ****************************************************************
 // This macro is used to create an average muon waveform and save it
@@ -21,8 +22,17 @@
 //      our signal.
 // ****************************************************************
 
+////////////////////////////////////////////////////////
+/////// HARD CODE //////////////////////////////////////
+
+std::string muon_files_path = "/Users/federico/PhD/PDE/Muon_files/";
+
+
+////////////////////////////////////////////////////////
 
 //*********************************************
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Avg_Muon(){
 //*********************************************
   std::vector<double> avg_mu;
@@ -42,7 +52,11 @@ void cla::Avg_Muon(){
   avgWF(mu_wf, avg_mu);
 
   if(print==true) {
-    VecDouble_in_Binary("Muon.dat", avg_mu);
+    string outfile_name;
+    cout << "Name of the muon file (without .dat)" << endl;
+    cin >> outfile_name;
+    outfile_name = muon_files_path+outfile_name;
+    VecDouble_in_Binary(outfile_name, avg_mu);
     print = false;
   }
 

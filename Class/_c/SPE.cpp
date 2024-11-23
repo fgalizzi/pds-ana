@@ -1,11 +1,16 @@
 #include "../classe.hpp"
+
+// ****************************************************************
 // Define apply_filter, spe_low, spe_up before running this macro!
 // You can do it with LED_Analysis.cpp or Filt_Analysis.cpp and updating these
 // variables with LoadFitParameters(fgaus)
+// ****************************************************************
 
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::SPE() {
   double y0, y1, r_time, f_time, undershoot;
-  vector<double> x, avg, int_wf, t_templ;
+  vector<double> x, avg, int_wf, t_templ, noise_td;
   vector<vector<double>> sel_wf, spe_wf, avg_wf, filt_wf;
   size_t nsample = memorydepth;
   TComplex G[nsample];
@@ -14,6 +19,9 @@ void cla::SPE() {
   
   // Read and subtract the baseline
   read();
+  string noise_td_file = "./Noise_td.dat";
+  CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
+  SubVec_to_WFs(wfs, noise_td);
 
   SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);
   TH1D* hI = nullptr;

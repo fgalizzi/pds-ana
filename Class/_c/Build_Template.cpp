@@ -8,17 +8,18 @@
 // pulses or scintillation light in coincidence)
 // ****************************************************************
 
-////////////////////////////////////////////////////////
-/////// HARD CODE //////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+//////// HARD CODE ////////////////////////////////////////////////
 
 string noise_td_file = "/Users/federico/PhD/PDE/Noise/Noise_NewEl_20241004_TimeDomain.dat";
+string template_files_path = "/Users/federico/PhD/PDE/Template_files/";
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 
 
-//*********************************************
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Build_Template() {
-//*********************************************
   vector<double> x, avg_calib, avg_template, int_wf, noise_td;
   vector<vector<double>> calib_wfs, template_wfs;
   size_t nsample = memorydepth;
@@ -53,9 +54,14 @@ void cla::Build_Template() {
 
   double norm; 
   if(print==true){
+    string outfile_name;
+    cout << "Name of the muon file (without .dat)" << endl;
+    cin >> outfile_name;
+    outfile_name = template_files_path+outfile_name;
+    
     norm = 1./ *max_element(std::begin(avg_template), std::end(avg_template));
     for(auto& e: avg_template) e *= norm*spe_ampl;
-    VecDouble_in_Binary("Template.dat", avg_template);
+    VecDouble_in_Binary(outfile_name, avg_template);
     print = false;
   }
   

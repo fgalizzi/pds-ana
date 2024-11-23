@@ -259,7 +259,9 @@ void print_vec_pair_csv(std::string filename, std::vector<std::pair<std::string,
 }
 
 
+//*********************************************
 int extract_channel_from_filename(std::string filename) {
+//*********************************************
   // Find the position of the first underscore and the dot
   std::size_t underscore_pos = filename.find('_');
   std::size_t dot_pos = filename.find('.');
@@ -275,5 +277,30 @@ int extract_channel_from_filename(std::string filename) {
  return ch;
 }
 
+// Rotate vector in numpy.roll fashion
+//*********************************************
+template<typename T>
+void vector_roll(std::vector<T>& vec, int roll){
+//*********************************************
+  if (roll > 0) std::rotate(vec.begin(), vec.begin()+vec.size()-roll, vec.end());
+  if (roll < 0) std::rotate(vec.begin(), vec.begin()-roll, vec.end());
+  return;
+}
 
+//*********************************************
+void allign_wfs(vector<vector<double>>& waveforms, const int x_half_height) {
+//*********************************************
+ 
+  for (auto& waveform : waveforms){
+    double max_amplitude = *std::max_element(waveform.begin(), waveform.end());
+    double* wf = waveform.data();
+    TGraph* g_wf = new TGraph(waveform.size(), wf);
+    std::cout << "find" << std::endl;
+    int x_half = (int) g_find_x(g_wf, 0.5*max_amplitude, 0., double(waveform.size()), 0.1);
+    std::cout << "roll" << std::endl;
+    vector_roll(waveform, x_half-x_half_height);
+    std::cout << "end \n\n" << std::endl;
+  }
+
+}
 #endif /* G_Utility_hpp */

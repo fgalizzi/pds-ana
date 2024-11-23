@@ -1,13 +1,23 @@
 #include "../classe.hpp"
+
+// ****************************************************************
+// Description
+// ****************************************************************
+
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Noise_PSD(){
   double t;
-  vector<double> x, avg, int_wf;
+  vector<double> x, avg, int_wf, noise_td;
   vector<vector<double>> noise, noise2, avg_wf;
     
   for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
 
   // Read and subtract the baseline
   read();
+  // string noise_td_file = "./Noise_td.dat";
+  // CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
+  // SubVec_to_WFs(wfs, noise_td);
   
   SelCalib_WF(wfs, noise, prepulse_ticks, -bsl, bsl, bsl);
   TH1D* hI = BuildRawChargeHisto(noise, int_wf, int_low, int_up, nbins);

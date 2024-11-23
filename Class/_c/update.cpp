@@ -1,5 +1,12 @@
 #include "../classe.hpp"
 
+// ****************************************************************
+// Update the const.hpp file containing the class member initial
+// values with the current ones
+// ****************************************************************
+
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::update(){
   std::ofstream outputFile("const.hpp");
 
@@ -26,6 +33,7 @@ void cla::update(){
 	outputFile << "const double SAT_UP      = " << sat_up << ";" << std::endl;
 	outputFile << "const double SAT_LOW     = " << sat_low << ";" << std::endl;
 	outputFile << "const double BSL         = " << bsl << ";" <<  std::endl;
+	outputFile << "const double RMS         = " << rms << ";" <<  std::endl;
 	outputFile << " " << std::endl;
 	outputFile << " " << std::endl;
 	outputFile << "//calibration"  << std::endl;

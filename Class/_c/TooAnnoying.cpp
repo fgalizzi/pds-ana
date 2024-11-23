@@ -1,5 +1,11 @@
 #include "../classe.hpp"
 
+// ****************************************************************
+// Description
+// ****************************************************************
+
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::TooAnnoying(){
   TString runs_folder = "/eos/home-f/fegalizz/ProtoDUNE_HD/VGain/files/run_";
   TString ana_folder  = "/eos/home-f/fegalizz/ProtoDUNE_HD/VGain/analysis";

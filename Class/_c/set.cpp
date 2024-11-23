@@ -24,7 +24,7 @@ void cla::set(){
   sat_up         = SAT_UP;
   sat_low        = SAT_LOW;
   bsl            = BSL;
-  rms            = BSL/3;
+  rms            = RMS;
 
   //Calibration
   int_low   = INT_LOW;
