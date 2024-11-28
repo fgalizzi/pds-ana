@@ -4,6 +4,14 @@
 // Description
 // ****************************************************************
 
+///////////////////////////////////////////////////////////////////
+//////// HARD CODE ////////////////////////////////////////////////
+
+string templ_file = "/Users/federico/PhD/PDE/Template_files/Template.dat";
+string muon_file = "/Users/federico/PhD/PDE/Muon_files/Muon.dat";
+string pde_result_file = "/Users/federico/PhD/PDE/Result.csv";
+///////////////////////////////////////////////////////////////////
+
 #include "Fit/FitResult.h"
 #include "Rtypes.h"
 #include "TComplex.h"
@@ -101,8 +109,8 @@ double* conv_templ_dexp(const double* p,
 //------- Macro ---------------------------------------------------
 void cla::Convolution(){
 
-  templ_f = "/Users/federico/PhD/PDE/Templates/Template.dat";
-  muon_f = "/Users/federico/PhD/PDE/Muon.dat";
+  templ_f = templ_file;
+  muon_f = muon_file;
   size_t   nsample = memorydepth;
   TComplex templ_fft[nsample], dexp_fft[nsample];
   double   templ_td[nsample], dexp_td[nsample];
@@ -126,7 +134,7 @@ void cla::Convolution(){
 
 
   //rotate vector to adjust the convolution offset
-  rotate(avg_muon.begin(), avg_muon.begin()+avg_muon.size()-roll, avg_muon.end());
+  vector_roll(avg_muon, roll);
   Build_FFT(&templ_fft[0], &templ_td[0], memorydepth);
 
   double params[7] = {a_fast, tau_fast, a_slow, tau_slow, sigma, t_0}; 
@@ -176,43 +184,63 @@ void cla::Convolution(){
   ROOT::Math::Functor fnc(chi2Function, 7);
   ROOT::Fit::Fitter fitter;
   fitter.SetFCN(fnc, par);
-  fitter.Config().ParSettings(0).SetName("A_{s}");
-  fitter.Config().ParSettings(1).SetName("#tau_{s}");
-  fitter.Config().ParSettings(2).SetName("A_{t}");
-  fitter.Config().ParSettings(3).SetName("#tau_{t}");
+  fitter.Config().ParSettings(0).SetName("A_{f}");
+  fitter.Config().ParSettings(1).SetName("#tau_{f}");
+  fitter.Config().ParSettings(2).SetName("A_{s}");
+  fitter.Config().ParSettings(3).SetName("#tau_{s}");
   fitter.Config().ParSettings(4).SetName("#sigma");
   fitter.Config().ParSettings(5).SetName("t_{0}");
   fitter.Config().ParSettings(6).SetName("c");
 
-  bool ok;
   if(!no_fit){
-    ok = fitter.FitFCN();
+    bool ok = fitter.FitFCN();
     fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
     const ROOT::Fit::FitResult &result = fitter.Result();
     result.Print(std::cout);
+
+    a_fast   = result.GetParams()[0]; double err_a_fast   = result.GetErrors()[0];
+    tau_fast = result.GetParams()[1]; double err_tau_fast = result.GetErrors()[0];
+    a_slow   = result.GetParams()[2]; double err_a_slow   = result.GetErrors()[0];
+    tau_slow = result.GetParams()[3]; double err_tau_slow = result.GetErrors()[0];
+    sigma    = result.GetParams()[4]; double err_sigma    = result.GetErrors()[0];
+    t_0      = result.GetParams()[5]; double err_t_0      = result.GetErrors()[0];
+
+    if (print == true){
+        vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
+
+        feature_value.push_back({"A fast", a_fast});
+        feature_value.push_back({"A fast err", err_a_fast});
+        feature_value.push_back({"Tau fast [mus]", tau_fast});
+        feature_value.push_back({"Tau fast err [mus]", err_tau_fast});
+        feature_value.push_back({"A slow", a_slow});
+        feature_value.push_back({"A slow err", err_a_slow});
+        feature_value.push_back({"Tau slow [mus]", tau_slow});
+        feature_value.push_back({"Tau slow err [mus]", err_tau_slow});
+        feature_value.push_back({"Sigma", sigma});
+        feature_value.push_back({"Sigma err", err_sigma});
+        feature_value.push_back({"t0 [mus]", t_0});
+        feature_value.push_back({"t0 err [mus]", err_t_0});
+        feature_value.push_back({"I fast", a_fast*tau_fast/(a_fast*tau_fast+a_slow*tau_slow)});
+        feature_value.push_back({"I slow ",a_slow*tau_slow/(a_fast*tau_fast+a_slow*tau_slow)});
+        feature_value.push_back({"I slow pure",a_slow*1.5/(a_fast*0.007+a_slow*1.5)});
+
+        print_vec_pair_csv(pde_result_file, feature_value);
+      }
   }
 
   for(size_t i=0; i<memorydepth; i++) sin_muon[i]=xy[i];
   TGraph* g_sint = new TGraph(memorydepth, &time[0], &sin_muon[0]);
   
-  
-  double A_f   = par[0];
-  double tau_f = par[1];
-  double A_s   = par[2];
-  double tau_s = par[3];
   std::cout <<"\n \nFast/Slow intensities" << std::endl;
-  std::cout <<"Is = " << A_f*tau_f/(A_f*tau_f+A_s*tau_s) << std::endl;  
-  std::cout <<"It = " << A_s*tau_s/(A_f*tau_f+A_s*tau_s) << std::endl;  
-
-
-
+  std::cout <<"Is = " << a_fast*tau_fast/(a_fast*tau_fast+a_slow*tau_slow) << std::endl;  
+  std::cout <<"It = " << a_slow*tau_slow/(a_fast*tau_fast+a_slow*tau_slow) << std::endl;  
+  std::cout <<"It pure = " << a_slow*1.4/(a_fast*tau_fast+a_slow*1.4) << std::endl;  
 
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,800);
   c2->cd();
   g_muon->GetXaxis()->SetTitle("Time #mus");
   g_muon->GetYaxis()->SetTitle("Amplitude [a.u.]");
-  // g_muon->Set;
 
   g_sint->SetLineWidth(2);
   g_sint->SetLineColor(kRed);
@@ -220,6 +248,5 @@ void cla::Convolution(){
   g_sint->Draw("same");
   c2->Modified(); c2->Update();
 
-  std::cout << par[0]<< std::endl;
   return;
 }

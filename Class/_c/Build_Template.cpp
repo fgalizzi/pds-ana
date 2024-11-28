@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
 
-string noise_td_file = "/Users/federico/PhD/PDE/Noise/Noise_NewEl_20241004_TimeDomain.dat";
+string noise_td_file = "/Users/federico/PhD/PDE/Noise_files/Noise_NewEl_20241004_TimeDomain.dat";
 string template_files_path = "/Users/federico/PhD/PDE/Template_files/";
 
 ///////////////////////////////////////////////////////////////////
@@ -32,10 +32,10 @@ void cla::Build_Template() {
 
   // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
   CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
-  if(ite==1){
-    SubVec_to_WFs(wfs, noise_td);
-    ite++;
-  }
+  // if(ite==1){
+  //   SubVec_to_WFs(wfs, noise_td);
+  //   ite++;
+  // }
 
   // Select calibration waveforms (clean pre-pulse range and no saturation)
   // and compute in integral in [int_low;int_up]

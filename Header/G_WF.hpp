@@ -176,11 +176,12 @@ TH1D* BuildFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std
   return hI;
 }
 
+/*
 // With the non-saturating WFs (ns_wf) build the F_prompt histogram
 // integrating [I_low;I_up] and [I_low;I_prompt]
-//*********************************************
+// *********************************************
 TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_up, int I_pr){
-//*********************************************
+// *********************************************
   double t, prompt_integral, integral;
   int len = ns_wf[0].size();
   std::vector<double> f_wf;
@@ -197,6 +198,34 @@ TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_
   for (auto& val : f_wf) h_p->Fill(val);
   
   return h_p;
+}
+*/
+
+// Build the F_prompt vs Charge 2d-histogram integrating [I_low;I_up] and [I_low;I_prompt]
+//*********************************************
+TH2D* BuildChargeFpromptHisto(vector<vector<double>>& wfs,
+                              int I_low, int I_up, int I_pr){
+//*********************************************
+  int len = wfs[0].size();
+  size_t nwfs = wfs.size();
+  std::vector<double> f_wf, i_wf;
+  
+  for(auto& wf: wfs){
+    double prompt_integral= accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
+    double integral= accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
+    f_wf.push_back(prompt_integral/integral);
+    i_wf.push_back(integral);
+  }
+  
+  double ymin = *min_element(std::begin(i_wf), std::end(i_wf));
+  double ymax = *max_element(std::begin(i_wf), std::end(i_wf));
+  
+  TH2D* h2_charge_fprompt = new TH2D("h2_charge_fprompt",
+                                     Form("%s;%s;%s", "fprompt_vs_charge", "Charge [ADC #times ticks]", "F prompt"),
+                                     500, ymin, ymax, 500, 0., 1.);
+  for (size_t i=0; i<nwfs; i++) h2_charge_fprompt->Fill(i_wf[i], f_wf[i]);
+  
+  return h2_charge_fprompt;
 }
 
 // With the non-saturating WFs (ns_wf) it  build the F_prompt histogram integrating [I_low;I_up] and [I_low;I_prompt]
