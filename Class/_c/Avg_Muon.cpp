@@ -37,15 +37,11 @@ void cla::Avg_Muon(){
   std::vector<double> avg_mu;
   std::vector<std::vector<double>> mu_wfs;
 
+  // Read and subtract the baseline
   read();
-  
-  // TH1D* h_prompt = AllFpromptHisto(wfs, int_low, int_up, int_prompt);
-  TH2D* h2_fprompt_charge_wfs = BuildChargeFpromptHisto(wfs, int_low, int_up, int_prompt);
-  TH1D* h_fprompt_wfs = h2_fprompt_charge_wfs->ProjectionY("h_prompt_wfs");
 
   // SelPDE_WF(wfs, sel_wf, prepulse_ticks, int_prompt,
   //           sat_low, amp_low, amp_up, bsl, rms); 
-  
 
   //-----------------------------------------------------------------
   //----- SELECTION LOOPS -------------------------------------------
@@ -131,8 +127,6 @@ void cla::Avg_Muon(){
   //----- SELECTION LOOPS END ---------------------------------------
   //-----------------------------------------------------------------
 
-  TH2D* h2_fprompt_charge_muwfs = BuildChargeFpromptHisto(mu_wfs, int_low, int_up, int_prompt);
-  TH1D* h_fprompt_muwfs = h2_fprompt_charge_muwfs->ProjectionY("h_prompt_muwfs");
 
 
 
@@ -148,10 +142,15 @@ void cla::Avg_Muon(){
     print = false;
   }
 
-  double ymin, ymax;
-  min_max_element(mu_wfs, ymin, ymax);
 
+
+
+  //-----------------------------------------------------------------
+  //----- PLOTS -----------------------------------------------------
   if (plot == true){
+    double ymin, ymax;
+    min_max_element(mu_wfs, ymin, ymax);
+    
     TH2D* h2_mu_pers = new TH2D("h2_mu_pers", Form("%s;%s;%s", "Persistence", "Ticks", "ADC Counts"),
         memorydepth/2, 0., memorydepth, 
         120, ymin, ymax);
@@ -167,11 +166,15 @@ void cla::Avg_Muon(){
     c_mu_pers->Modified(); c_mu_pers->Update();
 
 
+    TH2D* h2_fprompt_charge_wfs = BuildChargeFpromptHisto(wfs, int_low, int_up, int_prompt);
+    TH1D* h_fprompt_wfs = h2_fprompt_charge_wfs->ProjectionY("h_prompt_wfs");
     TCanvas *c_fprompt_charge_wfs = new TCanvas("c_fprompt_charge_wfs","c_fprompt_charge_wfs",500,0,500,450);
     c_fprompt_charge_wfs->cd();
     h2_fprompt_charge_wfs->Draw();
     c_fprompt_charge_wfs->Modified(); c_fprompt_charge_wfs->Update();
 
+    TH2D* h2_fprompt_charge_muwfs = BuildChargeFpromptHisto(mu_wfs, int_low, int_up, int_prompt);
+    TH1D* h_fprompt_muwfs = h2_fprompt_charge_muwfs->ProjectionY("h_prompt_muwfs");
     TCanvas *c_fprompt_charge_muwfs = new TCanvas("c_fprompt_charge_muwfs","c_fprompt_charge_muwfs",500,0,500,450);
     c_fprompt_charge_muwfs->cd();
     h2_fprompt_charge_muwfs->Draw();

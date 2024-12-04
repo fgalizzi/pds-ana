@@ -119,8 +119,8 @@ void cla::Convolution(){
   std::vector<double> avg_muon(memorydepth, 0.0); 
   std::vector<double> sin_muon(memorydepth, 0.0); 
   std::vector<double> time(memorydepth, 0.0); 
-  std::vector<double> e_x(memorydepth, 0.001); 
-  std::vector<double> e_y(memorydepth, 10.); 
+  std::vector<double> e_x(memorydepth, 0.); 
+  std::vector<double> e_y(memorydepth, 3.); 
   
   // Create the template vector
   CompleteWF_Binary(templ_f, templ_v, 1, memorydepth);
@@ -193,10 +193,30 @@ void cla::Convolution(){
   fitter.Config().ParSettings(6).SetName("c");
 
   if(!no_fit){
+    std::cout << "---- Fit 1 ---------" << std::endl;
     bool ok = fitter.FitFCN();
     fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
     const ROOT::Fit::FitResult &result = fitter.Result();
     result.Print(std::cout);
+    std::cout << "\n\n\n" << std::endl;
+
+    // Move t_0 a little bit
+    std::cout << "---- Fit 2 ---------" << std::endl;
+    t_0      = result.GetParams()[5];
+    fitter.Config().ParSettings(5).SetValue(t_0+5.*tick_len);
+    ok = fitter.FitFCN();
+    fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
+    const ROOT::Fit::FitResult &result2 = fitter.Result();
+    result2.Print(std::cout);
+    std::cout << "\n\n\n" << std::endl;
+
+    std::cout << "---- Fit 3 ---------" << std::endl;
+    fitter.Config().ParSettings(5).SetValue(t_0-5.*tick_len);
+    ok = fitter.FitFCN();
+    fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
+    const ROOT::Fit::FitResult &result3 = fitter.Result();
+    result3.Print(std::cout);
+    std::cout << "\n\n\n" << std::endl;
 
     a_fast   = result.GetParams()[0]; double err_a_fast   = result.GetErrors()[0];
     tau_fast = result.GetParams()[1]; double err_tau_fast = result.GetErrors()[0];
@@ -239,7 +259,7 @@ void cla::Convolution(){
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,800);
   c2->cd();
-  g_muon->GetXaxis()->SetTitle("Time #mus");
+  g_muon->GetXaxis()->SetTitle("Time [#mus]");
   g_muon->GetYaxis()->SetTitle("Amplitude [a.u.]");
 
   g_sint->SetLineWidth(2);

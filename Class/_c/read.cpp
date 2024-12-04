@@ -9,7 +9,7 @@ using namespace std;
 
 void cla::read(){
   if(wfs.size()!=n_wf || oldwf_file!=wf_file || oldprepulse_ticks != prepulse_ticks ||
-      oldchannel!=channel){
+      oldchannel!=channel || wfs[0].size()!=memorydepth){
     //Store old values to decide whether to re-read the file 
     oldwf_file = wf_file;
     oldprepulse_ticks = prepulse_ticks;
