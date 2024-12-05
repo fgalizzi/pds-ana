@@ -315,7 +315,7 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
   double c_scale = 1./nsample;
   
 
-  int nsample_fft = 0.5*nsample+1;
+  int nsample_fft = 0.5*nsample;
   TGraph* g_avg_spectral_density = new TGraph(nsample_fft);
   for (int j=0; j<nsample_fft; j++)
     g_avg_spectral_density->SetPoint(j, j/t1, 0.);

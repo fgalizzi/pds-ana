@@ -32,7 +32,7 @@ void cla::Build_Template() {
 
   // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
   CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
-  // if(ite==1){
+  // if(ite==0){
   //   SubVec_to_WFs(wfs, noise_td);
   //   ite++;
   // }

@@ -4,6 +4,15 @@
 // Description
 // ****************************************************************
 
+///////////////////////////////////////////////////////////////////
+//////// HARD CODE ////////////////////////////////////////////////
+
+string ifile_noisetd          = "";
+string ofilename_noise_td     = "TD_Noise_20241203_CAEN.dat";
+string ofilename_noise_fft    = "";
+string ofilename_avgnoise_fft = "";
+///////////////////////////////////////////////////////////////////
+
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void cla::Noise_PSD(){
@@ -15,9 +24,14 @@ void cla::Noise_PSD(){
 
   // Read and subtract the baseline
   read();
-  // string noise_td_file = "./Noise_td.dat";
-  // CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
-  // SubVec_to_WFs(wfs, noise_td);
+  // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
+  if (ifile_noisetd!=""){
+    CompleteWF_Binary(ifile_noisetd, noise_td, memorydepth);
+    if(ite==0){
+      SubVec_to_WFs(wfs, noise_td);
+      ite++;
+    }
+  }
   
   SelCalib_WF(wfs, noise, prepulse_ticks, -bsl, bsl, bsl);
   TH1D* hI = BuildRawChargeHisto(noise, int_wf, int_low, int_up, nbins);
@@ -50,21 +64,32 @@ void cla::Noise_PSD(){
   c3->Update();
 
   if(print==true){
-    std::ofstream OutFile  ("FFT_ch.dat", ios::binary);
-    std::ofstream OutFile2 ("FFT_ch_avg.dat", ios::binary);
-    for(int i = 0; i < gNoise_spectral_density->GetN(); i++){
-    t = gNoise_spectral_density->GetPointY(i);
-    OutFile.write(reinterpret_cast<char*> (&t), sizeof(t));
-    t = gAvg->GetPointY(i);
-    OutFile2.write(reinterpret_cast<char*> (&t), sizeof(t));
-    t = gNoise_spectral_density->GetPointX(i);
-    OutFile.write(reinterpret_cast<char*> (&t), sizeof(t));
-    OutFile2.write(reinterpret_cast<char*> (&t), sizeof(t));
-    }   
-    std::cout << "Vector saved in ---> " << std::endl;
-    OutFile.close();
-    OutFile2.close();
+    if (ofilename_noise_fft!=""){
+      std::ofstream OutFile  (ofilename_noise_fft, ios::binary);
+      for(int i = 0; i < gNoise_spectral_density->GetN(); i++){
+        // y-axis
+        t = gNoise_spectral_density->GetPointY(i);
+        OutFile.write(reinterpret_cast<char*> (&t), sizeof(t));
+        // x-axis
+        t = gNoise_spectral_density->GetPointX(i);
+        OutFile.write(reinterpret_cast<char*> (&t), sizeof(t));
+        }
+      OutFile.close();
+    }
+    if (ofilename_avgnoise_fft!=""){
+      std::ofstream OutFile2 (ofilename_avgnoise_fft, ios::binary);
+      for(int i = 0; i < gAvg->GetN(); i++){
+        // y-axis
+        t = gAvg->GetPointY(i);
+        OutFile2.write(reinterpret_cast<char*> (&t), sizeof(t));
+        // x-axis
+        t = gAvg->GetPointX(i);
+        OutFile2.write(reinterpret_cast<char*> (&t), sizeof(t));
+      } 
+      OutFile2.close();
+    }
+    if (ofilename_noise_fft!="") VecDouble_in_Binary(ofilename_noise_td, avg);
+    std::cout << "\n\n Saved the files you requested : )\n\n" << std::endl;
   }
-  
 }
  

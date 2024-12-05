@@ -15,6 +15,8 @@ void cla::read(){
     oldprepulse_ticks = prepulse_ticks;
     oldchannel = channel;
 
+    ite = 0; // For the macros whose behaviour must be different at the first iteration
+
     wfs.erase(wfs.begin(),wfs.end());
     
     if(data_format == "caen")    CAEN_WF_Binary(wf_file, wfs, n_wf, memorydepth);

@@ -106,7 +106,6 @@ class cla{
 
     // DCR
     int win=20;
-    int ite=1;
     double den=9.;
 
     //Subtract the baseline according to "prepulse_ticks"
@@ -168,6 +167,7 @@ class cla{
     std::string oldwf_file;
     int oldprepulse_ticks;
     size_t oldchannel;
+    int ite=0;              // number of iteration (number of time you call a method)
     
     std::vector<std::vector<double>> trg_wf;
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
