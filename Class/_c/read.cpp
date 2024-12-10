@@ -23,6 +23,7 @@ void cla::read(){
     if(data_format == "daphne")  CompleteWF_Binary(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "esteban") CompleteWF_Binary_Swap(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csv")     CSV_WF_Binary(wf_file, wfs, n_wf, memorydepth);
+    if(data_format == "csvd")    CSV_double_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     
     // ProtoDUNE-HD: update n_wf because the reading function stops automatically
     if(data_format == "pdhd"){

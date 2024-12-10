@@ -383,7 +383,7 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
   double t;
   
 
-  int nsample_fft = 0.5*nsample+1;
+  int nsample_fft = 0.5*nsample;
   TGraph* g_avg_spectral_density = new TGraph(nsample_fft);
   for (int j=0; j<nsample_fft; j++)
     g_avg_spectral_density->SetPoint(j, j/t1, 0.);
@@ -596,7 +596,7 @@ void SelCalib_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, T sat_low
     max_el = *max_element( y[i].begin(), y[i].begin()+pre);
     min_el = *min_element( y[i].begin(), y[i].begin()+pre);
     
-    if (max_el<bsl && min_el > -bsl) {
+    if (max_el<bsl && min_el > -bsl && max_el-min_el>3) {
       max_el = *max_element( y[i].begin()+pre, y[i].end());
       min_el = *min_element( y[i].begin()+pre, y[i].end());
       

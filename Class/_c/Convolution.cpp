@@ -7,8 +7,8 @@
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
 
-string templ_file = "/Users/federico/PhD/PDE/Template_files/Template.dat";
-string muon_file = "/Users/federico/PhD/PDE/Muon_files/Muon.dat";
+// string templ_file = "/Users/federico/PhD/PDE/Template_files/Template.dat";
+// string muon_file = "/Users/federico/PhD/PDE/Muon_files/Muon.dat";
 string pde_result_file = "/Users/federico/PhD/PDE/Result.csv";
 ///////////////////////////////////////////////////////////////////
 
@@ -109,8 +109,8 @@ double* conv_templ_dexp(const double* p,
 //------- Macro ---------------------------------------------------
 void cla::Convolution(){
 
-  templ_f = templ_file;
-  muon_f = muon_file;
+  // templ_f = templ_file;
+  // muon_f = muon_file;
   size_t   nsample = memorydepth;
   TComplex templ_fft[nsample], dexp_fft[nsample];
   double   templ_td[nsample], dexp_td[nsample];

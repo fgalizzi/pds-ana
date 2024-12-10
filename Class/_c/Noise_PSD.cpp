@@ -7,8 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
 
-string ifile_noisetd          = "";
-string ofilename_noise_td     = "TD_Noise_20241203_CAEN.dat";
 string ofilename_noise_fft    = "";
 string ofilename_avgnoise_fft = "";
 ///////////////////////////////////////////////////////////////////
@@ -21,6 +19,8 @@ void cla::Noise_PSD(){
   vector<vector<double>> noise, noise2, avg_wf;
     
   for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
+string ifile_noisetd          = noise_f;
+string ofilename_noise_td     = trg_f;
 
   // Read and subtract the baseline
   read();
@@ -44,11 +44,12 @@ void cla::Noise_PSD(){
   TGraph* gNoise_spectral_density = build_avg_spectral_density(memorydepth,
       tick_len*memorydepth, tick_len, noise2, res);
 
+  gNoise_spectral_density->SaveAs(muon_f.c_str());
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
   c2->cd();
-  //gNoise_spectral_density->Draw();
-  gAvg->Draw();
+  gNoise_spectral_density->Draw();
+  //gAvg->Draw();
   c2->Modified();
   c2->Update();
   
@@ -88,7 +89,7 @@ void cla::Noise_PSD(){
       } 
       OutFile2.close();
     }
-    if (ofilename_noise_fft!="") VecDouble_in_Binary(ofilename_noise_td, avg);
+    if (ofilename_noise_td!="") VecDouble_in_Binary(ofilename_noise_td, avg);
     std::cout << "\n\n Saved the files you requested : )\n\n" << std::endl;
   }
 }

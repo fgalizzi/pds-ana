@@ -51,6 +51,7 @@ class cla{
     int prepulse_ticks;   //Template pre-pulse ticks
     int pretrg;           //Lower limit of acceptance window in selftrigger studies
     int afttrg;           //Upper " " " "
+    int ndisplay;
     double tick_len;      //In mu_s
     double spe_ampl;      
     double spe_under;
