@@ -1,4 +1,8 @@
 #include "../classe.hpp"
+#include <cstddef>
+#include <numeric>
+#include <string>
+#include <vector>
 
 // ****************************************************************
 // Change this marco when you can easily loop over runs and you
@@ -8,9 +12,20 @@
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-string base_path = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/";
+string base_path   = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/";
+string fft_outfile = "FFT_VGainScans_Membrane.root";
+string ana_outfile = "VGain_RMS_Membrane.csv";
 ///////////////////////////////////////////////////////////////////
 
+double standard_deviation_vec_vec(vector<vector<double>>& wfs){
+  double variance = 0.;
+  double len = double(wfs[0].size());
+  for(auto& wf : wfs){
+    double mean = accumulate(wf.begin(),wf.end(),0.)/len;
+    for(auto& e : wf) variance += (e-mean)*(e-mean);
+  }
+  return sqrt(variance / double(len*wfs.size()));
+}
 
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
@@ -36,13 +51,10 @@ void cla::TooAnnoying(){
     vgain += 100;
   }
 
-  // for(auto tuple : my_tuple) print_tuple(tuple);
-
-  map<int,TFile> map_ch_FFTfile;
+  TFile fft_ofile(fft_outfile.c_str(), "recreate");
   for(auto& ch : channels){
-    string filename= "FFT_VgainScan_Ch_"+to_string(ch)+".root";
-    TFile tfile(filename.c_str(), "recreate");
-    map_ch_FFTfile[ch] = tfile;
+    string dir_name = "Ch_"+to_string(ch);
+    fft_ofile.mkdir(dir_name.c_str());
   }
 
   for(auto& tuple : my_tuple){
@@ -54,25 +66,17 @@ void cla::TooAnnoying(){
     string gr_name = "VGain_"+to_string(get<2>(tuple));
     gNoise_spectral_density->SetName(gr_name.c_str());
     gNoise_spectral_density->SetTitle(gr_name.c_str());
-    map_ch_FFTfile.second().Open();
-    gNoise_spectral_density->write();
-    map_ch_FFTfile.second().Close();
-  }
+    fft_ofile.cd(to_string(get<3>(tuple)).c_str());
+    gNoise_spectral_density->Write();
+    if (print == true){
+        vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
 
-/*  
-  for(int i=0; i<ifiles.size(); i++){
-    wf_file = ifiles[i];
-    print = 1;
-    trg_f = td_files[i];
-    noise_f = "";
-    muon_f = raw_files[i];
-    Noise_PSD();
-    print = 0;
-    ite = 0;
-    noise_f = trg_f;
-    muon_f = clean_files[i];
-    Noise_PSD();
+        feature_value.push_back({"Run", get<1>(tuple)});
+        feature_value.push_back({"VGain" , get<2>(tuple)});
+        feature_value.push_back({"Ch", get<3>(tuple)});
+        feature_value.push_back({"Rms", standard_deviation_vec_vec(wfs)});
 
+        print_vec_pair_csv(ana_outfile, feature_value);
+    }
   }
-*/
 }
