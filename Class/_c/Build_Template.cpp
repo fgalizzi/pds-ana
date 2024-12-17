@@ -31,11 +31,11 @@ void cla::Build_Template() {
   read();
 
   // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
-  CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
-  // if(ite==0){
-  //   SubVec_to_WFs(wfs, noise_td);
-  //   ite++;
-  // }
+  if(ite==0 && noise_td!=""){
+    CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
+    SubVec_to_WFs(wfs, noise_td);
+    ite++;
+  }
 
   // Select calibration waveforms (clean pre-pulse range and no saturation)
   // and compute in integral in [int_low;int_up]
