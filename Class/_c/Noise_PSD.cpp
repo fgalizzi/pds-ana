@@ -19,8 +19,8 @@ void cla::Noise_PSD(){
   vector<vector<double>> noise, noise2, avg_wf;
     
   for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
-string ifile_noisetd          = noise_f;
-string ofilename_noise_td     = trg_f;
+  string ifile_noisetd          = noise_f;
+  string ofilename_noise_td     = trg_f;
 
   // Read and subtract the baseline
   read();
@@ -89,8 +89,9 @@ string ofilename_noise_td     = trg_f;
       } 
       OutFile2.close();
     }
-    if (ofilename_noise_td!="") VecDouble_in_Binary(ofilename_noise_td, avg);
+    if (ofilename_noise_td!="") VecDouble_in_Binary("Noise_files/"+ofilename_noise_td+".dat", avg);
     std::cout << "\n\n Saved the files you requested : )\n\n" << std::endl;
   }
+  print=false;
 }
  

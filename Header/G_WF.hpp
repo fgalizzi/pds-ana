@@ -378,10 +378,10 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
   TComplex  xN[nsample_];
   double    xN_re[nsample_];
   double    xN_im[nsample_];
-  double scale = 1./nwindow;
   double c_scale = 1./nsample;
   double t;
-  
+
+  int good_ffts = 0;
 
   int nsample_fft = 0.5*nsample;
   TGraph* g_avg_spectral_density = new TGraph(nsample_fft);
@@ -408,14 +408,26 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
     fft->Transform();
     fft->GetPointsComplex(xN_re, xN_im);
 
+    bool goodness = 1;
     for (int j=0; j<nsample_fft; j++) {
       xN[j] = TComplex(xN_re[j], xN_im[j]);
-      t = 10*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res*2)));
-      //t = 20*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res)));
-      h2_spectral_density->Fill(j/t1, t);
-      g_avg_spectral_density->GetY()[j] += (t*scale);
+      xN[j] = 10*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res*2)));
+      t = xN[j];
+      if(isnan(t) || isinf(t)) goodness = 0;
+    } 
+    if(goodness) good_ffts += 1;
+    for (int j=0; j<nsample_fft; j++) h2_spectral_density->Fill(j/t1, xN[j]);
+    if (goodness){
+      for (int j=0; j<nsample_fft; j++){
+        t = xN[j];
+        g_avg_spectral_density->GetY()[j] += t;
+      }
     }
   }
+
+  
+  double scale = 1./double(good_ffts);
+  for (int j=0; j<nsample_fft; j++) g_avg_spectral_density->GetY()[j] *= scale;
 
   TCanvas* cNoise = new TCanvas("cNoise", "Power Spectral Density", 100, 100, 800, 600);
   cNoise->SetLogz(1);
@@ -838,5 +850,17 @@ vector<double> TriggerTime(vector<double>& waveform){
   return trgs;
 }
 
+// Return the RMS (STD) of a vector of vectors
+//*********************************************
+double standard_deviation_vec_vec(vector<vector<double>>& wfs){
+//*********************************************
+  double variance = 0.;
+  double len = double(wfs[0].size());
+  for(auto& wf : wfs){
+    double mean = accumulate(wf.begin(),wf.end(),0.)/len;
+    for(auto& e : wf) variance += (e-mean)*(e-mean);
+  }
+  return sqrt(variance / double(len*wfs.size()));
+}
 
 #endif /* G_WF_hpp */

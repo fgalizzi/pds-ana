@@ -158,7 +158,7 @@ class cla{
     
     //Loops: to repeat the analysis on many files : )
     void Loop_ST_Analysis();
-    void Loop_RMS_Analysis();
+    void Loop_FFT_RMS_Analysis();
 
     //Constructor
     cla(){set();}

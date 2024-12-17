@@ -19,9 +19,9 @@ void cla::SPE() {
   
   // Read and subtract the baseline
   read();
-  string noise_td_file = "./Noise_td.dat";
-  CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
-  SubVec_to_WFs(wfs, noise_td);
+  // string noise_td_file = "./Noise_td.dat";
+  // CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
+  // SubVec_to_WFs(wfs, noise_td);
 
   SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);
   TH1D* hI = nullptr;
