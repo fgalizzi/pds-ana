@@ -18,6 +18,7 @@
 void cla::TooAnnoying(){
   print=1;
   Noise_PSD();
+  trg_f="";
 }
 
 /*

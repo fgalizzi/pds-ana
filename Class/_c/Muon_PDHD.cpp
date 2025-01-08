@@ -26,8 +26,8 @@ void cla::Muon_PDHD(){
 
   double t=0;
  
-  templ_f = dtempl_file;
-  muon_f = dmuon_file;
+  // templ_f = dtempl_file;
+  // muon_f = dmuon_file;
   std::vector<std::vector<double>> templ_v, avg_muon_v;
   std::vector<double> templ, avg_muon, y, noise;
 

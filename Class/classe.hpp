@@ -100,6 +100,7 @@ class cla{
     double tau_slow;
     double sigma;
     double t_0; 
+    double yerr=5;
   
     // ProtoDUNE
     size_t channel;   // e.g. 11245 <-> ep 112 ch 45

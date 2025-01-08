@@ -89,7 +89,7 @@ void cla::Noise_PSD(){
       } 
       OutFile2.close();
     }
-    if (ofilename_noise_td!="") VecDouble_in_Binary("Noise_files/"+ofilename_noise_td+".dat", avg);
+    if (ofilename_noise_td!="") VecDouble_in_Binary(ofilename_noise_td+".dat", avg);
     std::cout << "\n\n Saved the files you requested : )\n\n" << std::endl;
   }
   print=false;

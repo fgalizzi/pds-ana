@@ -7,9 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
 
-// string templ_file = "/Users/federico/PhD/PDE/Template_files/Template.dat";
-// string muon_file = "/Users/federico/PhD/PDE/Muon_files/Muon.dat";
-string pde_result_file = "/Users/federico/PhD/PDE/Result.csv";
+string pde_result_file = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Conv_results/res.csv";
 ///////////////////////////////////////////////////////////////////
 
 #include "Fit/FitResult.h"
@@ -109,8 +107,6 @@ double* conv_templ_dexp(const double* p,
 //------- Macro ---------------------------------------------------
 void cla::Convolution(){
 
-  // templ_f = templ_file;
-  // muon_f = muon_file;
   size_t   nsample = memorydepth;
   TComplex templ_fft[nsample], dexp_fft[nsample];
   double   templ_td[nsample], dexp_td[nsample];
@@ -120,7 +116,7 @@ void cla::Convolution(){
   std::vector<double> sin_muon(memorydepth, 0.0); 
   std::vector<double> time(memorydepth, 0.0); 
   std::vector<double> e_x(memorydepth, 0.); 
-  std::vector<double> e_y(memorydepth, 3.); 
+  std::vector<double> e_y(memorydepth, yerr); 
   
   // Create the template vector
   CompleteWF_Binary(templ_f, templ_v, 1, memorydepth);
@@ -175,7 +171,7 @@ void cla::Convolution(){
       double err = g_muon->GetErrorY(i);
       chi2 += d*d/(err*err);
     }
-    // return chi2/double(int_fit_u-int_fit_l);
+    // return chi3/double(int_fit_u-int_fit_l);
     return chi2;
   };
 
@@ -193,69 +189,92 @@ void cla::Convolution(){
   fitter.Config().ParSettings(6).SetName("c");
 
   if(!no_fit){
-    std::cout << "---- Fit 1 ---------" << std::endl;
-    bool ok = fitter.FitFCN();
+    bool fit_check;
+    double best_params[7];
+    
+    std::cout << "---- Fit 0 ---------" << std::endl;
+    fit_check = fitter.FitFCN();
     fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
-    const ROOT::Fit::FitResult &result = fitter.Result();
+    auto result = fitter.Result();
     result.Print(std::cout);
+    for (size_t i=0; i<7; i++) best_params[i] = result.GetParams()[i];
+    double min = result.MinFcnValue();
+    double t0 = result.GetParams()[5]; //
     std::cout << "\n\n\n" << std::endl;
 
-    // Move t_0 a little bit
-    std::cout << "---- Fit 2 ---------" << std::endl;
-    t_0      = result.GetParams()[5];
-    fitter.Config().ParSettings(5).SetValue(t_0+5.*tick_len);
-    ok = fitter.FitFCN();
-    fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
-    const ROOT::Fit::FitResult &result2 = fitter.Result();
-    result2.Print(std::cout);
-    std::cout << "\n\n\n" << std::endl;
+    // Scan different t0s
+    for (size_t i=1; i<10; i++){
+      std::cout << "---- Fit " << i << " ---------" << std::endl;
+      double di = double(int(i)-5);
+      fitter.Config().ParSettings(5).SetValue(t0+di*tick_len*0.5);
+      fit_check = fitter.FitFCN();
+      fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
+      auto result_temp = fitter.Result();
+      result_temp.Print(std::cout);
+      std::cout << "\n" << std::endl;
 
-    std::cout << "---- Fit 3 ---------" << std::endl;
-    fitter.Config().ParSettings(5).SetValue(t_0-5.*tick_len);
-    ok = fitter.FitFCN();
-    fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
-    const ROOT::Fit::FitResult &result3 = fitter.Result();
-    result3.Print(std::cout);
-    std::cout << "\n\n\n" << std::endl;
-
-    a_fast   = result.GetParams()[0]; double err_a_fast   = result.GetErrors()[0];
-    tau_fast = result.GetParams()[1]; double err_tau_fast = result.GetErrors()[0];
-    a_slow   = result.GetParams()[2]; double err_a_slow   = result.GetErrors()[0];
-    tau_slow = result.GetParams()[3]; double err_tau_slow = result.GetErrors()[0];
-    sigma    = result.GetParams()[4]; double err_sigma    = result.GetErrors()[0];
-    t_0      = result.GetParams()[5]; double err_t_0      = result.GetErrors()[0];
+      if (result_temp.MinFcnValue()<min && fit_check==true){
+        std::cout << result.GetParams()[0] << " " << result_temp.GetParams()[0] << std::endl;
+        min = result_temp.MinFcnValue();
+        result = result_temp;
+        for (size_t i=0; i<7; i++) best_params[i] = result.GetParams()[i];
+      }
+      
+      par = &best_params[0];
+      xy = conv_templ_dexp(par, &templ_fft[0], nsample, tick_len);
+      std::cout << "\n\n\n" << std::endl;
+    }
+ 
+    double fit_a_fast   = result.GetParams()[0]; double err_a_fast   = result.GetErrors()[0];
+    double fit_tau_fast = result.GetParams()[1]; double err_tau_fast = result.GetErrors()[1];
+    double fit_a_slow   = result.GetParams()[2]; double err_a_slow   = result.GetErrors()[2];
+    double fit_tau_slow = result.GetParams()[3]; double err_tau_slow = result.GetErrors()[3];
+    double fit_sigma    = result.GetParams()[4]; double err_sigma    = result.GetErrors()[4];
+    double fit_t_0      = result.GetParams()[5]; double err_t_0      = result.GetErrors()[5];
 
     if (print == true){
-        vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
+      vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
+      double date, electronic;
+      string comment;
 
-        feature_value.push_back({"A fast", a_fast});
-        feature_value.push_back({"A fast err", err_a_fast});
-        feature_value.push_back({"Tau fast [mus]", tau_fast});
-        feature_value.push_back({"Tau fast err [mus]", err_tau_fast});
-        feature_value.push_back({"A slow", a_slow});
-        feature_value.push_back({"A slow err", err_a_slow});
-        feature_value.push_back({"Tau slow [mus]", tau_slow});
-        feature_value.push_back({"Tau slow err [mus]", err_tau_slow});
-        feature_value.push_back({"Sigma", sigma});
-        feature_value.push_back({"Sigma err", err_sigma});
-        feature_value.push_back({"t0 [mus]", t_0});
-        feature_value.push_back({"t0 err [mus]", err_t_0});
-        feature_value.push_back({"I fast", a_fast*tau_fast/(a_fast*tau_fast+a_slow*tau_slow)});
-        feature_value.push_back({"I slow ",a_slow*tau_slow/(a_fast*tau_fast+a_slow*tau_slow)});
-        feature_value.push_back({"I slow pure",a_slow*1.5/(a_fast*0.007+a_slow*1.5)});
+      std::cout << "Data of the run YYMMDD format (e.g. 240228)" << std::endl;
+      std::cin >> date;
+      std::cout << "Old/new electronic (old=0, new=1)" << std::endl;
+      std::cin >> electronic;
+      std::cout << "Add a comment (type n if no comment); e.g. \"am or pm\", bias..." << std::endl;
+      std::cin >> comment;
 
-        print_vec_pair_csv(pde_result_file, feature_value);
+      feature_value.push_back({"Date", date});
+      feature_value.push_back({"Electronic (old=0, new=1)", electronic});
+      feature_value.push_back({"A fast", fit_a_fast});
+      feature_value.push_back({"A fast err", err_a_fast});
+      feature_value.push_back({"Tau fast [mus]", fit_tau_fast});
+      feature_value.push_back({"Tau fast err [mus]", err_tau_fast});
+      feature_value.push_back({"A slow", fit_a_slow});
+      feature_value.push_back({"A slow err", err_a_slow});
+      feature_value.push_back({"Tau slow [mus]", fit_tau_slow});
+      feature_value.push_back({"Tau slow err [mus]", err_tau_slow});
+      feature_value.push_back({"Sigma", fit_sigma});
+      feature_value.push_back({"Sigma err", err_sigma});
+      feature_value.push_back({"t0 [mus]", fit_t_0});
+      feature_value.push_back({"t0 err [mus]", err_t_0});
+      feature_value.push_back({"I fast", fit_a_fast*fit_tau_fast/(fit_a_fast*fit_tau_fast+fit_a_slow*fit_tau_slow)});
+      feature_value.push_back({"I slow ", fit_a_slow*fit_tau_slow/(fit_a_fast*fit_tau_fast+fit_a_slow*fit_tau_slow)});
+      feature_value.push_back({"I slow pure", fit_a_slow*1.5/(fit_a_fast*fit_tau_fast+fit_a_slow*1.5)});
+
+      print_vec_pair_csv(pde_result_file, feature_value, comment);
     }
+  
+    std::cout <<"\n \nFast/Slow intensities" << std::endl;
+    std::cout <<"I_fast = " << fit_a_fast*fit_tau_fast/(fit_a_fast*fit_tau_fast+fit_a_slow*fit_tau_slow) << std::endl;  
+    std::cout <<"I_slow = " << fit_a_slow*fit_tau_slow/(fit_a_fast*fit_tau_fast+fit_a_slow*fit_tau_slow) << std::endl;  
+    std::cout <<"I_slow pure = " << fit_a_slow*1.5/(fit_a_fast*fit_tau_fast+fit_a_slow*1.5) << std::endl;  
   }
 
+
+  // ---- PLOTS --------------------------------------------------------
   for(size_t i=0; i<memorydepth; i++) sin_muon[i]=xy[i];
   TGraph* g_sint = new TGraph(memorydepth, &time[0], &sin_muon[0]);
-  
-  std::cout <<"\n \nFast/Slow intensities" << std::endl;
-  std::cout <<"Is = " << a_fast*tau_fast/(a_fast*tau_fast+a_slow*tau_slow) << std::endl;  
-  std::cout <<"It = " << a_slow*tau_slow/(a_fast*tau_fast+a_slow*tau_slow) << std::endl;  
-  std::cout <<"It pure = " << a_slow*1.4/(a_fast*tau_fast+a_slow*1.4) << std::endl;  
-
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,800);
   c2->cd();

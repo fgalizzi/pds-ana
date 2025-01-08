@@ -10,10 +10,10 @@
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
+  string template_file = "../Template_files/sp20240314_newElec_45v"; 
+  string noise_file    = "../Noise_files/noise20240314_newel_45V.dat"; 
 
-string noise_td_file = "/Users/federico/PhD/PDE/Noise_files/Noise_NewEl_20241004_TimeDomain.dat";
-string template_files_path = "/Users/federico/PhD/PDE/Template_files/";
-
+string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/SPEclean_files/";
 ///////////////////////////////////////////////////////////////////
 
 
@@ -31,8 +31,8 @@ void cla::Build_Template() {
   read();
 
   // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
-  if(ite==0 && noise_td_file!=""){
-    CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
+  if(ite==0 && noise_f!=""){
+    CompleteWF_Binary(noise_f, noise_td, memorydepth); // t_templ = time domain template
     SubVec_to_WFs(wfs, noise_td);
     ite++;
   }

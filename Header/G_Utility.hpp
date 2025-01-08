@@ -234,9 +234,10 @@ T Vector_MPV(std::vector<T> vec){
 
 //Print the keys as header and the values in columns in a .csv file
 //*********************************************
-void print_vec_pair_csv(std::string filename, std::vector<std::pair<std::string,double>> my_map){
-  std::vector<std::pair<std::string,double>>::iterator it;
+void print_vec_pair_csv(std::string filename, std::vector<std::pair<std::string,double>> my_map,
+                        std::string comment=""){
 //*********************************************
+  std::vector<std::pair<std::string,double>>::iterator it;
   // Check if the file already exists
   std::ifstream infile(filename);
   bool file_exists = infile.good();
@@ -251,6 +252,7 @@ void print_vec_pair_csv(std::string filename, std::vector<std::pair<std::string,
   }
   // Append new data lines
   for(it = my_map.begin(); it!=my_map.end(); it++) outfile << it->second << ",";
+  if (comment!="n") outfile << comment << ",";
   
   outfile << std::endl;
   // Close the file
