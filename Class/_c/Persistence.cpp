@@ -15,7 +15,7 @@ void cla::Persistence() {
   TCanvas* cTime = new TCanvas("wavedec","wavedec");
   
   //MovingAverageWF(WFS, y2, 100);
-  DisplayWFs (wfs, tick_len, 50);
+  DisplayWFs (wfs, tick_len, 5);
 
   min_max_element(wfs, y0, y1);
   //min_max_element(y2, y0, y1);

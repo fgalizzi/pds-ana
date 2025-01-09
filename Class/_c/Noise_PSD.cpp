@@ -15,7 +15,7 @@ void cla::Noise_PSD(){
 
   avg_wf.push_back(avg);
   
-  TGraph* gAvg= build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
+  TGraph* gAvg = build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
   gAvg->SetLineColor(2);
   TGraph* gNoise_spectral_density = build_avg_spectral_density(memorydepth,
       tick_len*memorydepth, tick_len, noise2, res);

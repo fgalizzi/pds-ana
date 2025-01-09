@@ -51,15 +51,15 @@ void cla::SPE() {
     print = false;
   }
   //Draw the spe FFT
-  TGraph* gAvg= build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
-  gAvg->SetLineColor(kGray+2); gAvg->SetLineWidth(2);
-  gAvg->Draw("l");
+  //TGraph* gAvg= build_avg_spectral_density(memorydepth, tick_len*memorydepth, tick_len, avg_wf, res);
+  //gAvg->SetLineColor(kGray+2); gAvg->SetLineWidth(2);
+  //gAvg->Draw("l");
   
-  TCanvas *c_Spe_FFT = new TCanvas("c_Spe_FFT","c_Spe_FFT",20,20,1000,900);
-  c_Spe_FFT->SetTicks(1, 1);      c_Spe_FFT->SetGrid(1, 1);
-  c_Spe_FFT->cd();
-  gAvg->Draw();
-  c_Spe_FFT->Modified(); c_Spe_FFT->Update();
+  //TCanvas *c_Spe_FFT = new TCanvas("c_Spe_FFT","c_Spe_FFT",20,20,1000,900);
+  //c_Spe_FFT->SetTicks(1, 1);      c_Spe_FFT->SetGrid(1, 1);
+  //c_Spe_FFT->cd();
+  //gAvg->Draw();
+  //c_Spe_FFT->Modified(); c_Spe_FFT->Update();
 
   //Draw the SPE wf
   TGraph *g1 = new TGraph(avg.size(), &x[0], &avg[0]);
@@ -86,7 +86,11 @@ void cla::SPE() {
 
   std::cout << "\n\nColdbox table Ampl - under - r_time - f_time - under" << std::endl;
   std::cout << spe_ampl << "\t" << undershoot*spe_ampl/100. << "\t" << r_time << "\t" << f_time << "\t" <<
-    undershoot << "\n\n" << std::endl; 
+    undershoot << "\n\n" << std::endl;
+
+  //Evaluate the dynamic range
+  double dyn_range = pow(2,14)/(spe_ampl - spe_under);
+  std::cout << "\n\nDynamic Range " << dyn_range << std::endl; 
 
   if (fgaus != nullptr){
     spe_ampl_correction = compute_spe_correction(fgaus);

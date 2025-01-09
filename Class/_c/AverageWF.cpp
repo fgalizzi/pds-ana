@@ -1,5 +1,3 @@
-#include "../classe.hpp"
-
 void cla::AverageWF() {
 
   double y0, y1, r_time, f_time, undershoot;

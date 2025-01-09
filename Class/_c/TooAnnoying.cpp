@@ -1,7 +1,20 @@
 #include "../classe.hpp"
 
 void cla::TooAnnoying(){
-  TString runs_folder = "/eos/home-f/fegalizz/ProtoDUNE_HD/VGain/files/run_";
+
+//Scan tick
+int a = int_up;
+for(int i = a; i < a+30; i++){
+  int_up = i;
+  LED_Analysis();
+}
+  
+
+
+
+
+
+/*  TString runs_folder = "/eos/home-f/fegalizz/ProtoDUNE_HD/VGain/files/run_";
   TString ana_folder  = "/eos/home-f/fegalizz/ProtoDUNE_HD/VGain/analysis";
   //std::vector<int> runs = {29947,30053,30101,30149,30263,30314,30377,30458,30539,30620,30703,
     //                        30783,30945,31187,31166};
@@ -78,5 +91,5 @@ void cla::TooAnnoying(){
     }
   }
   
-  //hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
+  //hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();*/
 }
