@@ -10,10 +10,10 @@
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-  string template_file = "../Template_files/sp20240314_newElec_45v"; 
-  string noise_file    = "../Noise_files/noise20240314_newel_45V.dat"; 
+  // string template_file = "../Template_files/sp20240314_newElec_45v"; 
+  // string noise_file    = "../Noise_files/noise20240314_newel_45V.dat"; 
 
-string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/SPEclean_files/";
+string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Template_files/";
 ///////////////////////////////////////////////////////////////////
 
 
@@ -55,7 +55,7 @@ void cla::Build_Template() {
   double norm; 
   if(print==true){
     string outfile_name;
-    cout << "Name of the muon file (without .dat)" << endl;
+    cout << "Name of the new template file (without .dat)" << endl;
     cin >> outfile_name;
     outfile_name = template_files_path+outfile_name;
     

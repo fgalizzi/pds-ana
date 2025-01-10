@@ -19,7 +19,37 @@ double func_fit(double *x, double *p) {
   double val =(p[0]*exp(-(x[0]-p[5])/p[1])*exp(p[4]*p[4]/(2*p[1]*p[1])))*TMath::Erfc(((p[5]-x[0])/p[4]+p[4]/p[1])/TMath::Power(2,0.5))/2. + (p[2]*exp(-(x[0]-p[5])/p[3])*exp(p[4]*p[4]/(2*p[3]*p[3])))*TMath::Erfc(((p[5]-x[0])/p[4]+p[4]/p[3])/TMath::Power(2,0.5))/2. + p[6];
   return val;
 }
+//*********************************************
+void complicated_double_expo(double* y, const double* p, size_t len, double tick_len){
+//*********************************************
+  double a_f = p[0];
+  double t_f = p[1];
+  double a_s = p[2];
+  double t_s = p[3];
+  double sig = p[4];
+  double t_0 = p[5];
+  double con = p[6];
 
+  double tf_inv = 1./t_f;
+  double ts_inv = 1./t_s;
+  double sig_inv = 1./sig;
+  double sig_tf = sig*tf_inv;
+  double sig_ts = sig*ts_inv;
+  double sig2_tf = sig*sig/(2*t_f*t_f);
+  double sig2_ts = sig*sig/(2*t_s*t_s);
+  double sqrt2_inv = 1.0 / TMath::Sqrt2();
+
+  for(size_t i=0; i<len; i++){
+    double td = t_0-double(i)*tick_len;
+    double res = a_f*exp(td*tf_inv + sig2_tf)*TMath::Erfc((td*sig_inv+sig_tf)*sqrt2_inv)*0.5 +
+                 a_s*exp(td*ts_inv + sig2_ts)*TMath::Erfc((td*sig_inv+sig_ts)*sqrt2_inv)*0.5 +
+                 con;
+    // if (isnan(res)==true || res<1.e-40) res = 0.;
+    
+    y[i] = res;
+  }
+
+}
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void cla::Muon_PDHD(){
@@ -183,7 +213,7 @@ void cla::Muon_PDHD(){
   for (size_t i=0; i< deco_wf.size(); i++) deco_wf[i] = gy->GetPointY(i);
   g_er = new TGraphErrors(time.size(), &time[0], &deco_wf[0], &e_x[0], &e_y[0]);
 
-  if (!no_fit){
+  if (!nofit){
     auto fitResult = g_er->Fit(f1 ,"RS");
   }
 

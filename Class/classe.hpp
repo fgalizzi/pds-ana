@@ -99,7 +99,8 @@ class cla{
     double a_slow;
     double tau_slow;
     double sigma;
-    double t_0; 
+    double t_0;
+    double constant=0.;
     double yerr=5;
   
     // ProtoDUNE
@@ -122,7 +123,7 @@ class cla{
     //Set calibration parameters manually
     bool manual = false;
     //Avoid fit (useful to initialize the parameters)
-    bool no_fit = false;
+    bool nofit = false;
     //Apply moving window on calib wfs
     bool mov_win = false;
     //Apply matched/wiener filters (only in some macros)
