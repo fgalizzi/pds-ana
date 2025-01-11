@@ -1,8 +1,8 @@
 #include "../classe.hpp"// Here
 //
-//*** MAIN ************************************
+//  *** MAIN ************************************
 void cla::configDCR(){
-//*********************************************
+//  *********************************************
 /*  gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 

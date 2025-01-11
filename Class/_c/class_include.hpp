@@ -19,6 +19,9 @@
   #include <TROOT.h>
   #include <TChain.h>
   #include <TFile.h>
+  #include <TGraphErrors.h>
+  #include <TFitResult.h>
+
 
 
 #endif // !all_the_includes
