@@ -46,9 +46,9 @@
 #endif // !my_headers_hpp
 //
 //
-#ifndef default
-  #include "default.hpp"
-#endif // !default
+// #ifndef default
+//   #include "default.hpp"
+// #endif // !default
 //
 
 #include "../classe.hpp"

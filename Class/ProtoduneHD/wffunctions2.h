@@ -1,6 +1,3 @@
-#include <iostream>
-#include <TH1.h>
-#include <TH2.h>
 
 #ifndef wffunctions2
 #define wffunctions2

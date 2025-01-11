@@ -86,7 +86,8 @@ void cla::set(){
   spe_charge= SPE_CHARGE;  
   //Deconvolution
   int_prompt = INT_PROMPT;
-  roll = ROLL;
+  roll       = ROLL;
+  amp        = AMP;
   f_prompt   = F_PROMPT;
   amp_low    = AMP_LOW;
   amp_up     = AMP_UP;

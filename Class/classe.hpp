@@ -84,24 +84,27 @@ class cla{
     double hmax;          //Upper
     TF1* fgaus = nullptr; //Fit function
 
-    //Deconvolution
-    int int_prompt;
+    // (De)convolution
     int roll;
+    int int_prompt;
     double f_prompt;
+    double fit_l;
+    double fit_u;
+    double amp;
+    double f_fast=0.3;
+    double tau_fast;
+    double tau_slow;
+    double yerr=5;
+    //Only deconvolution 
+    double a_fast;
+    double a_slow;
+    double sigma;
+    double t_0;
+    double constant=0.;
     double n2_;
     double deco_sm;
     double amp_low;
     double amp_up;
-    double fit_l;
-    double fit_u;
-    double a_fast;
-    double tau_fast;
-    double a_slow;
-    double tau_slow;
-    double sigma;
-    double t_0;
-    double constant=0.;
-    double yerr=5;
   
     // ProtoDUNE
     size_t channel;   // e.g. 11245 <-> ep 112 ch 45
