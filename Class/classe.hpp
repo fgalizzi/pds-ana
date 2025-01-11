@@ -51,6 +51,7 @@ class cla{
     int prepulse_ticks;   //Template pre-pulse ticks
     int pretrg;           //Lower limit of acceptance window in selftrigger studies
     int afttrg;           //Upper " " " "
+    int ndisplay;
     double tick_len;      //In mu_s
     double spe_ampl;      
     double spe_under;
@@ -83,22 +84,27 @@ class cla{
     double hmax;          //Upper
     TF1* fgaus = nullptr; //Fit function
 
-    //Deconvolution
-    int int_prompt;
+    // (De)convolution
     int roll;
+    int int_prompt;
     double f_prompt;
+    double fit_l;
+    double fit_u;
+    double amp;
+    double f_fast=0.3;
+    double tau_fast;
+    double tau_slow;
+    double yerr=5;
+    //Only deconvolution 
+    double a_fast;
+    double a_slow;
+    double sigma;
+    double t_0;
+    double constant=0.;
     double n2_;
     double deco_sm;
     double amp_low;
     double amp_up;
-    double fit_l;
-    double fit_u;
-    double a_fast;
-    double tau_fast;
-    double a_slow;
-    double tau_slow;
-    double sigma;
-    double t_0; 
   
     // ProtoDUNE
     size_t channel;   // e.g. 11245 <-> ep 112 ch 45
@@ -106,7 +112,6 @@ class cla{
 
     // DCR
     int win=20;
-    int ite=1;
     double den=9.;
 
     //Subtract the baseline according to "prepulse_ticks"
@@ -121,7 +126,7 @@ class cla{
     //Set calibration parameters manually
     bool manual = false;
     //Avoid fit (useful to initialize the parameters)
-    bool no_fit = false;
+    bool nofit = false;
     //Apply moving window on calib wfs
     bool mov_win = false;
     //Apply matched/wiener filters (only in some macros)
@@ -158,7 +163,7 @@ class cla{
     
     //Loops: to repeat the analysis on many files : )
     void Loop_ST_Analysis();
-    void Loop_RMS_Analysis();
+    void Loop_FFT_RMS_Analysis();
 
     //Constructor
     cla(){set();}
@@ -168,6 +173,7 @@ class cla{
     std::string oldwf_file;
     int oldprepulse_ticks;
     size_t oldchannel;
+    int ite=0;              // number of iteration (number of time you call a method)
     
     std::vector<std::vector<double>> trg_wf;
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences

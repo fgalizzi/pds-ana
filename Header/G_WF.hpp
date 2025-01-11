@@ -176,11 +176,12 @@ TH1D* BuildFpromptHisto(std::vector<std::vector<double>>& ns_wf, std::vector<std
   return hI;
 }
 
+/*
 // With the non-saturating WFs (ns_wf) build the F_prompt histogram
 // integrating [I_low;I_up] and [I_low;I_prompt]
-//*********************************************
+// *********************************************
 TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_up, int I_pr){
-//*********************************************
+// *********************************************
   double t, prompt_integral, integral;
   int len = ns_wf[0].size();
   std::vector<double> f_wf;
@@ -197,6 +198,34 @@ TH1D* AllFpromptHisto(std::vector<std::vector<double>>& ns_wf, int I_low, int I_
   for (auto& val : f_wf) h_p->Fill(val);
   
   return h_p;
+}
+*/
+
+// Build the F_prompt vs Charge 2d-histogram integrating [I_low;I_up] and [I_low;I_prompt]
+//*********************************************
+TH2D* BuildChargeFpromptHisto(vector<vector<double>>& wfs,
+                              int I_low, int I_up, int I_pr){
+//*********************************************
+  int len = wfs[0].size();
+  size_t nwfs = wfs.size();
+  std::vector<double> f_wf, i_wf;
+  
+  for(auto& wf: wfs){
+    double prompt_integral= accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
+    double integral= accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
+    f_wf.push_back(prompt_integral/integral);
+    i_wf.push_back(integral);
+  }
+  
+  double ymin = *min_element(std::begin(i_wf), std::end(i_wf));
+  double ymax = *max_element(std::begin(i_wf), std::end(i_wf));
+  
+  TH2D* h2_charge_fprompt = new TH2D("h2_charge_fprompt",
+                                     Form("%s;%s;%s", "fprompt_vs_charge", "Charge [ADC #times ticks]", "F prompt"),
+                                     500, ymin, ymax, 500, 0., 1.);
+  for (size_t i=0; i<nwfs; i++) h2_charge_fprompt->Fill(i_wf[i], f_wf[i]);
+  
+  return h2_charge_fprompt;
 }
 
 // With the non-saturating WFs (ns_wf) it  build the F_prompt histogram integrating [I_low;I_up] and [I_low;I_prompt]
@@ -286,7 +315,7 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
   double c_scale = 1./nsample;
   
 
-  int nsample_fft = 0.5*nsample+1;
+  int nsample_fft = 0.5*nsample;
   TGraph* g_avg_spectral_density = new TGraph(nsample_fft);
   for (int j=0; j<nsample_fft; j++)
     g_avg_spectral_density->SetPoint(j, j/t1, 0.);
@@ -349,12 +378,12 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
   TComplex  xN[nsample_];
   double    xN_re[nsample_];
   double    xN_im[nsample_];
-  double scale = 1./nwindow;
   double c_scale = 1./nsample;
   double t;
-  
 
-  int nsample_fft = 0.5*nsample+1;
+  int good_ffts = 0;
+
+  int nsample_fft = 0.5*nsample;
   TGraph* g_avg_spectral_density = new TGraph(nsample_fft);
   for (int j=0; j<nsample_fft; j++)
     g_avg_spectral_density->SetPoint(j, j/t1, 0.);
@@ -379,14 +408,26 @@ TGraph* build_avg_spectral_density(int nsample, double t1, double t0,
     fft->Transform();
     fft->GetPointsComplex(xN_re, xN_im);
 
+    bool goodness = 1;
     for (int j=0; j<nsample_fft; j++) {
       xN[j] = TComplex(xN_re[j], xN_im[j]);
-      t = 10*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res*2)));
-      //t = 20*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res)));
-      h2_spectral_density->Fill(j/t1, t);
-      g_avg_spectral_density->GetY()[j] += (t*scale);
+      xN[j] = 10*TMath::Log10(xN[j].Rho2()*c_scale/(pow(2,res*2)));
+      t = xN[j];
+      if(isnan(t) || isinf(t)) goodness = 0;
+    } 
+    if(goodness) good_ffts += 1;
+    for (int j=0; j<nsample_fft; j++) h2_spectral_density->Fill(j/t1, xN[j]);
+    if (goodness){
+      for (int j=0; j<nsample_fft; j++){
+        t = xN[j];
+        g_avg_spectral_density->GetY()[j] += t;
+      }
     }
   }
+
+  
+  double scale = 1./double(good_ffts);
+  for (int j=0; j<nsample_fft; j++) g_avg_spectral_density->GetY()[j] *= scale;
 
   TCanvas* cNoise = new TCanvas("cNoise", "Power Spectral Density", 100, 100, 800, 600);
   cNoise->SetLogz(1);
@@ -513,7 +554,7 @@ void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_pro
         max_el = *max_element( y[i].begin()+int_prompt, y[i].end());
         min_el = *min_element( y[i].begin()+int_prompt, y[i].end());
         //
-        if (max_el <  t && min_el > sat_low){
+        if (max_el < t && min_el > sat_low){
           sel_counter++;
           for(size_t j=0; j<len; j++) first_avg[j] += y[i][j];
           preliminary_selection[i]=true;
@@ -531,15 +572,15 @@ void SelPDE_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, int int_pro
       norm = 1./ *max_element(wf.begin(), wf.end());
       double norm_bsl = rms*norm*5.;
       for (auto& e : wf) e *= norm;
+
+      bool select_shape = true;
       for (size_t j=0; j<len; j++){
-        if (wf[j] > first_avg[j]+norm_bsl ||
-            wf[j] < first_avg[j]-norm_bsl){
-          continue;
-        }
-        else {
-          final_selection[i]=true;
+        if (wf[j] > first_avg[j]+norm_bsl || wf[j] < first_avg[j]-norm_bsl){
+          select_shape = false;
+          j = len+1;
         }
       }
+      final_selection[i]=select_shape;
     }
 
     if(final_selection[i]==true) y2.push_back(y[i]);
@@ -567,7 +608,7 @@ void SelCalib_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, T sat_low
     max_el = *max_element( y[i].begin(), y[i].begin()+pre);
     min_el = *min_element( y[i].begin(), y[i].begin()+pre);
     
-    if (max_el<bsl && min_el > -bsl) {
+    if (max_el<bsl && min_el > -bsl && max_el-min_el>3) {
       max_el = *max_element( y[i].begin()+pre, y[i].end());
       min_el = *min_element( y[i].begin()+pre, y[i].end());
       
@@ -809,5 +850,17 @@ vector<double> TriggerTime(vector<double>& waveform){
   return trgs;
 }
 
+// Return the RMS (STD) of a vector of vectors
+//*********************************************
+double standard_deviation_vec_vec(vector<vector<double>>& wfs){
+//*********************************************
+  double variance = 0.;
+  double len = double(wfs[0].size());
+  for(auto& wf : wfs){
+    double mean = accumulate(wf.begin(),wf.end(),0.)/len;
+    for(auto& e : wf) variance += (e-mean)*(e-mean);
+  }
+  return sqrt(variance / double(len*wfs.size()));
+}
 
 #endif /* G_WF_hpp */

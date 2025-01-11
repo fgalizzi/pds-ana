@@ -2,6 +2,12 @@
 #include <cstddef>
 #include <utility>
 
+// ****************************************************************
+// Description
+// ****************************************************************
+
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Loop_ST_Analysis(){
   //////////////////////////////////////////////////////////////////////
   // HARD CODE HERE
@@ -36,56 +42,72 @@ void cla::Loop_ST_Analysis(){
 
 }
 
-void cla::Loop_RMS_Analysis(){
-  size_t run = 27877; //Needed create the root file with the results
-  channel_low = 10400;     //Lower channel to look at (included)
-  channel_up  = 11050;     //Upper " "
-  vector<size_t> channels = read_pdhd_ch_map(mask);
-  print = 1;
-  int nwf_here = 20000;
-  prepulse_ticks = 1023;
-  vector<vector<double>> y2;
-  vector<pair<size_t,double>> ch_rms;
-
-
-  for(auto ch : channels){
-    if(ch<channel_low || ch>channel_up) continue;
-
-    this->channel = ch;
-    n_wf = nwf_here;
-    read();
-    SelCalib_WF(wfs, y2, prepulse_ticks, sat_low, sat_up, bsl);
-
-
-    TH2D* h2 = new TH2D("h2", Form("%s;%s;%s", "Persistence", "Ticks", "ADC Counts"),
-                      memorydepth, 0., memorydepth, int(bsl*4), -bsl*2, bsl*2);
-  
-    for (auto& wf : y2) for (int j=0; j<memorydepth; j=j+2) h2->Fill(j, wf[j]);
+// ****************************************************************
+// Loop to compute the FFT and RMS of noise runs. The FFTs are
+// stored as TGraph in a fft_outfile.root, the RMS in an
+// ana_outfile.csv (see my_tuple)
+// ****************************************************************
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
+void cla::Loop_FFT_RMS_Analysis(){
+///////////////////////////////////////////////////////////////////
+//////// HARD CODE ////////////////////////////////////////////////
+  string base_path   = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/";
+  string fft_outfile = "FFT_VGainScans_LED1_Membrane.root";
+  string ana_outfile = "VGain_RMS_LED1_Membrane.csv";
+///////////////////////////////////////////////////////////////////
   
 
-    TH1D* h_bsl = h2->ProjectionY("h_bsl", 0, prepulse_ticks);
-    ch_rms.push_back(make_pair(channel, h_bsl->GetRMS()));
-    h_bsl->Delete();
-    h2->Delete();
+  // Tuple input file, run, vgain, channel
+  vector<tuple<string,int,int,int>> my_tuple;
 
+  vector<int> runs;
+  for(int i=9; i<300+9; i++){
+    if(i%2==0) runs.push_back(33300+i);
+    if(i==66) i=10000;
   }
- 
-    std::ofstream outfile(Form("Ch_rms_bsl_%f_run_%zu", bsl, run));
 
-    for (const auto& pair : ch_rms) {
-        outfile << pair.first << "\t" << pair.second << std::endl;
+  int vgain = 100;
+  vector<int> channels = {0,1,2,3,20,21,26,27};
+
+  vector<string> ifiles;
+  for(auto& run : runs){
+    for(auto& ch : channels){
+      string ifile = base_path+"run_"+to_string(run)+"/104/channel_"+to_string(ch)+".dat";
+      my_tuple.push_back(make_tuple(ifile,run,vgain,ch));
     }
-    outfile.close();
+    vgain += 100;
+  }
 
+  TFile fft_ofile(fft_outfile.c_str(), "recreate");
+  for(auto& ch : channels){
+    string dir_name = "Ch_"+to_string(ch);
+    fft_ofile.mkdir(dir_name.c_str());
+  }
+
+  for(auto& tuple : my_tuple){
+    wf_file = get<0>(tuple);
+    read();
+    TGraph* gNoise_spectral_density = build_avg_spectral_density(memorydepth,
+      tick_len*memorydepth, tick_len, wfs, res);
+
+    string gr_name = "VGain_"+to_string(get<2>(tuple));
+    gNoise_spectral_density->SetName(gr_name.c_str());
+    gNoise_spectral_density->SetTitle(gr_name.c_str());
+    
+    string dir_name = "Ch_"+to_string(get<3>(tuple));
+    fft_ofile.cd(dir_name.c_str());
+    gNoise_spectral_density->Write();
+    if (print == true){
+        vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
+
+        feature_value.push_back({"Run", get<1>(tuple)});
+        feature_value.push_back({"VGain" , get<2>(tuple)});
+        feature_value.push_back({"Ch", get<3>(tuple)});
+        feature_value.push_back({"Rms", standard_deviation_vec_vec(wfs)});
+
+        print_vec_pair_csv(ana_outfile, feature_value);
+    }
+  }
 }
-
-
-
-
-
-
-
-
-
-
 

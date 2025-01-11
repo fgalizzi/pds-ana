@@ -2,6 +2,45 @@
 //Set all the constant values I need from cost.hpp
 //
 #include "../classe.hpp"
+#include <iostream>
+
+// #ifndef WF_FILE
+//   #define WF_FILE "give_this_file_a_proper_name"
+//   std::cout << "\nGIVE A NAME TO THE FILE TO READ WITH a.wf_file " << std::endl;
+// #endif // !WF_FILE
+//
+// #ifndef DATA_FORMAT
+//   #define DATA_FORMAT "set_a_data_format";
+// #endif // !DATA_FORMAT
+//
+// #ifndef INVERT
+//   #define INVERT 0;
+// #endif // !INVERT
+//
+// #ifndef TEMPL_F
+//   #define TEMPL_F "0";
+// #endif // !TEMPL_F
+//
+// #ifndef NOISE_F
+//   #define NOISE_F "0";
+// #endif // !NOISE_F
+//
+// #ifndef MUON_F
+//   #define MUON_F "0";
+// #endif // !MUON_F
+//
+// #ifndef TRG_F
+//   #define TRG_F "0";
+// #endif // !TRG_F
+//
+// #ifndef MEMORYDEPTH
+//   #define MEMORYDEPTH 1024;
+// #endif // !MEMORYDEPTH
+//
+// #ifndef N_WF
+//   #define N_WF 50;
+// #endif // !N_WF
+//
 void cla::set(){
   wf_file        = WF_FILE;
   oldwf_file     = WF_FILE;
@@ -24,7 +63,7 @@ void cla::set(){
   sat_up         = SAT_UP;
   sat_low        = SAT_LOW;
   bsl            = BSL;
-  rms            = BSL/3;
+  rms            = RMS;
 
   //Calibration
   int_low   = INT_LOW;
@@ -47,7 +86,8 @@ void cla::set(){
   spe_charge= SPE_CHARGE;  
   //Deconvolution
   int_prompt = INT_PROMPT;
-  roll = ROLL;
+  roll       = ROLL;
+  amp        = AMP;
   f_prompt   = F_PROMPT;
   amp_low    = AMP_LOW;
   amp_up     = AMP_UP;

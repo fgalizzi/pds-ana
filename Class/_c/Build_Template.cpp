@@ -8,14 +8,17 @@
 // pulses or scintillation light in coincidence)
 // ****************************************************************
 
-////////////////////////////////////////////////////////
-/////// HARD CODE //////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+//////// HARD CODE ////////////////////////////////////////////////
+  // string template_file = "../Template_files/sp20240314_newElec_45v"; 
+  // string noise_file    = "../Noise_files/noise20240314_newel_45V.dat"; 
 
-string noise_td_file = "/Users/federico/PhD/PDE/Noise/Noise_NewEl_20241004_TimeDomain.dat";
+string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Template_files/";
+///////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////
 
-
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Build_Template() {
   vector<double> x, avg_calib, avg_template, int_wf, noise_td;
   vector<vector<double>> calib_wfs, template_wfs;
@@ -28,8 +31,8 @@ void cla::Build_Template() {
   read();
 
   // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
-  CompleteWF_Binary(noise_td_file, noise_td, memorydepth); // t_templ = time domain template
-  if(ite==1){
+  if(ite==0 && noise_f!=""){
+    CompleteWF_Binary(noise_f, noise_td, memorydepth); // t_templ = time domain template
     SubVec_to_WFs(wfs, noise_td);
     ite++;
   }
@@ -51,9 +54,14 @@ void cla::Build_Template() {
 
   double norm; 
   if(print==true){
+    string outfile_name;
+    cout << "Name of the new template file (without .dat)" << endl;
+    cin >> outfile_name;
+    outfile_name = template_files_path+outfile_name;
+    
     norm = 1./ *max_element(std::begin(avg_template), std::end(avg_template));
     for(auto& e: avg_template) e *= norm*spe_ampl;
-    VecDouble_in_Binary("Template.dat", avg_template);
+    VecDouble_in_Binary(outfile_name, avg_template);
     print = false;
   }
   

@@ -1,5 +1,12 @@
 #include "../classe.hpp"
+
+// ****************************************************************
+// Description
+// ****************************************************************
+
 //*** MAIN ************************************
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::LED_Analysis(){
 //*********************************************
   vector<vector<double>> sel_wf; // Wavefroms I select for the analysis
@@ -89,11 +96,13 @@ void cla::LED_Analysis(){
   q1q2= fgaus->GetParameter(1);
   spe_charge = q1;
   sigma_zero  = fgaus->GetParameter(2);
-  //std::cout << "\n\nColdbox table SNR - q1 - q1q2 - s0" << std::endl;
-  //std::cout << SNR << "\t" << q1 << "\t" << q1q2 << "\t" << s0 << "\n\n" << std::endl; 
-  // std::cout << "\n\nColdbox June: Gain - S0 - SNR" << std::endl;
-  // std::cout << q1q2 << "\t" << sigma_zero << "\t" << SNR << "\n\n" << std::endl; 
-  //return; 
+
+  std::cout << "\n\nColdbox table SNR - q1 - q1q2 - s0" << std::endl;
+  std::cout << SNR << "\t" << q1 << "\t" << q1q2 << "\t" << s0 << "\n\n" << std::endl; 
+  std::cout << "\n\nColdbox June: Gain - S0 - SNR" << std::endl;
+  std::cout << q1q2 << "\t" << sigma_zero << "\t" << SNR << "\n\n" << std::endl; 
+  // return; 
+
   //fit CX
   TFitResultPtr FitRes = h_charge->Fit(fgaus, "RS");
   auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes);

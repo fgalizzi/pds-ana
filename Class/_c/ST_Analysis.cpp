@@ -1,5 +1,6 @@
 #include "../classe.hpp"
 
+// ****************************************************************
 // Self-Trigger Analysis
 // External assumption: spe_charge, pedestal (pay attention to use the same integration
 //                      window). To re-normalize the charge spectrum in p.e. units
@@ -7,7 +8,10 @@
 // LED-selftrigger) according to the Non-LED uniform distribution, build the LED and the
 // self-trigger histos, compute the efficiency / effective threshold / ... / with a 
 // TEfficiency(LED_histo, self_histo) and print everything in a file.csv  
+// ****************************************************************
 
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::ST_Analysis(){
   vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
   vector<vector<double>> filt_wf;

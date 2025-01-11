@@ -1,5 +1,9 @@
 #include "../classe.hpp"
 
+// ****************************************************************
+// Description
+// ****************************************************************
+
 const unsigned NSAMPLE = 5000;
 std::string TEMPL_F ("Template.dat");
 std::string TEMFIT ("fit.txt");

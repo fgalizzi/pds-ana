@@ -2,3 +2,7 @@
 *.swp
 .DS_Store
 .clangd
+*.so
+*.d
+*.pcm
+*TF1.cpp

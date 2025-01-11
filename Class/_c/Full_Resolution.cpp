@@ -77,7 +77,7 @@ void cla::Full_Resolution(){
 //*********************************************
   gStyle->SetOptFit(1111); gStyle->SetOptTitle(0);
   gStyle->SetStatX(0.9); gStyle->SetStatY(0.9);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
+  // ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit"); 
 
   vector<vector<double>> sel_wf;
   vector<double> int_wf;

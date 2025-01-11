@@ -1,21 +1,63 @@
 #include "../classe.hpp"
 #include <cmath>
+#include <cstddef>
 #include <ctime>
 #include <vector>
 
+// ****************************************************************
+// Descriprion
+// ****************************************************************
+
+///////////////////////////////////////////////////////////////////
+//////// HARD CODE ////////////////////////////////////////////////
+string dmuon_file = "/Users/federico/PhD/PDE/Muon_files/Muon.dat";
+string dtempl_file = "/Users/federico/PhD/PDE/Template_files/Template.dat";
+///////////////////////////////////////////////////////////////////
 const unsigned NSAMPLE = 5000;
 
 double func_fit(double *x, double *p) {
   double val =(p[0]*exp(-(x[0]-p[5])/p[1])*exp(p[4]*p[4]/(2*p[1]*p[1])))*TMath::Erfc(((p[5]-x[0])/p[4]+p[4]/p[1])/TMath::Power(2,0.5))/2. + (p[2]*exp(-(x[0]-p[5])/p[3])*exp(p[4]*p[4]/(2*p[3]*p[3])))*TMath::Erfc(((p[5]-x[0])/p[4]+p[4]/p[3])/TMath::Power(2,0.5))/2. + p[6];
   return val;
 }
+//*********************************************
+void complicated_double_expo(double* y, const double* p, size_t len, double tick_len){
+//*********************************************
+  double a_f = p[0];
+  double t_f = p[1];
+  double a_s = p[2];
+  double t_s = p[3];
+  double sig = p[4];
+  double t_0 = p[5];
+  double con = p[6];
 
+  double tf_inv = 1./t_f;
+  double ts_inv = 1./t_s;
+  double sig_inv = 1./sig;
+  double sig_tf = sig*tf_inv;
+  double sig_ts = sig*ts_inv;
+  double sig2_tf = sig*sig/(2*t_f*t_f);
+  double sig2_ts = sig*sig/(2*t_s*t_s);
+  double sqrt2_inv = 1.0 / TMath::Sqrt2();
+
+  for(size_t i=0; i<len; i++){
+    double td = t_0-double(i)*tick_len;
+    double res = a_f*exp(td*tf_inv + sig2_tf)*TMath::Erfc((td*sig_inv+sig_tf)*sqrt2_inv)*0.5 +
+                 a_s*exp(td*ts_inv + sig2_ts)*TMath::Erfc((td*sig_inv+sig_ts)*sqrt2_inv)*0.5 +
+                 con;
+    // if (isnan(res)==true || res<1.e-40) res = 0.;
+    
+    y[i] = res;
+  }
+
+}
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Muon_PDHD(){
 
   double t=0;
  
-  templ_f = "/Users/federico/PhD/PDE/Templates/Template.dat";
-  muon_f = "/Users/federico/PhD/PDE/Muon.dat";
+  // templ_f = dtempl_file;
+  // muon_f = dmuon_file;
   std::vector<std::vector<double>> templ_v, avg_muon_v;
   std::vector<double> templ, avg_muon, y, noise;
 
@@ -148,17 +190,18 @@ void cla::Muon_PDHD(){
     deco_wf[i] = xy[i]*0.01;
     e_x[i] = 0.004;
     e_y[i] = sqrt(abs(deco_wf[i]));
-    std::cout << deco_wf[i] << " " << e_y[i] << std::endl;
+    // std::cout << deco_wf[i] << " " << e_y[i] << std::endl;
   }
 
-  rotate(deco_wf.begin(), deco_wf.begin()+deco_wf.size()-prepulse_ticks, deco_wf.end());
+  // Roll the deco wf if you need to allign it with the fit
+  vector_roll(deco_wf, roll);
   //Consider to subtract the baseline
 
   //TF1* f1 = new TF1("f1", func_fit , FIT_L , FIT_U , 7);
   TF1 *f1 = new TF1("f1","([0]*exp(-(x-[5])/[1])*exp([4]*[4]/(2*[1]*[1])))*TMath::Erfc((([5]-x)/[4]+[4]/[1])/TMath::Power(2,0.5))/2. + ([2]*exp(-(x-[5])/[3])*exp([4]*[4]/(2*[3]*[3])))*TMath::Erfc((([5]-x)/[4]+[4]/[3])/TMath::Power(2,0.5))/2. + [6]",
                     fit_l,fit_u);
   f1->SetParameters(a_fast, tau_fast, a_slow, tau_slow, sigma, t_0);
-  f1->SetParNames("A_{s}", "#tau_{s}", "A_{t}", "#tau_{t}", "#sigma", "t_{0}", "c");
+  f1->SetParNames("A_{f}", "#tau_{f}", "A_{s}", "#tau_{s}", "#sigma", "t_{0}", "c");
   f1->SetNpx(2000);
   if(FIX_CONST == true) f1->FixParameter( 6 , 0. );
 
@@ -167,25 +210,26 @@ void cla::Muon_PDHD(){
   
   TGraphSmooth* sk1 = new TGraphSmooth("normal");
   gy = sk1->SmoothKern(g_er, "normal", deco_sm);
+  for (size_t i=0; i< deco_wf.size(); i++) deco_wf[i] = gy->GetPointY(i);
+  g_er = new TGraphErrors(time.size(), &time[0], &deco_wf[0], &e_x[0], &e_y[0]);
 
-  if (FFUNC == true){
+  if (!nofit){
     auto fitResult = g_er->Fit(f1 ,"RS");
-    f1->Draw("SAME");
   }
-  if (FFUNC == false){ f1->Draw("SAME");}
 
 
-  double A_s   = f1->GetParameter(0);
-  double tau_s = f1->GetParameter(1);
-  double A_t   = f1->GetParameter(2);
-  double tau_t = f1->GetParameter(3);
+  a_fast   = f1->GetParameter(0);
+  tau_fast = f1->GetParameter(1);
+  a_slow   = f1->GetParameter(2);
+  tau_slow = f1->GetParameter(3);
   std::cout <<"\n \nFast/Slow intensities" << std::endl;
-  std::cout <<"Is = " << A_s*tau_s/(A_s*tau_s+A_t*tau_t) << std::endl;  
-  std::cout <<"It = " << A_t*tau_t/(A_s*tau_s+A_t*tau_t) << std::endl;  
+  std::cout <<"Is = " << a_fast*tau_fast/(a_fast*tau_fast+a_slow*tau_slow) << std::endl;  
+  std::cout <<"It = " << a_slow*tau_slow/(a_fast*tau_fast+a_slow*tau_slow) << std::endl;  
+  std::cout <<"It pure = " << a_slow*1.4/(a_fast*tau_fast+a_slow*1.4) << std::endl;  
 
   std::cout << "\n \nDeco_sm - As - tau_s - At - tau_t - Sigma - [ns]" << std::endl;  
-  std::cout << deco_sm*1000 << "\t" << A_s << "\t" << tau_s*1000 << "\t" 
-    << A_t << "\t" << tau_t*1000 << "\t" << f1->GetParameter(4)*1000 << std::endl;  
+  std::cout << deco_sm*1000 << "\t" << a_fast << "\t" << tau_fast*1000 << "\t" 
+    << a_slow << "\t" << tau_slow*1000 << "\t" << f1->GetParameter(4)*1000 << std::endl;  
 
 
 
@@ -279,6 +323,7 @@ void cla::Muon_PDHD(){
   g_er->SetLineColor(kBlue);
   g_er->SetLineWidth(2);
   g_er->Draw("al");
+  f1->Draw("SAME");
  
 
   gPad->SetTopMargin(0.01);

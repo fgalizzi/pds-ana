@@ -5,7 +5,7 @@
 using namespace std;
 
 //*********************************************
-TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false){
+TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind, bool avoid_auto_peak){
 //*********************************************
   if(hFind==nullptr) TH1D* hFind = new TH1D(*hI);
   // Go for peaks: create an instance of TSpectrum

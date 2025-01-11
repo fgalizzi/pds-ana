@@ -9,12 +9,6 @@
 #ifndef hdf5torootclass_h
 #define hdf5torootclass_h
 
-#include <TROOT.h>
-#include <TChain.h>
-#include <TFile.h>
-
-// Header file for the classes stored in the TTree if any.
-#include "vector"
 
 using namespace std;
 

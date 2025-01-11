@@ -9,11 +9,13 @@ using namespace std;
 
 void cla::read(){
   if(wfs.size()!=n_wf || oldwf_file!=wf_file || oldprepulse_ticks != prepulse_ticks ||
-      oldchannel!=channel){
+      oldchannel!=channel || wfs[0].size()!=memorydepth){
     //Store old values to decide whether to re-read the file 
     oldwf_file = wf_file;
     oldprepulse_ticks = prepulse_ticks;
     oldchannel = channel;
+
+    ite = 0; // For the macros whose behaviour must be different at the first iteration
 
     wfs.erase(wfs.begin(),wfs.end());
     
@@ -21,6 +23,7 @@ void cla::read(){
     if(data_format == "daphne")  CompleteWF_Binary(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "esteban") CompleteWF_Binary_Swap(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csv")     CSV_WF_Binary(wf_file, wfs, n_wf, memorydepth);
+    if(data_format == "csvd")    CSV_double_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     
     // ProtoDUNE-HD: update n_wf because the reading function stops automatically
     if(data_format == "pdhd"){

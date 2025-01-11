@@ -1,5 +1,11 @@
 #include "../classe.hpp"
 
+// ****************************************************************
+// Description
+// ****************************************************************
+
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
 void cla::Persistence() {
   double y0, y1;
   vector<double> x;
@@ -15,7 +21,9 @@ void cla::Persistence() {
   TCanvas* cTime = new TCanvas("wavedec","wavedec");
   
   //MovingAverageWF(WFS, y2, 100);
-  DisplayWFs (wfs, tick_len, 5);
+
+  DisplayWFs (wfs, tick_len, ndisplay);
+
 
   min_max_element(wfs, y0, y1);
   //min_max_element(y2, y0, y1);

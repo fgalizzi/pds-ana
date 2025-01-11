@@ -9,14 +9,6 @@
 
 
 
-#include <iostream>
-#include <ostream>
-#include <stdio.h>
-#include <string>
-#include <vector>
-
-#include <TChain.h>
-#include <TString.h>
 
 
 #ifndef hdf5torootclass_cxx
@@ -187,11 +179,63 @@ void CSV_WF_Binary(std::string fileName, vector<vector<double>>& y, int WFs, int
   
   for (int n_wf=0; n_wf < WFs; n_wf++) {
     for (int i=0; i < len; i++) {
-     file >> t; 
+      file >> t; 
       y[n_wf][i] = double(t);
     }
   }
   std::cout << "The file has been correctly read \t \t" << std::endl;
+}
+
+// Read CSV file with #WF=WFs len-tick long
+//**********************************************************
+void CSV_double_WF_Binary(std::string filename, vector<vector<double>>& y, int& n_wf, int len){
+//**********************************************************
+  std::ifstream file(filename);
+
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file: " + filename);
+  }
+
+  std::string line;
+  size_t row_count = 0;
+
+  while (std::getline(file, line) && row_count < n_wf) {
+    std::vector<double> row;
+    std::stringstream ss(line);
+    std::string value;
+    size_t col_count = 0;
+
+    while (std::getline(ss, value, ',') && col_count < len) {
+      try {
+        row.push_back(std::stod(value)); // Convert string to double
+      } catch (const std::invalid_argument& e) {
+        std::cerr << "Invalid number in file at row " << row_count + 1
+                  << ", column " << col_count + 1 << std::endl;
+        row.push_back(0.0); // Default value for invalid numbers
+      }
+      col_count++;
+    }
+
+    if (row.size() != len) {
+      std::cerr << "Warning: Row " << row_count + 1 << " does not have "
+                << len << " elements. Filling with zeros." << std::endl;
+      while (row.size() < len) {
+        row.push_back(0.0);
+      }
+    }
+
+    if(row_count>0) y.push_back(row);
+    row_count++;
+  }
+
+  if (row_count < n_wf) {
+    n_wf = row_count-1;
+    std::cerr << "Warning: File has fewer rows (" << row_count
+              << ") than expected (" << n_wf << ")." << std::endl;
+  }
+
+  file.close();
+  return;
 }
 
 // Read a .txt and put in a vector
