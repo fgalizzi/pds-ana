@@ -101,9 +101,11 @@ void cla::LED_Analysis(){
   std::cout << SNR << "\t" << q1 << "\t" << q1q2 << "\t" << s0 << "\n\n" << std::endl; 
   std::cout << "\n\nColdbox June: Gain - S0 - SNR" << std::endl;
   std::cout << q1q2 << "\t" << sigma_zero << "\t" << SNR << "\n\n" << std::endl; 
-  return; 
+  // return; 
+
   //fit CX
-  auto g_CX = Build_CX_Graph(fgaus, h_charge);
+  TFitResultPtr FitRes = h_charge->Fit(fgaus, "RS");
+  auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes);
   TF1* f_CX = new TF1("f_CX", fCX, -0.5, 5.5, 2);
   fCX_set(f_CX);
   
@@ -111,7 +113,10 @@ void cla::LED_Analysis(){
   
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
   c2->cd();
-  g_CX->Draw();
+
+  g_CX->GetXaxis()->SetTitle("Peaks");
+  g_CX->GetYaxis()->SetTitle("Probability");
+  g_CX->Draw("ap");
   c2->Modified();
   c2->Update();
   

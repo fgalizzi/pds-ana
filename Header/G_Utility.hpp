@@ -80,14 +80,42 @@ void VecDouble_in_Binary(std::string fileName, std::vector<double>& vec){
   std::cout << "Vector saved in ---> " << fileName << std::endl;
   OutFile.close();
 }
-
-
+//*******************************yy**************
+TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes){
 //*********************************************
-TGraph* Build_CX_Graph (TF1* fgaus, TH1* hI){
+  int npeaks = fgaus->GetNumberFreeParameters()-4;
+  vector <double> Pi(npeaks, 0.0);
+  vector <double> Err_Pi(npeaks, 0.0);
+  vector <double> X(npeaks, 0.0);
+  vector <double> Err_X(npeaks, 0.0);
+  double G = fgaus->GetParameter(1);
+  double mu_0 = fgaus->GetParameter(0);
+ 
+  for (int peak=0; peak<npeaks; peak++) {
+    TF1 gaus = *fgaus;
+    for(int i = 0; i<fgaus->GetNumberFreeParameters(); i++){
+      if(i>3 && i!=peak+4) gaus.SetParameter(i, 0.);
+    }
+
+    Pi[peak] = gaus.Integral(mu_0-3*G, mu_0+10*G , 1e-5)/(hI->GetBinWidth(5)*hI->GetEntries());
+    Err_Pi[peak] = gaus.IntegralError(mu_0-3*G, mu_0+10*G, FitRes->GetParams(), 
+                        FitRes->GetCovarianceMatrix().GetMatrixArray())/(hI->GetBinWidth(5)*hI->GetEntries());
+    X[peak] = peak;
+  }
+
+  TGraphErrors* g_CX = new TGraphErrors(Pi.size(), &X[0], &Pi[0], &Err_X[0], &Err_Pi[0]);
+  return g_CX;
+}
+
+//*******************************yy**************
+TGraphErrors* Build_CX_Graph (TF1* fgaus, TH1* hI){
 //*********************************************
   double norm, mean, sigma;
   int npeaks = fgaus->GetNumberFreeParameters()-3;
-  double Pi[npeaks];
+  vector <double> Pi(npeaks, 0.0);
+  vector <double> Err_Pi(npeaks, 0.0);
+  vector <double> X(npeaks, 0.0);
+  vector <double> Err_X(npeaks, 0.0);
   double G = fgaus->GetParameter(1);
  
   TF1* f[npeaks];
@@ -98,10 +126,13 @@ TGraph* Build_CX_Graph (TF1* fgaus, TH1* hI){
     norm = fgaus->GetParameter(4+i);
     sigma = sqrt(pow(fgaus->GetParameter(2),2)+i*pow(fgaus->GetParameter(3),2));
     f[i]->SetParameters(norm, mean, sigma);
-    Pi[i] = f[i]->Integral(mean-4*sigma, mean+4*sigma, 1e-5)/(hI->GetBinWidth(5)*hI->GetEntries());
+    Pi[i] = f[i]->Integral(mean-4*sigma, mean+4*sigma, 1e-5)/(hI->GetBinWidth(5));
+    Err_Pi[i] = sqrt(Pi[i])/(hI->GetEntries());
+    Pi[i] = Pi[i]/(hI->GetEntries());
+    X[i] = i;
   }
 
-  auto* g_CX = new TGraph(npeaks, Pi);
+  TGraphErrors* g_CX = new TGraphErrors(Pi.size(), &X[0], &Pi[0], &Err_X[0], &Err_Pi[0]);
   return g_CX;
 }
 
