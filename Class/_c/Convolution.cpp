@@ -17,7 +17,8 @@
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-string pde_result_file = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Conv_results/res.csv";
+string pde_result_folder = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Conv_results/";
+string pde_result_file = pde_result_folder+"res.csv";
 ///////////////////////////////////////////////////////////////////
 
 #include "Fit/FitResult.h"
@@ -142,10 +143,12 @@ void cla::Convolution(){
 
   // ---- FIT -------------------------------------------------------- 
   int best_fit_roll = 0;
+  double min_chi2 = 1.e10;
+  double NDf = 0.;
+
   if(!nofit){
     bool fit_check;
     double best_params[4];
-    double min_chi2 = 1.e10;
     double norm = 1./double(memorydepth);
     double fit_amp, err_amp;  
     double fit_f_fast, err_f_fast;  
@@ -210,6 +213,7 @@ void cla::Convolution(){
       if (result.MinFcnValue()<min_chi2 && fit_check==true){
         std::cout << result.GetParams()[0] << " " << result.GetParams()[0] << std::endl;
         min_chi2 = result.MinFcnValue();
+        NDf = result.Ndf();
         best_fit_roll = fit_roll;
         for (size_t i=0; i<4; i++) best_params[i] = result.GetParams()[i];
         fit_amp      = result.GetParams()[0]; err_amp      = result.GetErrors()[0];
@@ -220,8 +224,7 @@ void cla::Convolution(){
       
       par  = &best_params[0];
       xy   = conv_templ_dexp(par, &templ_fft[0], nsample, tick_len);
-      roll = best_fit_roll;
-      std::cout << "\n\n\n" << std::endl;
+      std::cout << "\n" << std::endl;
     }
  
 
@@ -246,6 +249,8 @@ void cla::Convolution(){
 
       feature_value.push_back({"Date", date});
       feature_value.push_back({"Electronic (old=0, new=1)", electronic});
+      feature_value.push_back({"Fit low [mus]", fit_l});
+      feature_value.push_back({"Fit up [mus]", fit_u});
       feature_value.push_back({"Amplitude", fit_amp});
       feature_value.push_back({"Amplitude err", err_amp});
       feature_value.push_back({"Fast fraction", fit_f_fast});
@@ -254,17 +259,27 @@ void cla::Convolution(){
       feature_value.push_back({"Tau fast err [mus]", err_tau_fast});
       feature_value.push_back({"Tau slow [mus]", fit_tau_slow});
       feature_value.push_back({"Tau slow err [mus]", err_tau_slow});
+      feature_value.push_back({"Y error", yerr});
+      feature_value.push_back({"Min chi2", min_chi2});
+      feature_value.push_back({"NDf", NDf});
+
       // feature_value.push_back({"I slow pure", fit_a_slow*1.5/(fit_a_fast*fit_tau_fast+fit_a_slow*1.5)});
 
       print_vec_pair_csv(pde_result_file, feature_value, comment);
+      update(pde_result_folder+Form("Convolution_ana_parameters_%i_el_%i", int(date), int(electronic)));
     }
 
 
-    std::cout << "The best parameters are " << std::endl;
-    std::cout << "Ampl      = " << par[0] << std::endl;
-    std::cout << "Fast frac = " << par[1] << std::endl;
-    std::cout << "tau_fast  = " << par[2] << std::endl;
-    std::cout << "tau_slow  = " << par[3] << std::endl;
+    cout << "\n---------------------------------------------------  \n" << endl;
+    cout << "The best fit gives: " << std::endl;
+    cout << "Min chi2  = " << min_chi2 << std::endl;
+    cout << "NDf       = " << NDf << std::endl;
+    cout << "Chi2/NDf  = " << min_chi2/NDf << std::endl;
+    cout << "Ampl      = " << par[0] << std::endl;
+    cout << "Fast frac = " << par[1] << std::endl;
+    cout << "tau_fast  = " << par[2] << std::endl;
+    cout << "tau_slow  = " << par[3] << std::endl;
+    cout << "\n---------------------------------------------------  \n" << endl;
   }
 
 

@@ -80,14 +80,14 @@ void VecDouble_in_Binary(std::string fileName, std::vector<double>& vec){
   std::cout << "Vector saved in ---> " << fileName << std::endl;
   OutFile.close();
 }
-//*******************************yy**************
-TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes){
+//*********************************************
+TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes, double& avg_n_photons){
 //*********************************************
   int npeaks = fgaus->GetNumberFreeParameters()-4;
-  vector <double> Pi(npeaks, 0.0);
-  vector <double> Err_Pi(npeaks, 0.0);
-  vector <double> X(npeaks, 0.0);
-  vector <double> Err_X(npeaks, 0.0);
+  vector<double> Pi(npeaks, 0.0);
+  vector<double> Err_Pi(npeaks, 0.0);
+  vector<double> X(npeaks, 0.0);
+  vector<double> Err_X(npeaks, 0.0);
   double G = fgaus->GetParameter(1);
   double mu_0 = fgaus->GetParameter(0);
  
@@ -101,6 +101,8 @@ TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes){
     Err_Pi[peak] = gaus.IntegralError(mu_0-3*G, mu_0+10*G, FitRes->GetParams(), 
                         FitRes->GetCovarianceMatrix().GetMatrixArray())/(hI->GetBinWidth(5)*hI->GetEntries());
     X[peak] = peak;
+    
+    if(peak==0) avg_n_photons = -log(Pi[peak]);
   }
 
   TGraphErrors* g_CX = new TGraphErrors(Pi.size(), &X[0], &Pi[0], &Err_X[0], &Err_Pi[0]);

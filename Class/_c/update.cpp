@@ -7,8 +7,9 @@
 
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
-void cla::update(){
-  std::ofstream outputFile("ana_parameters.hpp");
+void cla::update(string out_file_name){
+  out_file_name = out_file_name + ".hpp";
+  std::ofstream outputFile(out_file_name);
 
   if (!outputFile.is_open()) {
         std::cerr << "Error: Unable to open file for writing." << std::endl;
@@ -73,6 +74,7 @@ void cla::update(){
 	outputFile << "TAU_SLOW       = " << tau_slow << ";"  << std::endl;
 	outputFile << "SIGMA          = " << sigma << ";"  << std::endl;
 	outputFile << "T_0            = " << t_0 << ";"  << std::endl;
+  outputFile << "YERR           = " << yerr << ";"  << std::endl;
 	outputFile << "//ProtoDUNE"  << std::endl;
   outputFile << "CHANNEL        = " << channel << ";" << std::endl; 
 

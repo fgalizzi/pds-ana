@@ -40,18 +40,19 @@ void cla::LED_Analysis(){
   }
   
   TH1D* hFind = new TH1D(*h_charge); //Delcared to plot it later
- 
+  
   // See private_methods.hpp
   // "fgaus" is the function to fit the chargehistogram, it is initialized 
   // by looking for peaks in the histo or manually by setting manual=true
   fgaus = set_charge_fit_function(h_charge, hFind);
-  cout << "Fit ... " << endl;
-  h_charge->Fit("fgaus", "R");
-  cout << "... end fit. " << endl;
+  cout << "\n\n----------- FIT CHARGE HISTO ----------------------\n" << endl;
+  // h_charge->Fit("fgaus", "R");
+  TFitResultPtr FitRes = h_charge->Fit(fgaus, "RS");
+  cout << "\n---------------------------------------------------  \n" << endl;
 
   if(display==true){
     h_charge->Draw();fgaus->Draw("same");gPad->Update();//gPad->WaitPrimitive();
-    std::cout << "Want to repeat with manual mode?: 0=no - 1=yes" << std::endl;
+    std::cout << "Want to repeat with manual mode?: 0=no - 1=yes" << endl;
     cin >> manual;
     if(manual==1){
       cout << "mu0_low" << endl;
@@ -76,48 +77,52 @@ void cla::LED_Analysis(){
       fgaus->SetParameter(3,(sc_low+sc_up)/2.);fgaus->SetParLimits(3,sc_low,sc_up);
 
       h_charge->Fit("fgaus", "R");
-      }
     }
-/*  
-  TCanvas *c3 = new TCanvas("c3","c3",0,0,500,450);
-  c3->cd();
-  hFind->Draw();
-  c3->Modified();c3->Update();
- 
+  }
 
-  TCanvas *c1 = new TCanvas("c1","c1",0,0,1000,900);
-  c1->cd();
-  h_charge->Draw();// Fit histogram
-  c1->Modified();c1->Update();
-*/ 
-  double SNR, q1, q1q2, s0;
-  SNR = fgaus->GetParameter(1)/fgaus->GetParameter(2);
-  q1  = fgaus->GetParameter(1)+fgaus->GetParameter(0);
-  q1q2= fgaus->GetParameter(1);
-  spe_charge = q1;
-  sigma_zero  = fgaus->GetParameter(2);
-
-  std::cout << "\n\nColdbox table SNR - q1 - q1q2 - s0" << std::endl;
-  std::cout << SNR << "\t" << q1 << "\t" << q1q2 << "\t" << s0 << "\n\n" << std::endl; 
-  std::cout << "\n\nColdbox June: Gain - S0 - SNR" << std::endl;
-  std::cout << q1q2 << "\t" << sigma_zero << "\t" << SNR << "\n\n" << std::endl; 
-  // return; 
-
-  //fit CX
-  TFitResultPtr FitRes = h_charge->Fit(fgaus, "RS");
-  auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes);
+  // --- CROSS TALK ----------------------------------------------
+  auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes, avg_n_photons);
   TF1* f_CX = new TF1("f_CX", fCX, -0.5, 5.5, 2);
   fCX_set(f_CX);
-  
+  cout << "\n\n----------- FIT CROSS-TALK ------------------------\n" << endl;
   g_CX->Fit("f_CX", "R");
-  
-  TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
-  c2->cd();
+  cout << "\n---------------------------------------------------  \n" << endl;
 
-  g_CX->GetXaxis()->SetTitle("Peaks");
-  g_CX->GetYaxis()->SetTitle("Probability");
-  g_CX->Draw("ap");
-  c2->Modified();
-  c2->Update();
+
+  // --- CLASS UPDATE --------------------------------------------
+  pedestal    = fgaus->GetParameter(0);
+  spe_charge  = fgaus->GetParameter(1);
+  sigma_zero  = fgaus->GetParameter(2);
+  avg_n_photoelectrons = (h_charge->GetMean()-fgaus->GetParameter(0)) / fgaus->GetParameter(1);
+  avg_n_ph_cx = f_CX->GetParameter(0); err_avg_n_ph_cx = f_CX->GetParError(0);
+  cx = f_CX->GetParameter(1);          err_cx = f_CX->GetParError(1);
+  
+  double SNR = spe_charge/sigma_zero;
+  
+
+  // --- STD::COUT -----------------------------------------------
+  cout << "\n---------------------------------------------------  \n" << endl;
+  cout << "Results:"  << endl;
+  cout << "SNR = " << SNR << endl;
+  cout << "CX  = " << cx << "+/-"  << err_cx << endl;
+  cout << "#Avg photons CX fit = " << avg_n_ph_cx << " +/- " << err_avg_n_ph_cx << endl;
+  cout << "#Avg photons        = " << avg_n_photons << endl;
+  cout << "#Avg photoelectrons = " << avg_n_photoelectrons << endl;
+  cout << "\n---------------------------------------------------  \n" << endl;
+
+  // --- PLOT ----------------------------------------------------
+  if (plot == true) {
+    TCanvas *c1 = new TCanvas("c1","c1",0,0,1000,900);
+    c1->cd();
+    g_CX->GetXaxis()->SetTitle("Peaks");
+    g_CX->GetYaxis()->SetTitle("Probability");
+    g_CX->Draw("ap");
+    c1->Modified();c1->Update();
+    
+    TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
+    c2->cd();
+    h_charge->Draw();
+    c2->Modified();c2->Update();
+  }
   
 }

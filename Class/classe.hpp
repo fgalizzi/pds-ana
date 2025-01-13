@@ -157,7 +157,7 @@ class cla{
     void ST_Analysis();
     void configDCR();
     void Saturation();
-    void update();    
+    void update(string out_file_name="ana_parameters");
     void LoadFitParameters(TF1* f);
     void TooAnnoying();    
     
@@ -174,18 +174,23 @@ class cla{
     int oldprepulse_ticks;
     size_t oldchannel;
     int ite=0;              // number of iteration (number of time you call a method)
-    
-    std::vector<std::vector<double>> trg_wf;
+   
+    // Private methods
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
     void read();//Read the wf_file and store the waveforms in wfs
     vector<size_t> read_pdhd_ch_map(int mask=0);
     vector<string> read_chs(string ch_file_name);
     TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
-    double spe_ampl_correction;
     double compute_spe_correction(TF1* f);
+    void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
+    
+    // Calibration 
+    double spe_ampl_correction;
+    double avg_n_photons, avg_n_photoelectrons;
+    double avg_n_ph_cx, err_avg_n_ph_cx, cx, err_cx;
     
     // Self trigger stuff
-    void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
+    std::vector<std::vector<double>> trg_wf;
     int sf_bins = 100;      //Number of bins in self-trigger histos
     double sf_hmin = -2.;   //Lower limit [pe] self-trigger histos
     double sf_hmax =  7.;   //Upper " " " "
