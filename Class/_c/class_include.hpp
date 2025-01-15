@@ -68,6 +68,7 @@
 #include "LED_Analysis.cpp"
 #include "LoadFitParameters.cpp"
 #include "Loops.cpp"
+#include "Optimize_Integration_Window.cpp"
 // #include "MAX_Analysis.cpp"
 // #include "MuonDeco.cpp"
 #include "Muon_PDHD.cpp"

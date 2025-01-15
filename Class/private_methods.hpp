@@ -1,6 +1,4 @@
 #include "classe.hpp"
-#include <iostream>
-#include <ostream>
 
 using namespace std;
 

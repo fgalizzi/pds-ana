@@ -7,7 +7,7 @@
 
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
-void cla::update(string out_file_name){
+void cla::update_thisfile(string out_file_name){
   out_file_name = out_file_name + ".hpp";
   std::ofstream outputFile(out_file_name);
 
@@ -80,4 +80,8 @@ void cla::update(string out_file_name){
 
   
   outputFile.close();
+}
+
+void cla::update(){
+  update_thisfile("ana_parameters");
 }

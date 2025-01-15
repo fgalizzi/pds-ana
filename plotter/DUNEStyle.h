@@ -12,6 +12,8 @@
 
 // n.b.  much of this style ripped off of NOvA official style
 
+#define DUNESTYLE_ENABLE_AUTOMATICALLY 0
+
 #ifndef DUNE_STYLE_H
 #define DUNE_STYLE_H
 
@@ -385,7 +387,6 @@ namespace dunestyle
 
     // Defaults to classic style, but that's OK, we can fix it
     TStyle* duneStyle = new TStyle("duneStyle", "DUNE Style");
-
     duneStyle->SetPalette(kViridis);
 
     // Center title
@@ -395,7 +396,7 @@ namespace dunestyle
     duneStyle->SetTitleBorderSize(0);
 
     // No info box
-    duneStyle->SetOptStat(0);
+    // duneStyle->SetOptStat(0);
 
     //set the background color to white
     duneStyle->SetFillColor(10);
@@ -419,7 +420,7 @@ namespace dunestyle
     // Fonts
     const int kDuneFont = 43;
     const float kDuneSize = 24;  
-    duneStyle->SetStatFont(kDuneFont);
+    // duneStyle->SetStatFont(kDuneFont);
     duneStyle->SetLabelFont(kDuneFont, "xyz");
     duneStyle->SetTitleFont(kDuneFont, "xyz");
     duneStyle->SetTitleFont(kDuneFont, ""); // Apply same setting to plot titles

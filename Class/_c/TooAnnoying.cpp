@@ -1,8 +1,4 @@
 #include "../classe.hpp"
-#include <cstddef>
-#include <numeric>
-#include <string>
-#include <vector>
 
 // ****************************************************************
 // Change this marco when you can easily loop over runs and you
@@ -17,48 +13,7 @@
 
 
 
-std::vector<std::pair<std::string, std::vector<double>>> read_vec_pair_CSV(const std::string& filename) {
-  std::ifstream infile(filename);
-  if (!infile.is_open()) {
-    throw std::runtime_error("Could not open file: " + filename);
-  }
 
-  std::vector<std::pair<std::string, std::vector<double>>> data;
-  std::string line;
-
-  // Read the header line
-  if (std::getline(infile, line)) {
-    std::stringstream ss(line);
-    std::string header;
-    while (std::getline(ss, header, ',')) {
-      if (!header.empty()) {
-        data.emplace_back(header, std::vector<double>{});
-      }
-    }
-  }
-
-  // Read the data lines
-  while (std::getline(infile, line)) {
-    std::stringstream ss(line);
-    std::string value;
-    size_t col_index = 0;
-
-    while (std::getline(ss, value, ',') && col_index < data.size()) {
-      try {
-        if (!value.empty()) {
-          data[col_index].second.push_back(std::stod(value)); // Convert to double
-        }
-      } catch (const std::invalid_argument& e) {
-        std::cerr << "Invalid number at column " << col_index + 1 << std::endl;
-        data[col_index].second.push_back(0.0); // Default value for invalid numbers
-      }
-      col_index++;
-    }
-  }
-
-  infile.close();
-  return data;
-}
 
 
 
@@ -149,9 +104,11 @@ void cla::TooAnnoying(){
       feature_value.push_back({"Int low", double(int_low)});
       feature_value.push_back({"Int up", double(int_up)});
       feature_value.push_back({"Gain", spe_charge});
+      feature_value.push_back({"Err Gain", err_spe_charge});
       feature_value.push_back({"Spe ampl", spe_ampl});
       feature_value.push_back({"DR", pow(2,14)/spe_ampl});
-      feature_value.push_back({"SNR", spe_charge/sigma_zero});
+      feature_value.push_back({"SNR", SNR});
+      feature_value.push_back({"Err SNR", err_SNR});
       feature_value.push_back({"RMS", ch_rms[3].second[i]});
       feature_value.push_back({"CX", cx});
       feature_value.push_back({"Err CX", err_cx});

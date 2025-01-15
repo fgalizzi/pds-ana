@@ -1,6 +1,4 @@
 #include "../classe.hpp"
-#include <cstddef>
-#include <utility>
 
 // ****************************************************************
 // Description
@@ -111,3 +109,119 @@ void cla::Loop_FFT_RMS_Analysis(){
   }
 }
 
+// ****************************************************************
+// Loop to fit a calibration spectrum for different VBias.
+// Useful to builv the Gain vs VBias plot and estrapolate the
+// SiPM breakdown voltage and to build the cross-talk vs VBias plot.
+// Suggestion: set "scan_sat_up" according to the highest VBias
+// set in the scan.
+// ****************************************************************
+//-----------------------------------------------------------------
+//------- Macro ---------------------------------------------------
+void cla::Loop_VBias_Scan(){
+  // -------------------------------------------------------------
+  // --- HARD CODE -----------------------------------------------
+  // INPUT
+  TString runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
+  TString output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
+  // Runs and corresponding Bias
+  // Channels good for these runs
+std::vector<double> biases = {1140,1147,1154,1161,1168,1175,1182,1189,1196,1203,1210};
+std::vector<int> runs = {34389,34388,34387,34386,34385,34384,34383,34382,34381,34380,34379};
+  int module = 1; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
+  vector<int> channel_this_mask = {20, 27};
+  // Initial sat_up for the scan
+  double scan_sat_up = 1600;
+
+  // CLASS SETTINGS
+  display = 0;
+  print   = 0;
+  plot    = 0;
+
+  // OUTPUT
+  bool print_results = true;
+  TString out_file = output_ana_folder+Form("VBias_Scan_Module_%i", module);
+  TString out_root_file = out_file+".root";
+  string out_csv_file(out_file+".csv");
+  // --- END HARD CODE -------------------------------------------
+ 
+
+  // --- CODE ----------------------------------------------------
+  if(biases.size() != runs.size()){
+    std::cout << "Biases and runs vectors must have the same size" << std::endl;
+    return;
+  }
+
+  vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
+  std::vector<TString> files = {};
+  for(auto& run : runs){
+    files.push_back(runs_folder+"run_"+run);
+  }
+
+  TFile hf(out_root_file, "recreate");
+  hf.mkdir("chargehistos");
+  hf.cd("chargehistos");
+  vector<TH1D*> h_charge_vec;
+
+ 
+  std::cout << "files " << files.size() << std::endl;
+  for(size_t i=0; i<files.size(); i++){
+    for(auto&ch : channel_this_mask){
+      wf_file = files[i]+"/channel_"+ch+".dat";
+      std::cout << wf_file << std::endl;
+      ifstream this_file(wf_file);
+      if (!this_file.is_open()){
+        std::cout << "File not found: " << wf_file << std::endl;
+        this_file.close();
+        continue;
+      }
+      std::cout << "\n\n\nReading file: " << wf_file << std::endl;  
+      cout << wf_file << endl;
+      sat_up = scan_sat_up;
+      LED_Analysis();
+      LoadFitParameters(fgaus);
+      SPE();
+      sat_up = spe_ampl*20;
+      LED_Analysis();
+      LoadFitParameters(fgaus);
+      SPE();
+
+      h_charge->SetTitle(Form("VBias_%i_ch_%i",int(biases[i]),ch));
+      h_charge->SetName(Form("VBias_%i_ch_%i",int(biases[i]),ch));
+      h_charge_vec.push_back(h_charge);
+      feature_value.push_back({"Channel", double(ch)});
+      feature_value.push_back({"Bias [dac]", biases[i]});
+      // feature_value.push_back({"Bias [V]", bias_volts});
+      // feature_value.push_back({"VGain", double(vgains[i])});
+      feature_value.push_back({"Baseline", bsl});
+      feature_value.push_back({"Prepulse ticks", double(prepulse_ticks)});
+      feature_value.push_back({"Saturation up", sat_up});
+      feature_value.push_back({"Int low", double(int_low)});
+      feature_value.push_back({"Int up", double(int_up)});
+      feature_value.push_back({"Gain", spe_charge});
+      feature_value.push_back({"Err Gain", err_spe_charge});
+      feature_value.push_back({"Spe ampl", spe_ampl});
+      feature_value.push_back({"DR", pow(2,14)/spe_ampl});
+      feature_value.push_back({"SNR", SNR});
+      feature_value.push_back({"Err SNR", err_SNR});
+      feature_value.push_back({"CX", cx});
+      feature_value.push_back({"Err CX", err_cx});
+      feature_value.push_back({"Avg #ph cx", avg_n_ph_cx});
+      feature_value.push_back({"Err #ph cx", err_avg_n_ph_cx});
+      feature_value.push_back({"Avg #ph", avg_n_photons});
+      feature_value.push_back({"Avg #pe", avg_n_photoelectrons});
+      
+      if(print_results==true){
+        std::cout << "\n\nPRINTING\n\n" << std::endl;
+        print_vec_pair_csv(out_csv_file, feature_value);
+      }
+      
+      // Reset the vector
+      feature_value = {};
+    }
+  }
+  
+  std::cout << "\n\nOUT OF THE LOOP\n\n" << std::endl;
+  if(print_results==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
+  hf.Close();
+}

@@ -76,7 +76,7 @@ void cla::LED_Analysis(){
       fgaus->SetParameter(2,(s0_low+s0_up)/2.);fgaus->SetParLimits(2,s0_low,s0_up);
       fgaus->SetParameter(3,(sc_low+sc_up)/2.);fgaus->SetParLimits(3,sc_low,sc_up);
 
-      h_charge->Fit("fgaus", "R");
+      FitRes = h_charge->Fit("fgaus", "RS");
     }
   }
 
@@ -91,13 +91,13 @@ void cla::LED_Analysis(){
 
   // --- CLASS UPDATE --------------------------------------------
   pedestal    = fgaus->GetParameter(0);
-  spe_charge  = fgaus->GetParameter(1);
-  sigma_zero  = fgaus->GetParameter(2);
+  spe_charge  = fgaus->GetParameter(1); err_spe_charge = fgaus->GetParError(1);
+  sigma_zero  = fgaus->GetParameter(2); err_sigma_zero = fgaus->GetParError(2);
+  SNR         = spe_charge/sigma_zero;  err_SNR = error_propagation(FitRes, fgaus, 1, 2, "div");
+  avg_n_ph_cx = f_CX->GetParameter(0);  err_avg_n_ph_cx = f_CX->GetParError(0);
+  cx          = f_CX->GetParameter(1);  err_cx = f_CX->GetParError(1);
   avg_n_photoelectrons = (h_charge->GetMean()-fgaus->GetParameter(0)) / fgaus->GetParameter(1);
-  avg_n_ph_cx = f_CX->GetParameter(0); err_avg_n_ph_cx = f_CX->GetParError(0);
-  cx = f_CX->GetParameter(1);          err_cx = f_CX->GetParError(1);
   
-  double SNR = spe_charge/sigma_zero;
   
 
   // --- STD::COUT -----------------------------------------------

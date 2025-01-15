@@ -266,7 +266,7 @@ void cla::Convolution(){
       // feature_value.push_back({"I slow pure", fit_a_slow*1.5/(fit_a_fast*fit_tau_fast+fit_a_slow*1.5)});
 
       print_vec_pair_csv(pde_result_file, feature_value, comment);
-      update(pde_result_folder+Form("Convolution_ana_parameters_%i_el_%i", int(date), int(electronic)));
+      update_thisfile(pde_result_folder+Form("Convolution_ana_parameters_%i_el_%i", int(date), int(electronic)));
     }
 
 

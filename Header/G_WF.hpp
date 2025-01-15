@@ -102,8 +102,8 @@ void SubBaseline2(std::vector<std::vector<double>>& all_wf, double rms, bool inv
 
 // With the entire set of WFs (all_wf) it  build the calibration histogram integrating [I_low;I_up]
 //*********************************************
-TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector<double>&int_wf, 
-    int I_low, int I_up, int nbins){
+TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector<double>&int_wf,
+                          int I_low, int I_up, int nbins){
 //*********************************************
   int len = all_wf[0].size();
   int_wf.erase(int_wf.begin(), int_wf.end());
@@ -119,7 +119,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
   // Duplicate to preserve the int_wf order
   std::vector int_dual = int_wf;
   std::sort(int_dual.begin(), int_dual.end());
-  double x_low = int_dual[int(int_dual.size()*0.01)];
+  double x_low = int_dual[int(int_dual.size()*0.005)];
   double x_up  = int_dual[int(int_dual.size()*0.99)];
 
   TH1D* hI  = new TH1D("hI" ,"hI", nbins, x_low, x_up);
@@ -132,7 +132,7 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
 // With the entire set of WFs (all_wf) it  build the calibration histogram integrating [I_low;I_up]
 //*********************************************
 TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector<double>& int_wf,
-    int I_low, int I_up, double hmin, double hmax, int nbins){
+                          int I_low, int I_up, double hmin, double hmax, int nbins){
 //*********************************************
   int len = all_wf[0].size();
   int_wf.erase(int_wf.begin(), int_wf.end());

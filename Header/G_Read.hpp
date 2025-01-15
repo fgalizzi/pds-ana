@@ -17,6 +17,9 @@
 #endif // !hdf5torootclass_cxx
 using namespace std;
 
+// ---------------------------------------------------------
+// --- METHODS TO READ WAVEFORMS FROM DIFFERENT SOURCES ----
+// ---------------------------------------------------------
 
 // Read Binary file with #WF=WFs len-tick long
 //**********************************************************
@@ -261,5 +264,57 @@ void CompleteWF(std::string fileName, vector<double>& y){
 }
 
 
+// ---------------------------------------------------------
+// --- END METHODS TO READ WAVEFORMS -----------------------
+// ---------------------------------------------------------
 
+
+// ---------------------------------------------------------
+// --- METHODS TO READ WHATEVER ----------------------------
+// ---------------------------------------------------------
+
+//**********************************************************
+std::vector<std::pair<std::string, std::vector<double>>> read_vec_pair_CSV(const std::string& filename) {
+//**********************************************************
+  std::ifstream infile(filename);
+  if (!infile.is_open()) {
+    throw std::runtime_error("Could not open file: " + filename);
+  }
+
+  std::vector<std::pair<std::string, std::vector<double>>> data;
+  std::string line;
+
+  // Read the header line
+  if (std::getline(infile, line)) {
+    std::stringstream ss(line);
+    std::string header;
+    while (std::getline(ss, header, ',')) {
+      if (!header.empty()) {
+        data.emplace_back(header, std::vector<double>{});
+      }
+    }
+  }
+
+  // Read the data lines
+  while (std::getline(infile, line)) {
+    std::stringstream ss(line);
+    std::string value;
+    size_t col_index = 0;
+
+    while (std::getline(ss, value, ',') && col_index < data.size()) {
+      try {
+        if (!value.empty()) {
+          data[col_index].second.push_back(std::stod(value)); // Convert to double
+        }
+      } catch (const std::invalid_argument& e) {
+        std::cerr << "Invalid number at column " << col_index + 1 << std::endl;
+        data[col_index].second.push_back(0.0); // Default value for invalid numbers
+      }
+      col_index++;
+    }
+  }
+
+  infile.close();
+  return data;
+}
 #endif /* G_Read_hpp */

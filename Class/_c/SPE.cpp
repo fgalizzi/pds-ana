@@ -69,17 +69,19 @@ void cla::SPE() {
   //gAvg->Draw();
   //c_Spe_FFT->Modified(); c_Spe_FFT->Update();
 
-  //Draw the SPE wf
-  TGraph *g1 = new TGraph(avg.size(), &x[0], &avg[0]);
-  g1->GetXaxis()->SetTitle("Time [#mus]");
-  g1->GetYaxis()->SetTitle("Amplitude [ADC]");
-  g1->SetLineColor(2); g1->SetLineWidth(2);
-  g1->SetTitle("Average spe-waveform");
-  
-  TCanvas *c_Spe = new TCanvas("c_Spe","c_Spe",20,20,1000,900);
-  c_Spe->cd();
-  g1->Draw("AL");
-  c_Spe->Modified(); c_Spe->Update();
+  // --- PLOT ---------------------------------------------------
+  if(plot==1){
+    TGraph *g1 = new TGraph(avg.size(), &x[0], &avg[0]);
+    g1->GetXaxis()->SetTitle("Time [#mus]");
+    g1->GetYaxis()->SetTitle("Amplitude [ADC]");
+    g1->SetLineColor(2); g1->SetLineWidth(2);
+    g1->SetTitle("Average spe-waveform");
+    
+    TCanvas *c_Spe = new TCanvas("c_Spe","c_Spe",20,20,1000,900);
+    c_Spe->cd();
+    g1->Draw("AL");
+    c_Spe->Modified(); c_Spe->Update();
+  }
   
   //TERMINAL OUTPUTS + charghe histo for spe waveforms
   double overall_integral = 0;

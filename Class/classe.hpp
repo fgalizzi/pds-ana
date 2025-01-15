@@ -1,6 +1,30 @@
 #ifndef CLASSE_HPP
 #define CLASSE_HPP
 
+//C++
+#include <cstddef>
+#include <iostream>
+#include <numeric>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+//ROOT 
+#include <TEfficiency.h>
+#include <TF1.h>
+#include <TH1D.h>
+#include <TSpectrum.h>
+#include <TStyle.h>
+#include <TCanvas.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TAxis.h>
+#include <TMath.h>
+#include <TGraphErrors.h>
+#include <TGraphSmooth.h>
+
 #include <string_view>
 #ifndef my_headers_hpp
   #define my_headers_hpp
@@ -10,18 +34,6 @@
   #include "../Header/G_Utility.hpp"
 #endif // !my_headers_hpp
 
-#include <vector>
-#include <string>
-#include <cstddef>
-
-//ROOT 
-#include <TEfficiency.h>
-#include <TF1.h>
-#include <TH1D.h>
-#include <TSpectrum.h>
-#include <TStyle.h>
-#include <TGraphErrors.h>
-#include <TGraphSmooth.h>
 
 
 
@@ -140,6 +152,7 @@ class cla{
     //Macro
     void Persistence();
     void AverageWF();
+    void Optimise_Integration_Window(size_t min_int_up, size_t max_int_up, size_t increment=1);
     void LED_Analysis();
     void Filt_Analysis();
     void Full_Resolution();
@@ -157,13 +170,14 @@ class cla{
     void ST_Analysis();
     void configDCR();
     void Saturation();
-    void update(string out_file_name="ana_parameters");
+    void update();
     void LoadFitParameters(TF1* f);
     void TooAnnoying();    
     
     //Loops: to repeat the analysis on many files : )
     void Loop_ST_Analysis();
     void Loop_FFT_RMS_Analysis();
+    void Loop_VBias_Scan();
 
     //Constructor
     cla(){set();}
@@ -178,6 +192,7 @@ class cla{
     // Private methods
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
     void read();//Read the wf_file and store the waveforms in wfs
+    void update_thisfile(string out_file_name="ana_parameters");
     vector<size_t> read_pdhd_ch_map(int mask=0);
     vector<string> read_chs(string ch_file_name);
     TF1* set_charge_fit_function(TH1D* hI, TH1D* hFind=nullptr, bool avoid_auto_peak=false);
@@ -185,7 +200,8 @@ class cla{
     void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
     
     // Calibration 
-    double spe_ampl_correction;
+    double SNR, spe_ampl_correction;
+    double err_spe_charge, err_sigma_zero, err_SNR;
     double avg_n_photons, avg_n_photoelectrons;
     double avg_n_ph_cx, err_avg_n_ph_cx, cx, err_cx;
     
