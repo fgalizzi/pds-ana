@@ -12,8 +12,47 @@
 ///////////////////////////////////////////////////////////////////
 
 
+void give_me_Bias_OV_and_errors(int module, double bias_dac, double v_br,
+                                double err_v_br, double& bias_volt,
+                                double &overvoltage, double &err_bias_volt, double &err_overvoltage){
 
+  double err_volt_m1_m2 = 0.03; // to have chi2 ~1
+  double err_volt_m3_m4 = 0.07; // to have chi2 ~1
+  vector<double> dacs, volts;  
+  double err_volt;
+  if(module==1 || module==2 || module==11){
+    dacs = {1148, 1161, 1174, 1187, 1200};
+    volts = {45.06, 45.54, 46.09, 46.55, 47.03};
+    err_volt = err_volt_m1_m2;
+  } else {
+    dacs = {754, 767, 780, 793, 806};
+    volts = {30.54, 31.11, 31.64, 32.01, 32.52};
+    err_volt = err_volt_m3_m4;
+  }
+  vector<double> err_volts(volts.size(), err_volt);
+  vector<double> err_dacs(dacs.size(), 0.);
 
+  TF1* f1 = new TF1 ( "f1", "[0]+[1]*x"); // y = q + m*x
+
+  f1->SetParameter(0, 0.);
+  f1->SetParameter(1, (volts[volts.size()-1]-volts[0])/(dacs[dacs.size()-1]-dacs[0]));
+
+  TGraphErrors* g_Volt_DAC = new TGraphErrors(dacs.size(), &dacs[0], &volts[0],
+                                              &err_dacs[0], &err_volts[0]);
+  
+  TFitResultPtr r1 = g_Volt_DAC->Fit(f1 ,"S");
+  double this_bias_dac[1] = {bias_dac};
+  double err_this_bias_volt[1];
+  r1->GetConfidenceIntervals(1, 1, 1, this_bias_dac, err_this_bias_volt, 0.683, false);
+
+  error_propagation(bias_volt, err_bias_volt, v_br, err_v_br, "sub");
+  bias_volt = f1->Eval(this_bias_dac[0]);
+  err_bias_volt = err_this_bias_volt[0];
+  overvoltage = bias_volt - v_br;
+  err_overvoltage = error_propagation(bias_volt, err_bias_volt, v_br, err_v_br, "sub");
+
+  return;
+}
 
 
 
@@ -23,33 +62,40 @@ void cla::TooAnnoying(){
   // -------------------------------------------------------------
   // --- HARD CODE -----------------------------------------------
   // INPUT
-  TString runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
-  TString input_ana_folder   = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/";
-  TString output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
-  // Runs and corresponding VGains
-  std::vector<int> runs = {};
-  std::vector<int> vgains = {};
-  for(int i=33740; i<=33759; i++){
-    runs.push_back(i);
-    vgains.push_back((i-33740)*100+100);
-  }
-  // Channels good for these runs
-  vector<int> channel_this_mask = {0, 2};
-  double bias_dac   = 793;
-  double bias_volts = 32;
+  string runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
+  string input_ana_folder   = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/";
+  
+  // Module, channels, bias_dac, runs and corresponding VGains
+  // Take from ~/pds-ana/Analises/Coldbox_Dec24/Bias_and_VGain_scan/Run_Bias_VGain_correspondence.hpp
+  int module = 1;
+  std::vector<int> module_channels = {20, 27};
+  std::vector<double> v_brs     = {42.47, 41.84};
+  std::vector<double> err_v_brs = {0.21, 0.24};
+  std::vector<int> vgains = {1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+                             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900,
+                             3000};
+  double bias_dac = 1200;
+  std::vector<int> runs   = {34023, 34024, 34025, 34026, 34027, 34028, 34029, 34030, 34031, 34032,
+                             34033, 34034, 34035, 34036, 34037, 34038, 34039, 34040, 34041, 34042,
+                             34058};
+  
   // File with the RMS of the channels
-  string rms_result_file((input_ana_folder+"VGain_RMS_LED0_Membrane.csv").Data());
+  string rms_result_file = input_ana_folder+"VGain_RMS_LED0_Membrane.csv";
 
   // CLASS SETTINGS
-  n_wf = 5000;
-  display=0;
-  print = 0;
+  display = 0;
+  print   = 0;
+  plot    = 0;
 
   // OUTPUT
   bool print_results = true;
-  TString out_root_file = output_ana_folder+"VGain_Scan_Module_Bias.root";
-  string out_csv_file((output_ana_folder+"VGain_Scan_Module_Bias.csv").Data());
+  string output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
+  string out_files_name = Form("Module_%i_Bias_%i_VGain_Scan", module, int(bias_dac));
+  string out_root_file = output_ana_folder+out_files_name+".root";
+  string out_csv_file  = output_ana_folder+out_files_name+".csv";
+
   // --- END HARD CODE -------------------------------------------
+  // -------------------------------------------------------------
  
 
   // --- CODE ----------------------------------------------------
@@ -61,7 +107,7 @@ void cla::TooAnnoying(){
 
   // string path(ana_folder.Data());
 
-  TFile hf(out_root_file, "recreate");
+  TFile hf(TString(out_root_file), "recreate");
   hf.mkdir("chargehistos");
   hf.cd("chargehistos");
   vector<TH1D*> h_charge_vec;
@@ -69,15 +115,20 @@ void cla::TooAnnoying(){
   vector<pair<string, vector<double>>> ch_rms = read_vec_pair_CSV(rms_result_file.c_str()); // Store the results of the analysis to be printed 
  
   std::cout << "files " << files.size() << std::endl;
-  for(size_t i=0; i<files.size(); i++){
-    for(auto&ch : channel_this_mask){
+  for(size_t idx_file=0; idx_file<files.size(); idx_file++){
+    for(size_t idx_channel=0; idx_channel<module_channels.size(); idx_channel++){
+      double bias_volt, overvoltage, err_bias_volt, err_overvoltage;
+      give_me_Bias_OV_and_errors(module, bias_dac, v_brs[idx_channel], err_v_brs[idx_channel],
+                                 bias_volt, overvoltage, err_bias_volt, err_overvoltage);
+      
       for(size_t j=0; j<ch_rms[0].second.size(); j++){
-        if(ch_rms[1].second[j] == vgains[i] && int(ch_rms[2].second[j]) == ch){
+        if(ch_rms[1].second[j] == vgains[idx_file] && int(ch_rms[2].second[j]) == module_channels[idx_channel]){
           bsl = 4.*ch_rms[3].second[j];
           sat_up = bsl*10;
         }
       }
-      wf_file = files[i]+"/channel_"+ch+".dat";
+      
+      wf_file = files[idx_file]+"/channel_"+module_channels[idx_channel]+".dat";
       std::cout << wf_file << std::endl;
       ifstream this_file(wf_file);
       if (!this_file.is_open()){
@@ -91,13 +142,16 @@ void cla::TooAnnoying(){
       LoadFitParameters(fgaus);
       SPE();
 
-      h_charge->SetTitle(Form("VGain_%i_ch_%i",vgains[i],ch));
-      h_charge->SetName(Form("VGain_%i_ch_%i",vgains[i],ch));
+      h_charge->SetTitle(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
+      h_charge->SetName(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
       h_charge_vec.push_back(h_charge);
-      feature_value.push_back({"Channel", double(ch)});
+      feature_value.push_back({"Channel", double(module_channels[idx_channel])});
       feature_value.push_back({"Bias [dac]", bias_dac});
-      feature_value.push_back({"Bias [V]", bias_volts});
-      feature_value.push_back({"VGain", double(vgains[i])});
+      feature_value.push_back({"Bias [V]", bias_volt});
+      feature_value.push_back({"Err Bias [V]", err_bias_volt});
+      feature_value.push_back({"OV [V]", overvoltage});
+      feature_value.push_back({"Err OV [V]", err_overvoltage});
+      feature_value.push_back({"VGain", double(vgains[idx_file])});
       feature_value.push_back({"Baseline", bsl});
       feature_value.push_back({"Prepulse ticks", double(prepulse_ticks)});
       feature_value.push_back({"Saturation up", sat_up});
@@ -109,7 +163,7 @@ void cla::TooAnnoying(){
       feature_value.push_back({"DR", pow(2,14)/spe_ampl});
       feature_value.push_back({"SNR", SNR});
       feature_value.push_back({"Err SNR", err_SNR});
-      feature_value.push_back({"RMS", ch_rms[3].second[i]});
+      feature_value.push_back({"RMS", ch_rms[3].second[idx_file]});
       feature_value.push_back({"CX", cx});
       feature_value.push_back({"Err CX", err_cx});
       feature_value.push_back({"Avg #ph cx", avg_n_ph_cx});

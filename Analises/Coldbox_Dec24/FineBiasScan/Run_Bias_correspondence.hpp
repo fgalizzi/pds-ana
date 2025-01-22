@@ -1,4 +1,5 @@
 // Link reference: https://docs.google.com/spreadsheets/d/1N9xcb2VVlzzDcNfBjlj_buhH9LiBTdG8-cnisb-orsI/edit?gid=1161866250#gid=1161866250
+// Analysis performed with the method Loop_VBias_Scan(), code version 20 Jan 2025
 
 // --- M1 ------------------------------------------------------------------
 std::vector<double> biases = {1133,1140,1147,1154,1161,1168,1175,1182,1189,1196,1203,1210};

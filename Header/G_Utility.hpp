@@ -5,20 +5,20 @@
 //
 
 #ifndef G_Utility_hpp
+  #include <stdio.h>
+  #include <iostream>
+  #include <fstream>
+  #include <utility>
+  #include <vector>
+
+  #include <TF1.h>
+  #include <TMatrixD.h>
+  #include "TFitResult.h"
+  #include <TH1.h>
+  #include <TGraphErrors.h>
+  #include <TGraph.h>
 #define G_Utility_hpp
 
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <utility>
-#include <vector>
-
-#include <TF1.h>
-#include <TMatrixD.h>
-#include "TFitResult.h"
-#include <TH1.h>
-#include <TGraphErrors.h>
-#include <TGraph.h>
 
 using namespace std;
 
@@ -86,7 +86,7 @@ void VecDouble_in_Binary(std::string fileName, std::vector<double>& vec){
 //*********************************************
 TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes, double& avg_n_photons){
 //*********************************************
-  int npeaks = fgaus->GetNumberFreeParameters()-4;
+  int npeaks = int(fgaus->GetXmax()/fgaus->GetParameter(1)+1); // only fitted peaks
   vector<double> Pi(npeaks, 0.0);
   vector<double> Err_Pi(npeaks, 0.0);
   vector<double> X(npeaks, 0.0);
@@ -100,8 +100,8 @@ TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes, dou
       if(i>3 && i!=peak+4) gaus.SetParameter(i, 0.);
     }
 
-    Pi[peak] = gaus.Integral(mu_0-3*G, mu_0+10*G , 1e-5)/(hI->GetBinWidth(5)*hI->GetEntries());
-    Err_Pi[peak] = gaus.IntegralError(mu_0-3*G, mu_0+10*G, FitRes->GetParams(), 
+    Pi[peak] = gaus.Integral(mu_0-8*G, mu_0+8*G , 1e-5)/(hI->GetBinWidth(5)*hI->GetEntries());
+    Err_Pi[peak] = gaus.IntegralError(mu_0-8*G, mu_0+8*G, FitRes->GetParams(), 
                         FitRes->GetCovarianceMatrix().GetMatrixArray())/(hI->GetBinWidth(5)*hI->GetEntries());
     X[peak] = peak;
     
@@ -342,6 +342,7 @@ void allign_wfs(vector<vector<double>>& waveforms, const int x_half_height) {
 
 }
 
+// Error propagation given a TFitResultPtr and a TF1 object
 //*********************************************
 double error_propagation(TFitResultPtr fit_res, TF1* fit_func, int idx_par1,
                          int idx_par2, std::string operation){
@@ -368,4 +369,24 @@ double error_propagation(TFitResultPtr fit_res, TF1* fit_func, int idx_par1,
 
   return result;
 }
+
+// Error propagation given two parameters and their errors (no covariance)
+//*********************************************
+double error_propagation(double p1, double e1, double p2, double e2, std::string operation){
+//*********************************************
+  double result = 0.;
+  if (operation == "sum") 
+    result = sqrt(e1 * e1 + e2 * e2);
+  else if (operation == "sub") 
+    result = sqrt(e1 * e1 + e2 * e2);
+  else if (operation == "mul") 
+    result = sqrt((e1 * e1) * (p2 * p2) + (e2 * e2) * (p1 * p1));
+  else if (operation == "div") 
+    result = sqrt((e1 * e1) / (p2 * p2) + (e2 * e2) * (p1 * p1) / (p2 * p2 * p2 * p2));
+  else
+    throw std::invalid_argument("Invalid operation: must be 'sum', 'sub', 'mul', or 'div'.");
+
+  return result;
+}
+
 #endif /* G_Utility_hpp */

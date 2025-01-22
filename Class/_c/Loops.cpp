@@ -189,6 +189,7 @@ std::vector<int> runs = {34389,34388,34387,34386,34385,34384,34383,34382,34381,3
       h_charge->SetTitle(Form("VBias_%i_ch_%i",int(biases[i]),ch));
       h_charge->SetName(Form("VBias_%i_ch_%i",int(biases[i]),ch));
       h_charge_vec.push_back(h_charge);
+      
       feature_value.push_back({"Channel", double(ch)});
       feature_value.push_back({"Bias [dac]", biases[i]});
       // feature_value.push_back({"Bias [V]", bias_volts});

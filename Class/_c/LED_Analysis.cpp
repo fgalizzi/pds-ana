@@ -46,8 +46,23 @@ void cla::LED_Analysis(){
   // by looking for peaks in the histo or manually by setting manual=true
   fgaus = set_charge_fit_function(h_charge, hFind);
   cout << "\n\n----------- FIT CHARGE HISTO ----------------------\n" << endl;
-  // h_charge->Fit("fgaus", "R");
-  TFitResultPtr FitRes = h_charge->Fit(fgaus, "RS");
+  h_charge->Fit(fgaus, "QNR");
+  // Compare the x axis upper limit of the histo h_charge and 6*fgaus->GetParameter(1)
+  // set the upper limit of fgaus range to the minimum of the two
+  spe_charge  = fgaus->GetParameter(1);
+  sigma_zero  = fgaus->GetParameter(2);
+  double last_fitted_peak_pe; // last fitted peak in photoelectrons
+  if (h_charge->GetXaxis()->GetXmax() < 5*spe_charge+0.7*sigma_zero){
+    fgaus->SetRange(-2.5*sigma_zero, h_charge->GetXaxis()->GetXmax());
+    last_fitted_peak_pe = h_charge->GetXaxis()->GetXmax()/(spe_charge);
+  }
+  else{
+    fgaus->SetRange(-2.5*sigma_zero, 5*spe_charge+0.7*sigma_zero);
+    last_fitted_peak_pe = 5;
+  }
+
+  TFitResultPtr FitRes = h_charge->Fit(fgaus, "RMES");
+  fgaus->SetRange(fgaus->GetXmin()*4, fgaus->GetXmax()); // Extend the range for the CX fit
   cout << "\n---------------------------------------------------  \n" << endl;
 
   if(display==true){
@@ -82,7 +97,7 @@ void cla::LED_Analysis(){
 
   // --- CROSS TALK ----------------------------------------------
   auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes, avg_n_photons);
-  TF1* f_CX = new TF1("f_CX", fCX, -0.5, 5.5, 2);
+  TF1* f_CX = new TF1("f_CX", fCX, -0.5, last_fitted_peak_pe+0.5, 2);
   fCX_set(f_CX);
   cout << "\n\n----------- FIT CROSS-TALK ------------------------\n" << endl;
   g_CX->Fit("f_CX", "R");
