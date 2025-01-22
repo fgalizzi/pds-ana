@@ -52,12 +52,12 @@ void cla::LED_Analysis(){
   spe_charge  = fgaus->GetParameter(1);
   sigma_zero  = fgaus->GetParameter(2);
   double last_fitted_peak_pe; // last fitted peak in photoelectrons
-  if (h_charge->GetXaxis()->GetXmax() < 5*spe_charge+0.7*sigma_zero){
+  if (h_charge->GetXaxis()->GetXmax() < 5*spe_charge+1.5*sigma_zero){
     fgaus->SetRange(-2.5*sigma_zero, h_charge->GetXaxis()->GetXmax());
     last_fitted_peak_pe = h_charge->GetXaxis()->GetXmax()/(spe_charge);
   }
   else{
-    fgaus->SetRange(-2.5*sigma_zero, 5*spe_charge+0.7*sigma_zero);
+    fgaus->SetRange(-2.5*sigma_zero, 5*spe_charge+1.5*sigma_zero);
     last_fitted_peak_pe = 5;
   }
 

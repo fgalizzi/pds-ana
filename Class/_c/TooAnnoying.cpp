@@ -67,17 +67,26 @@ void cla::TooAnnoying(){
   
   // Module, channels, bias_dac, runs and corresponding VGains
   // Take from ~/pds-ana/Analises/Coldbox_Dec24/Bias_and_VGain_scan/Run_Bias_VGain_correspondence.hpp
-  int module = 1;
-  std::vector<int> module_channels = {20, 27};
-  std::vector<double> v_brs     = {42.47, 41.84};
-  std::vector<double> err_v_brs = {0.21, 0.24};
-  std::vector<int> vgains = {1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+  int module = 2;
+  std::vector<int> module_channels = {21, 26};
+  std::vector<double> v_brs     = {42.71, 42.59};
+  std::vector<double> err_v_brs = {0.05, 0.06};
+  std::vector<int> vgains = {0,    100,  200,  300,  400,  500,  600,  700,  800,  900,
+                             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
                              2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900,
                              3000};
-  double bias_dac = 1200;
-  std::vector<int> runs   = {34023, 34024, 34025, 34026, 34027, 34028, 34029, 34030, 34031, 34032,
-                             34033, 34034, 34035, 34036, 34037, 34038, 34039, 34040, 34041, 34042,
-                             34058};
+  std::vector<double> bias_dacs = {1200, 1187};
+  std::vector<std::vector<int>> run_batches = {
+                                     {34230, 34231, 34232, 34233, 34234, 34235, 34236, 34237, 34238, 34239,
+                           33963, 33964, 33965, 33966, 33967, 33968, 33969, 33970, 33971, 33972,
+                           33973, 33974, 33975, 33976, 33977, 33978, 33979, 33980, 33981, 33982,
+                           34043},
+                                      {34240, 34241, 34242, 34243, 34244, 34245, 34246, 34247, 34248, 34249,
+                           33640, 33641, 33642, 33643, 33644, 33645, 33646, 33647, 33648, 33649,
+                           33650, 33651, 33652, 33653, 33654, 33655, 33656, 33657, 33658, 33659,
+                           34044},
+  };
+
   
   // File with the RMS of the channels
   string rms_result_file = input_ana_folder+"VGain_RMS_LED0_Membrane.csv";
@@ -90,100 +99,104 @@ void cla::TooAnnoying(){
   // OUTPUT
   bool print_results = true;
   string output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
-  string out_files_name = Form("Module_%i_Bias_%i_VGain_Scan", module, int(bias_dac));
-  string out_root_file = output_ana_folder+out_files_name+".root";
-  string out_csv_file  = output_ana_folder+out_files_name+".csv";
 
   // --- END HARD CODE -------------------------------------------
   // -------------------------------------------------------------
  
 
   // --- CODE ----------------------------------------------------
-  vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
-  std::vector<TString> files = {};
-  for(auto& run : runs){
-    files.push_back(runs_folder+"run_"+run);
-  }
-
-  // string path(ana_folder.Data());
-
-  TFile hf(TString(out_root_file), "recreate");
-  hf.mkdir("chargehistos");
-  hf.cd("chargehistos");
-  vector<TH1D*> h_charge_vec;
-
-  vector<pair<string, vector<double>>> ch_rms = read_vec_pair_CSV(rms_result_file.c_str()); // Store the results of the analysis to be printed 
- 
-  std::cout << "files " << files.size() << std::endl;
-  for(size_t idx_file=0; idx_file<files.size(); idx_file++){
-    for(size_t idx_channel=0; idx_channel<module_channels.size(); idx_channel++){
-      double bias_volt, overvoltage, err_bias_volt, err_overvoltage;
-      give_me_Bias_OV_and_errors(module, bias_dac, v_brs[idx_channel], err_v_brs[idx_channel],
-                                 bias_volt, overvoltage, err_bias_volt, err_overvoltage);
-      
-      for(size_t j=0; j<ch_rms[0].second.size(); j++){
-        if(ch_rms[1].second[j] == vgains[idx_file] && int(ch_rms[2].second[j]) == module_channels[idx_channel]){
-          bsl = 4.*ch_rms[3].second[j];
-          sat_up = bsl*10;
-        }
-      }
-      
-      wf_file = files[idx_file]+"/channel_"+module_channels[idx_channel]+".dat";
-      std::cout << wf_file << std::endl;
-      ifstream this_file(wf_file);
-      if (!this_file.is_open()){
-        std::cout << "File not found: " << wf_file << std::endl;
-        this_file.close();
-        continue;
-      }
-      std::cout << "\n\n\nReading file: " << wf_file << std::endl;  
-      cout << wf_file << endl;
-      LED_Analysis();
-      LoadFitParameters(fgaus);
-      SPE();
-
-      h_charge->SetTitle(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
-      h_charge->SetName(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
-      h_charge_vec.push_back(h_charge);
-      feature_value.push_back({"Channel", double(module_channels[idx_channel])});
-      feature_value.push_back({"Bias [dac]", bias_dac});
-      feature_value.push_back({"Bias [V]", bias_volt});
-      feature_value.push_back({"Err Bias [V]", err_bias_volt});
-      feature_value.push_back({"OV [V]", overvoltage});
-      feature_value.push_back({"Err OV [V]", err_overvoltage});
-      feature_value.push_back({"VGain", double(vgains[idx_file])});
-      feature_value.push_back({"Baseline", bsl});
-      feature_value.push_back({"Prepulse ticks", double(prepulse_ticks)});
-      feature_value.push_back({"Saturation up", sat_up});
-      feature_value.push_back({"Int low", double(int_low)});
-      feature_value.push_back({"Int up", double(int_up)});
-      feature_value.push_back({"Gain", spe_charge});
-      feature_value.push_back({"Err Gain", err_spe_charge});
-      feature_value.push_back({"Spe ampl", spe_ampl});
-      feature_value.push_back({"DR", pow(2,14)/spe_ampl});
-      feature_value.push_back({"SNR", SNR});
-      feature_value.push_back({"Err SNR", err_SNR});
-      feature_value.push_back({"RMS", ch_rms[3].second[idx_file]});
-      feature_value.push_back({"CX", cx});
-      feature_value.push_back({"Err CX", err_cx});
-      feature_value.push_back({"Avg #ph cx", avg_n_ph_cx});
-      feature_value.push_back({"Err #ph cx", err_avg_n_ph_cx});
-      feature_value.push_back({"Avg #ph", avg_n_photons});
-      feature_value.push_back({"Avg #pe", avg_n_photoelectrons});
-      
-      if(print_results==true){
-        std::cout << "\n\nPRINTING\n\n" << std::endl;
-        print_vec_pair_csv(out_csv_file, feature_value);
-      }
-      // if(print==true) print_vec_pair_csv(Form("%s/VGain_results_Ep_104_run_%d.csv",path.c_str(),runs[0]), feature_value);
-      // cout << Form("%s/VGain_results_Ep_104_run_%d.csv",path.c_str(),runs[0]) << endl;
-      
-      // Reset the vector
-      feature_value = {};
-    }
-  }
   
-  std::cout << "\n\nOUT OF THE LOOP\n\n" << std::endl;
-  if(print_results==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
-  hf.Close();
+  // Loop over the biases and analise the corresponding run batches
+  for(size_t idx_bias=0; idx_bias<bias_dacs.size(); idx_bias++){
+    double bias_dac = bias_dacs[idx_bias]; 
+    std::vector<int> runs = run_batches[idx_bias];
+    vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
+
+    string out_files_name = Form("Module_%i_Bias_%i_VGain", module, int(bias_dac));
+    string out_root_file = output_ana_folder+out_files_name+".root";
+    string out_csv_file  = output_ana_folder+out_files_name+".csv";
+
+    std::vector<TString> files = {};
+    for(auto& run : runs){
+      files.push_back(runs_folder+"run_"+run);
+    }
+
+    TFile hf(TString(out_root_file), "recreate");
+    hf.mkdir("chargehistos");
+    hf.cd("chargehistos");
+    vector<TH1D*> h_charge_vec;
+
+    vector<pair<string, vector<double>>> ch_rms = read_vec_pair_CSV(rms_result_file.c_str()); // Store the results of the analysis to be printed 
+   
+    std::cout << "files " << files.size() << std::endl;
+    for(size_t idx_file=0; idx_file<files.size(); idx_file++){
+      for(size_t idx_channel=0; idx_channel<module_channels.size(); idx_channel++){
+        double bias_volt, overvoltage, err_bias_volt, err_overvoltage;
+        give_me_Bias_OV_and_errors(module, bias_dac, v_brs[idx_channel], err_v_brs[idx_channel],
+                                   bias_volt, overvoltage, err_bias_volt, err_overvoltage);
+        
+        for(size_t j=0; j<ch_rms[0].second.size(); j++){
+          if(ch_rms[1].second[j] == vgains[idx_file] && int(ch_rms[2].second[j]) == module_channels[idx_channel]){
+            bsl = 4.*ch_rms[3].second[j];
+            sat_up = bsl*10;
+          }
+        }
+        
+        wf_file = files[idx_file]+"/channel_"+module_channels[idx_channel]+".dat";
+        std::cout << wf_file << std::endl;
+        ifstream this_file(wf_file);
+        if (!this_file.is_open()){
+          std::cout << "File not found: " << wf_file << std::endl;
+          this_file.close();
+          continue;
+        }
+        std::cout << "\n\n\nReading file: " << wf_file << std::endl;  
+        cout << wf_file << endl;
+        LED_Analysis();
+        LoadFitParameters(fgaus);
+        SPE();
+
+        h_charge->SetTitle(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
+        h_charge->SetName(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
+        h_charge_vec.push_back(h_charge);
+        feature_value.push_back({"Channel", double(module_channels[idx_channel])});
+        feature_value.push_back({"Bias [dac]", bias_dac});
+        feature_value.push_back({"Bias [V]", bias_volt});
+        feature_value.push_back({"Err Bias [V]", err_bias_volt});
+        feature_value.push_back({"OV [V]", overvoltage});
+        feature_value.push_back({"Err OV [V]", err_overvoltage});
+        feature_value.push_back({"VGain", double(vgains[idx_file])});
+        feature_value.push_back({"Baseline", bsl});
+        feature_value.push_back({"Prepulse ticks", double(prepulse_ticks)});
+        feature_value.push_back({"Saturation up", sat_up});
+        feature_value.push_back({"Int low", double(int_low)});
+        feature_value.push_back({"Int up", double(int_up)});
+        feature_value.push_back({"Gain", spe_charge});
+        feature_value.push_back({"Err Gain", err_spe_charge});
+        feature_value.push_back({"Spe ampl", spe_ampl});
+        feature_value.push_back({"DR", pow(2,14)/spe_ampl});
+        feature_value.push_back({"SNR", SNR});
+        feature_value.push_back({"Err SNR", err_SNR});
+        feature_value.push_back({"RMS", ch_rms[3].second[idx_file]});
+        feature_value.push_back({"CX", cx});
+        feature_value.push_back({"Err CX", err_cx});
+        feature_value.push_back({"Avg #ph cx", avg_n_ph_cx});
+        feature_value.push_back({"Err #ph cx", err_avg_n_ph_cx});
+        feature_value.push_back({"Avg #ph", avg_n_photons});
+        feature_value.push_back({"Avg #pe", avg_n_photoelectrons});
+        
+        if(print_results==true){
+          std::cout << "\n\nPRINTING\n\n" << std::endl;
+          print_vec_pair_csv(out_csv_file, feature_value);
+        }
+        
+        // Reset the vector
+        feature_value = {};
+      }
+    }
+    
+    std::cout << "\n\nOUT OF THE LOOP\n\n" << std::endl;
+    if(print_results==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
+    hf.Close();
+  }
 }
