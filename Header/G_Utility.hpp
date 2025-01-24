@@ -145,17 +145,15 @@ TGraphErrors* Build_CX_Graph (TF1* fgaus, TH1* hI){
 // Given an average waveform, it prints the rise time 10%->90% and the fall
 // time 90->10. It assumes a flat baseline before the pulse.
 //*********************************************
-void RiseFallTimeUndershoot(std::vector<double>& waveform, const double tick_len, double& r_time,
-    double& f_time, double& undershoot) {
+void RiseFallTimeUndershoot(std::vector<double>& waveform, const double& tick_len, const int& int_up){
 //*********************************************
- 
   double* wf = waveform.data();
   auto* g_wf = new TGraph(waveform.size(), wf);
-  double x0, x1, xm;
+  double x0, x1, xm, undershoot, r_time, f_time;
 
   // Find the maximum amplitude
-  double max_amplitude = *std::max_element(waveform.begin(), waveform.end());
-  double min_amplitude = *std::min_element(waveform.begin(), waveform.end());
+  double max_amplitude = *std::max_element(waveform.begin(), waveform.begin()+int_up);
+  double min_amplitude = *std::min_element(waveform.begin()+int_up, waveform.end());
   undershoot = -min_amplitude/max_amplitude*100;
 
   // Calculate the threshold levels (10% and 90% of max amplitude)
@@ -197,7 +195,7 @@ void RiseFallTimeUndershoot(std::vector<double>& waveform, const double tick_len
   
   std::cout << "\n \nNew method " << std::endl;
   std::cout << "Rise time 10%->90% [ns] " << r_time << "\nFall time 90%->10% [ns] " << f_time << std::endl;
-
+  std::cout << "Undershoot [%]: " << undershoot << std::endl;
 
 }
 

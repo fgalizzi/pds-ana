@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void cla::SPE() {
-  double y0, y1, r_time, f_time, undershoot;
+  double y0, y1;
   vector<double> x, avg, int_wf, t_templ, noise_td;
   vector<vector<double>> sel_wf, spe_wf, avg_wf, filt_wf;
   size_t nsample = memorydepth;
@@ -49,7 +49,6 @@ void cla::SPE() {
     return;
   }
   avg_wf.push_back(avg);
-  RiseFallTimeUndershoot(avg, tick_len, r_time, f_time, undershoot);
   spe_ampl  = *std::max_element(avg.begin(), avg.end());
   spe_under = *std::min_element(avg.begin(), avg.end());
 
@@ -89,15 +88,9 @@ void cla::SPE() {
   double spe_avg_gain = 0;
   for(int i=int_low; i<=int_up; i++) spe_avg_gain += avg[i];
   
-
   std::cout << "\n\nSPE integral [0;memorydepth] " << overall_integral << std::endl;
   std::cout << "SPE integral [int_low;int_up] " << spe_avg_gain << std::endl;
   
-
-  std::cout << "\n\nColdbox table Ampl - under - r_time - f_time - under" << std::endl;
-  std::cout << spe_ampl << "\t" << undershoot*spe_ampl/100. << "\t" << r_time << "\t" << f_time << "\t" <<
-    undershoot << "\n\n" << std::endl;
-
   //Evaluate the dynamic range
   double dyn_range = pow(2,14)/(spe_ampl - spe_under);
   std::cout << "\n\nDynamic Range " << dyn_range << std::endl; 

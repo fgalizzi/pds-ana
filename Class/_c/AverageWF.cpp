@@ -28,12 +28,11 @@ void cla::AverageWF() {
   std::cout << "WFS size " << wfs.size() << std::endl;  
   std::cout << "WF  size " << avg_wf.size() << std::endl;
   
-  RiseFallTimeUndershoot(avg_wf, tick_len, r_time, f_time, undershoot);
+  RiseFallTimeUndershoot(avg_wf, tick_len, int_up);
   TCanvas* cTime = new TCanvas("pers","pers");
  
-  y0 = *min_element(std::begin(avg_wf), std::end(avg_wf));
-  y1 = *max_element(std::begin(avg_wf), std::end(avg_wf));
-  
+  y0 = *min_element(std::begin(avg_wf)+int_up, std::end(avg_wf));
+  y1 = *max_element(std::begin(avg_wf), std::end(avg_wf)+int_up);
   std::cout << "\nUndershoot " << y0/y1*100. << "\n \n";
  
   min_max_element(y2, y0, y1);

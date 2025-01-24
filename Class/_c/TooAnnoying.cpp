@@ -67,29 +67,39 @@ void cla::TooAnnoying(){
   
   // Module, channels, bias_dac, runs and corresponding VGains
   // Take from ~/pds-ana/Analises/Coldbox_Dec24/Bias_and_VGain_scan/Run_Bias_VGain_correspondence.hpp
-  int module = 2;
-  std::vector<int> module_channels = {21, 26};
-  std::vector<double> v_brs     = {42.71, 42.59};
-  std::vector<double> err_v_brs = {0.05, 0.06};
-  std::vector<int> vgains = {0,    100,  200,  300,  400,  500,  600,  700,  800,  900,
-                             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-                             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900,
-                             3000};
-  std::vector<double> bias_dacs = {1200, 1187};
-  std::vector<std::vector<int>> run_batches = {
-                                     {34230, 34231, 34232, 34233, 34234, 34235, 34236, 34237, 34238, 34239,
-                           33963, 33964, 33965, 33966, 33967, 33968, 33969, 33970, 33971, 33972,
-                           33973, 33974, 33975, 33976, 33977, 33978, 33979, 33980, 33981, 33982,
-                           34043},
-                                      {34240, 34241, 34242, 34243, 34244, 34245, 34246, 34247, 34248, 34249,
-                           33640, 33641, 33642, 33643, 33644, 33645, 33646, 33647, 33648, 33649,
-                           33650, 33651, 33652, 33653, 33654, 33655, 33656, 33657, 33658, 33659,
-                           34044},
-  };
-
+int module = 2;
+std::vector<int> module_channels = {21, 26};
+std::vector<double> v_brs     = {42.71, 42.59};
+std::vector<double> err_v_brs = {0.05, 0.06};
+std::vector<int> vgains = {0,    100,  200,  300,  400,  500,  600,  700,  800,  900,
+                           1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+                           2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900,
+                           3000};
+std::vector<double> bias_dacs = {1200, 1187, 1174, 1161, 1148};
+std::vector<std::vector<int>> run_batches = {{34230, 34231, 34232, 34233, 34234, 34235, 34236, 34237, 34238, 34239,
+                                      33380, 33381, 33382, 33383, 33384, 33385, 33386, 33387, 33388, 33389,
+                                      33390, 33392, 33393, 33394, 33395, 33396, 33397, 33398, 33399, 33400,
+                                      34043},
+                                     {34240, 34241, 34242, 34243, 34244, 34245, 34246, 34247, 34248, 34249,
+                                      33401, 33402, 33403, 33404, 33405, 33406, 33407, 33408, 33409, 33410,
+                                      33411, 33413, 33414, 33415, 33416, 33417, 33418, 33419, 33420, 33421, 
+                                      34044},
+                                     {34250, 34251, 34252, 34253, 34254, 34255, 34256, 34257, 34258, 34259,
+                                      33660, 33661, 33662, 33663, 33464, 33665, 33666, 33667, 33668, 33669, 
+                                      33670, 33671, 33672, 33673, 33674, 33675, 33676, 33677, 33678, 33679,
+                                      34045},
+                                     {34260, 34261, 34262, 34263, 34264, 34265, 34266, 34267, 34268, 34269,
+                                      33680, 33681, 33682, 33683, 33684, 33685, 33686, 33687, 33688, 33689, 
+                                      33690, 33691, 33692, 33693, 33694, 33695, 33696, 33697, 33698, 33699,
+                                      34046},
+                                     {34270, 34271, 34272, 34273, 34274, 34275, 34276, 34277, 34278, 34279,
+                                      33700, 33701, 33702, 33703, 33704, 33705, 33706, 33707, 33708, 33709, 
+                                      33710, 33711, 33712, 33713, 33714, 33715, 33716, 33717, 33718, 33719,
+                                      34047}};
   
-  // File with the RMS of the channels
+  // File with the RMS of the channels. bsl = allowed_bsl_rms*channel_rms
   string rms_result_file = input_ana_folder+"VGain_RMS_LED0_Membrane.csv";
+  double allowed_bsl_rms = 3.;
 
   // CLASS SETTINGS
   display = 0;
@@ -112,7 +122,7 @@ void cla::TooAnnoying(){
     std::vector<int> runs = run_batches[idx_bias];
     vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
 
-    string out_files_name = Form("Module_%i_Bias_%i_VGain", module, int(bias_dac));
+    string out_files_name = Form("Module_%i_Bias_%i_VGain_3RMS", module, int(bias_dac));
     string out_root_file = output_ana_folder+out_files_name+".root";
     string out_csv_file  = output_ana_folder+out_files_name+".csv";
 
@@ -137,7 +147,7 @@ void cla::TooAnnoying(){
         
         for(size_t j=0; j<ch_rms[0].second.size(); j++){
           if(ch_rms[1].second[j] == vgains[idx_file] && int(ch_rms[2].second[j]) == module_channels[idx_channel]){
-            bsl = 4.*ch_rms[3].second[j];
+            bsl = allowed_bsl_rms*ch_rms[3].second[j];
             sat_up = bsl*10;
           }
         }
@@ -159,6 +169,7 @@ void cla::TooAnnoying(){
         h_charge->SetTitle(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
         h_charge->SetName(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
         h_charge_vec.push_back(h_charge);
+        feature_value.push_back({"Run", double(runs[idx_file])});
         feature_value.push_back({"Channel", double(module_channels[idx_channel])});
         feature_value.push_back({"Bias [dac]", bias_dac});
         feature_value.push_back({"Bias [V]", bias_volt});

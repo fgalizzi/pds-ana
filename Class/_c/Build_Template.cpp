@@ -13,13 +13,15 @@
   // string template_file = "../Template_files/sp20240314_newElec_45v"; 
   // string noise_file    = "../Noise_files/noise20240314_newel_45V.dat"; 
 
-string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Template_files/";
+// string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Template_files/";
+string template_files_path = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/LargeLED/";
 ///////////////////////////////////////////////////////////////////
 
 
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void cla::Build_Template() {
+  // --- VARIABLES ------------------------------------------------
   vector<double> x, avg_calib, avg_template, int_wf, noise_td;
   vector<vector<double>> calib_wfs, template_wfs;
   size_t nsample = memorydepth;
@@ -30,6 +32,7 @@ void cla::Build_Template() {
   // Read and subtract the baseline
   read();
 
+  // --- SELECTION and BUILD THE TEMPLATE -------------------------
   // Subtract the coherent noise of the digitiser (only once, if you re-run the macro)
   if(ite==0 && noise_f!=""){
     CompleteWF_Binary(noise_f, noise_td, memorydepth); // t_templ = time domain template
@@ -44,14 +47,19 @@ void cla::Build_Template() {
   hI = BuildRawChargeHisto(calib_wfs, int_wf, int_low, int_up, nbins);
   
   // Select wfs to buil the template: integral>spe_low, no after-pulses nor 
-  // light signal in the window. Tune rms for a more strict/loose requirement
+  // light signal in the window. Tune rms for a more strict/loose selection
   SelTemplate_WF(calib_wfs, template_wfs, int_wf, double(spe_low),
                  rms, int_low, int_up);
 
   // Averages for plots. "avg_template" is our template
   avgWF(calib_wfs, avg_calib);
   avgWF(template_wfs, avg_template);
+  std::cout << "\n-------------------------------------------------\n" << std::endl;
+  std::cout << "#Selected WFs: " << template_wfs.size() << std::endl;
+  RiseFallTimeUndershoot(avg_template, tick_len, int_up);
+  std::cout << "\n-------------------------------------------------\n" << std::endl;
 
+  // --- PRINT ----------------------------------------------------
   double norm; 
   if(print==true){
     string outfile_name;
@@ -66,6 +74,7 @@ void cla::Build_Template() {
   }
   
 
+  // --- PLOT -----------------------------------------------------
   if (plot == true){
     // normalize the averages for the plots
     norm = 1./ *max_element(std::begin(avg_calib), std::end(avg_calib));
