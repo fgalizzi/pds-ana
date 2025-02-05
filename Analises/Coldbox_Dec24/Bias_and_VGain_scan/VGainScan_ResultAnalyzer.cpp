@@ -1,5 +1,6 @@
 #include "../../../Class/_c/class_include.hpp"
 #include "../../../plotter/DUNEStyle.h"
+#include "TGraphErrors.h"
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////
@@ -198,6 +199,15 @@ void VGainScan_ResultAnalyzer(){
         g_SNR_DR->GetYaxis()->SetTitle("SNR");
         if (verbose) g_SNR_DR->Write(Form("SNR_DR_M%i_Ch%i_Bias%i", module, channel, bias));
         else         g_SNR_DR->Write("SNR_DR");
+
+        TGraphErrors* g_SNR_SPEampl = new TGraphErrors(spe_ampls.size(), &spe_ampls[0], &snrs[0],
+                                                      &err_zeros[0], &err_snrs[0]);
+        if (verbose) g_SNR_SPEampl->SetTitle(Form("SNR vs SPE Amplitude - M%i-%s Ch.%i Bias= %.2f OV= %.2f ", module, sipm.Data(), channel, bias_volt, overvoltage));
+        else         g_SNR_SPEampl->SetTitle(Form("Bias= %.2f OV= %.2f ", bias_volt, overvoltage));
+        g_SNR_SPEampl->GetXaxis()->SetTitle("SPE Amplitude [ADC]");
+        g_SNR_SPEampl->GetYaxis()->SetTitle("SNR");
+        if (verbose) g_SNR_SPEampl->Write(Form("SNR_SPEampl_M%i_Ch%i_Bias%i", module, channel, bias));
+        else         g_SNR_SPEampl->Write("SNR_SPEampl");
       
       } // end loop over biases
     } // end loop over channels
