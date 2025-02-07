@@ -123,13 +123,13 @@ void cla::Loop_VBias_Scan(){
   // --- HARD CODE -----------------------------------------------
   // INPUT
   TString runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
-  TString output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
+  TString output_ana_folder  = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
   // Runs and corresponding Bias
   // Channels good for these runs
-std::vector<double> biases = {1140,1147,1154,1161,1168,1175,1182,1189,1196,1203,1210};
-std::vector<int> runs = {34389,34388,34387,34386,34385,34384,34383,34382,34381,34380,34379};
-  int module = 1; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
-  vector<int> channel_this_mask = {20, 27};
+std::vector<double> biases = {751,758,765,772,779,786,793,800,807,814,821,828};
+std::vector<int> runs = {34353,34352,34351,34350,34349,34348,34347,34346,34345,34344,34343,34342};
+  int module = 3; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
+  vector<int> channel_this_mask = {0, 2};
   // Initial sat_up for the scan
   double scan_sat_up = 1600;
 
@@ -189,7 +189,13 @@ std::vector<int> runs = {34389,34388,34387,34386,34385,34384,34383,34382,34381,3
       h_charge->SetTitle(Form("VBias_%i_ch_%i",int(biases[i]),ch));
       h_charge->SetName(Form("VBias_%i_ch_%i",int(biases[i]),ch));
       h_charge_vec.push_back(h_charge);
+
+      int arap_ch;
+      if (ch == 0 || ch == 1 || ch == 27 || ch == 26) arap_ch = 1;
+      else arap_ch = 2; 
       
+      feature_value.push_back({"Run", runs[i]});
+      feature_value.push_back({"Membrane modules Channel", int(arap_ch)});
       feature_value.push_back({"Channel", double(ch)});
       feature_value.push_back({"Bias [dac]", biases[i]});
       // feature_value.push_back({"Bias [V]", bias_volts});
@@ -226,3 +232,6 @@ std::vector<int> runs = {34389,34388,34387,34386,34385,34384,34383,34382,34381,3
   if(print_results==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
   hf.Close();
 }
+
+
+      
