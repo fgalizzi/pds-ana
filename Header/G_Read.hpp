@@ -35,7 +35,20 @@ void CompleteWF_Binary(std::string fileName, vector<vector<double>>& y, int WFs,
     std::cout << "Error opening file" << std::endl;
     return;
   }
+/*
+  int count = 0;
+    std::string line;
+    while (std::getline(file, line)) {
+        count++;
+    }
 
+  file.seekg(0, std::ios::beg);
+
+  if(WFs > file.eof()) WFs = count;
+  if(WFs == -1) WFs = count;
+  
+  y.resize(WFs, vector<double>(len));
+*/
   for (int n_wf=0; n_wf < WFs; n_wf++) {
     for (int i=0; i < len; i++) {
       file.read( reinterpret_cast<char*>(&t), sizeof(t) );
