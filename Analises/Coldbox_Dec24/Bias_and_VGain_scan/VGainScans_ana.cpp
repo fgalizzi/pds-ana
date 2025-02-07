@@ -53,7 +53,7 @@ void VGainsScans_ana(){
   // --- HARD CODE -----------------------------------------------
   // INPUT
   string runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
-  string input_ana_folder   = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/";
+  string input_ana_folder   = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/";
   
   // Module, channels, bias_dac, runs and corresponding VGains
   // Take from ~/pds-ana/Analises/Coldbox_Dec24/Bias_and_VGain_scan/Run_Bias_VGain_correspondence.hpp
@@ -99,7 +99,8 @@ void VGainsScans_ana(){
 
   // OUTPUT
   bool print_results = true;
-  string output_ana_folder  = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/VGainScan/";
+  string output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
+
 
   // --- END HARD CODE -------------------------------------------
   // -------------------------------------------------------------

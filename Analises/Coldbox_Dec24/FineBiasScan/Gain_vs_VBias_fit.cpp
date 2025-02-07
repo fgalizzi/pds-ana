@@ -27,7 +27,7 @@ size_t navg_phs_colunm = 17;
 size_t navg_pes_colunm = 18;
 
 // --- OUTPUT ----------------------------------------------------
-TString output_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/";
+TString output_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
 
 ///////////////////////////////////////////////////////////////////
 

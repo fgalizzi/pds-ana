@@ -95,6 +95,11 @@ class cla{
     double hmin;          //Histo lower limit 
     double hmax;          //Upper
     TF1* fgaus = nullptr; //Fit function
+    TH1D* h_charge = nullptr;
+    double SNR, spe_ampl_correction;
+    double err_spe_charge, err_sigma_zero, err_SNR;
+    double avg_n_photons, avg_n_photoelectrons;
+    double avg_n_ph_cx, err_avg_n_ph_cx, cx, err_cx;
 
     // (De)convolution
     int roll;
@@ -199,11 +204,6 @@ class cla{
     double compute_spe_correction(TF1* f);
     void self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf);
     
-    // Calibration 
-    double SNR, spe_ampl_correction;
-    double err_spe_charge, err_sigma_zero, err_SNR;
-    double avg_n_photons, avg_n_photoelectrons;
-    double avg_n_ph_cx, err_avg_n_ph_cx, cx, err_cx;
     
     // Self trigger stuff
     std::vector<std::vector<double>> trg_wf;
@@ -219,7 +219,6 @@ class cla{
     bool avoid_auto_peak = true;
     int pspe_low, pspe_up;  //ProtoDUNE spe_low and spe_up initial guess
 
-    TH1D* h_charge = nullptr;
     bool class_skip=0;
 };
 
