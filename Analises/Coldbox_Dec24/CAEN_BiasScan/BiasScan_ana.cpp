@@ -1,11 +1,11 @@
 #include "../../../Class/_c/class_include.hpp"
 using namespace std;
 
+//-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void Loop_VBias_Scan_Caen(){
   // -------------------------------------------------------------
   // --- HARD CODE -----------------------------------------------
-
   std::vector<double> biases = {};
   std::vector<TString> bias_volt = {};
   int module = 3;
@@ -17,8 +17,8 @@ void Loop_VBias_Scan_Caen(){
 
   TString name_file;
   if(module == 1){
-	 if(day == 3) name_file = Form("M%i_LED6p5_", module);
-	 else name_file = Form("M%i_LED6p30_", module);
+    if(day == 3) name_file = Form("M%i_LED6p5_", module);
+	  else name_file = Form("M%i_LED6p30_", module);
   }
   if(module == 2) {
 	  if(day == 3) name_file = Form("M%i_LED6p35_", module);

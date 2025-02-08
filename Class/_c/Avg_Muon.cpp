@@ -132,6 +132,7 @@ void cla::Avg_Muon(){
 
   cout << "\nMuon canidates: " << mu_wfs.size() << endl;
   avgWF(mu_wfs, avg_mu);
+  RiseFallTimeUndershoot(avg_mu, tick_len, int_up);
 
   if(print==true) {
     string outfile_name;

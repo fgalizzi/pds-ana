@@ -184,7 +184,9 @@ class cla{
     void Loop_FFT_RMS_Analysis();
     void Loop_VBias_Scan();
 
-    //Constructor
+    void read();//Read the wf_file and store the waveforms in wfs
+    
+  //Constructor
     cla(){set();}
 
   private:
@@ -196,7 +198,6 @@ class cla{
    
     // Private methods
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
-    void read();//Read the wf_file and store the waveforms in wfs
     void update_thisfile(string out_file_name="ana_parameters");
     vector<size_t> read_pdhd_ch_map(int mask=0);
     vector<string> read_chs(string ch_file_name);

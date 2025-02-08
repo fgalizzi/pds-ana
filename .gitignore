@@ -7,3 +7,5 @@
 *.pcm
 *.root
 *TF1.cpp
+*.swn
+*swo
