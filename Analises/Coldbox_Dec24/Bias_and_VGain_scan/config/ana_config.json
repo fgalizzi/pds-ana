@@ -6,10 +6,11 @@
   "allowed_bsl_rms": 3,
   "print_results": true,
 
-  "display": 0,
-  "plot": 0,
-  "print": 1,
+  "display": false,
+  "plot": false,
+  "print": false,
   "memorydepth": 1024,
+  "tick_len": 0.016,
   "nbins": 300,
   "nmaxpeaks": 6,
   "data_format": "esteban"
