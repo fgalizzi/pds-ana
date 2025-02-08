@@ -1,6 +1,84 @@
 #include "../../../Class/_c/class_include.hpp"
+#include <nlohmann/json.hpp>
 using namespace std;
+using json = nlohmann::json;
 
+struct AnaConfig {
+  string runs_folder;
+  string input_ana_folder;
+  string rms_result_file;
+  string output_ana_folder;
+  double allowed_bsl_rms;
+  int display;
+  int print;
+  int plot;
+  int memorydepth;
+  double tick_len;
+  int nbins;
+  int nmaxpeaks;
+  string data_format;
+};
+
+AnaConfig load_ana_config(const std::string& filename) {
+  std::ifstream file(filename);
+  if (!file) {
+    throw std::runtime_error("Could not open config file: " + filename);
+  }
+
+  json j;
+  file >> j;
+  AnaConfig config;
+  config.runs_folder = j.at("runs_folder").get<std::string>();
+  config.input_ana_folder = j.at("input_ana_folder").get<std::string>();
+  config.rms_result_file = j.at("rms_result_file").get<std::string>();
+  config.output_ana_folder = j.at("output_ana_folder").get<std::string>();
+  config.allowed_bsl_rms = j.at("allowed_bsl_rms").get<double>();
+  config.display = j.at("display").get<int>();
+  config.print = j.at("print").get<int>();
+  config.plot = j.at("plot").get<int>();
+  config.memorydepth = j.at("memorydepth").get<int>();
+  config.tick_len = j.at("tick_len").get<double>();
+  config.nbins = j.at("nbins").get<int>();
+  config.nmaxpeaks = j.at("nmaxpeaks").get<int>();
+  config.data_format = j.at("data_format").get<std::string>();
+  return config;
+}
+
+
+struct ModuleConfig {
+  int module;
+  std::vector<int> module_channels;
+  std::vector<double> v_brs;
+  std::vector<double> err_v_brs;
+  std::vector<int> vgains;
+  std::vector<double> bias_dacs;
+  std::vector<std::vector<int>> run_batches;
+};
+
+ModuleConfig load_module_config(const std::string& filename) {
+  std::ifstream file(filename);
+  if (!file) {
+    throw std::runtime_error("Could not open config file: " + filename);
+  }
+  
+  json j;
+  file >> j;
+  
+  ModuleConfig config;
+  config.module = j.at("module").get<int>();
+  config.module_channels = j.at("module_channels").get<std::vector<int>>();
+  config.v_brs = j.at("v_brs").get<std::vector<double>>();
+  config.err_v_brs = j.at("err_v_brs").get<std::vector<double>>();
+  config.vgains = j.at("vgains").get<std::vector<int>>();
+  config.bias_dacs = j.at("bias_dacs").get<std::vector<double>>();
+  config.run_batches = j.at("run_batches").get<std::vector<std::vector<int>>>();
+  
+  return config;
+}
+
+
+
+#include "config/module_1.hpp"
 
 void give_me_Bias_OV_and_errors(int module, double bias_dac, double v_br,
                                 double err_v_br, double& bias_volt,
@@ -48,65 +126,34 @@ void give_me_Bias_OV_and_errors(int module, double bias_dac, double v_br,
 
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
-void VGainsScans_ana(){
-  // -------------------------------------------------------------
-  // --- HARD CODE -----------------------------------------------
-  // INPUT
-  string runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
-  string input_ana_folder   = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/";
+void VGainScans_ana(cla& a, string jsonfile_module_config){
+  AnaConfig ana_config = load_ana_config("config/ana_config.json");
+  string runs_folder = ana_config.runs_folder;
+  string input_ana_folder = ana_config.input_ana_folder;
+  string rms_result_file = ana_config.rms_result_file;
+  string output_ana_folder = ana_config.output_ana_folder;
+  double allowed_bsl_rms = ana_config.allowed_bsl_rms;
+  // Class settings 
+  a.display = ana_config.display;
+  a.print= ana_config.print;
+  a.plot = ana_config.plot;
+  a.memorydepth = ana_config.memorydepth;
+  a.tick_len = ana_config.tick_len;
+  a.nbins = ana_config.nbins;
+  a.nmaxpeaks = ana_config.nmaxpeaks;
+  a.data_format = ana_config.data_format;
+
   
-  // Module, channels, bias_dac, runs and corresponding VGains
-  // Take from ~/pds-ana/Analises/Coldbox_Dec24/Bias_and_VGain_scan/Run_Bias_VGain_correspondence.hpp
-  int module = 2;
-  std::vector<int> module_channels = {21, 26};
-  std::vector<double> v_brs     = {42.71, 42.59};
-  std::vector<double> err_v_brs = {0.05, 0.06};
-  std::vector<int> vgains = {0,    100,  200,  300,  400,  500,  600,  700,  800,  900,
-                             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-                             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900,
-                             3000};
-  std::vector<double> bias_dacs = {1200, 1187, 1174, 1161, 1148};
-  std::vector<std::vector<int>> run_batches = {{34230, 34231, 34232, 34233, 34234, 34235, 34236, 34237, 34238, 34239,
-                                        33380, 33381, 33382, 33383, 33384, 33385, 33386, 33387, 33388, 33389,
-                                        33390, 33392, 33393, 33394, 33395, 33396, 33397, 33398, 33399, 33400,
-                                        34043},
-                                       {34240, 34241, 34242, 34243, 34244, 34245, 34246, 34247, 34248, 34249,
-                                        33401, 33402, 33403, 33404, 33405, 33406, 33407, 33408, 33409, 33410,
-                                        33411, 33413, 33414, 33415, 33416, 33417, 33418, 33419, 33420, 33421, 
-                                        34044},
-                                       {34250, 34251, 34252, 34253, 34254, 34255, 34256, 34257, 34258, 34259,
-                                        33660, 33661, 33662, 33663, 33464, 33665, 33666, 33667, 33668, 33669, 
-                                        33670, 33671, 33672, 33673, 33674, 33675, 33676, 33677, 33678, 33679,
-                                        34045},
-                                       {34260, 34261, 34262, 34263, 34264, 34265, 34266, 34267, 34268, 34269,
-                                        33680, 33681, 33682, 33683, 33684, 33685, 33686, 33687, 33688, 33689, 
-                                        33690, 33691, 33692, 33693, 33694, 33695, 33696, 33697, 33698, 33699,
-                                        34046},
-                                       {34270, 34271, 34272, 34273, 34274, 34275, 34276, 34277, 34278, 34279,
-                                        33700, 33701, 33702, 33703, 33704, 33705, 33706, 33707, 33708, 33709, 
-                                        33710, 33711, 33712, 33713, 33714, 33715, 33716, 33717, 33718, 33719,
-                                        34047}};
-    
-  // File with the RMS of the channels. bsl = allowed_bsl_rms*channel_rms
-  string rms_result_file = input_ana_folder+"VGain_RMS_LED0_Membrane.csv";
-  double allowed_bsl_rms = 3.;
-
-  // CLASS SETTINGS
-  auto a = cla();
-  a.display = 0;
-  a.print   = 0;
-  a.plot    = 0;
-
-  // OUTPUT
-  bool print_results = true;
-  string output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
-
-
-  // --- END HARD CODE -------------------------------------------
-  // -------------------------------------------------------------
- 
-
-  // --- CODE ----------------------------------------------------
+  // Load configuration from JSON file
+  ModuleConfig module_config = load_module_config(jsonfile_module_config);
+  // Use configuration from JSON:
+  int module = module_config.module;
+  vector<int> module_channels = module_config.module_channels;
+  vector<double> v_brs = module_config.v_brs;
+  vector<double> err_v_brs = module_config.err_v_brs;
+  vector<int> vgains = module_config.vgains;
+  vector<double> bias_dacs = module_config.bias_dacs;
+  vector<vector<int>> run_batches = module_config.run_batches;
   
   // Loop over the biases and analise the corresponding run batches
   for(size_t idx_bias=0; idx_bias<bias_dacs.size(); idx_bias++){
@@ -188,7 +235,7 @@ void VGainsScans_ana(){
         feature_value.push_back({"Avg #ph", a.avg_n_photons});
         feature_value.push_back({"Avg #pe", a.avg_n_photoelectrons});
         
-        if(print_results==true){
+        if(a.print==true){
           std::cout << "\n\nPRINTING\n\n" << std::endl;
           print_vec_pair_csv(out_csv_file, feature_value);
         }
@@ -199,7 +246,7 @@ void VGainsScans_ana(){
     }
     
     std::cout << "\n\nOUT OF THE LOOP\n\n" << std::endl;
-    if(print_results==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
+    if(a.print==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
     hf.Close();
   }
 }
