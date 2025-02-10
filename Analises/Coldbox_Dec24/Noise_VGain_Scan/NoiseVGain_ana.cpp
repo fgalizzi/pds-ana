@@ -21,8 +21,8 @@ void NoiseVGain_ana(){
 
   // --- CODE ----------------------------------------------------
   string fft_outfile, ana_outfile;
-  fft_outfile = output_ana_folder+Form("new_FFT_VGainScans_LED%i_Membrane.root", LED);
-  ana_outfile = output_ana_folder+Form("new_VGain_RMS_LED%i_Membrane.csv", LED);
+  fft_outfile = output_ana_folder+Form("FFT_VGainScans_LED%i_Membrane.root", LED);
+  ana_outfile = output_ana_folder+Form("VGain_RMS_LED%i_Membrane.csv", LED);
   
   vector<int> channels = {0,1,2,3,20,21,26,27};
 
