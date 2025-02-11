@@ -41,7 +41,7 @@ void Gain_vs_VBias_fit(){
   style->SetStatBorderSize(0);
 
   // Create and open a file.root where to store the canvas
-  TFile* file = new TFile(output_folder+"Gain_vs_VBias_fit.root", "RECREATE");
+  TFile* file = new TFile(output_folder+"Gain_vs_VBias_fit_results.root", "RECREATE");
   file->cd();
   // Create a folder to store the canvas
   TDirectory* dir_gains = file->mkdir("Gains");
@@ -77,7 +77,7 @@ void Gain_vs_VBias_fit(){
     
     for(int idx_channel=0; idx_channel<channel_this_module.size(); idx_channel++){
        // --- VARIABLES -----------------------------------------------
-      double q, m; // y = q + m*x
+      double q, m, err_m; // y = q + m*x
       vector<double> gains, biases, err_gains, err_biases, err_zeros;
       vector<double> spe_ampls, drs, snrs, cxs, navg_cx_phs, navg_phs, navg_pes, err_snrs, err_cxs, err_navg_cx_phs;
       double channel = channel_this_module[idx_channel];
@@ -144,11 +144,10 @@ void Gain_vs_VBias_fit(){
       TMatrixDSym cov = r->GetCovarianceMatrix();
       cout << "\n---------------------------------------------------  \n" << endl;
 
+      err_m = f2->GetParError(1);
       q = f2->GetParameter(0); m = f2->GetParameter(1);
       double v_br = -q/m;
       double v_br_low, v_br_up, err_v_br;
-
-      cout << "\nV_br " << v_br << " +/- " << err_v_br << endl;
      
       TH1D *h_Confidence = new TH1D("h_Confidence", "h_Confidence", 10000, v_br-1., v_br+1.);
       (TVirtualFitter::GetFitter())->GetConfidenceIntervals(h_Confidence);
@@ -171,8 +170,9 @@ void Gain_vs_VBias_fit(){
       // --- MANY TGRAPH ---------------------------------------------
       vector<double> overvoltages, err_overvoltages;
       for(size_t i=0; i<biases.size(); i++){
-        overvoltages.push_back(biases[i]-v_br);
-        err_overvoltages.push_back(error_propagation(biases[i], err_biases[i], v_br, err_v_br, "sub"));
+        double Ov = biases[i]-v_br;
+        overvoltages.push_back(Ov);
+        err_overvoltages.push_back(error_propagation(m, err_m, Ov/m, 0., "mul"));
       }
 
       file->cd("Gains");

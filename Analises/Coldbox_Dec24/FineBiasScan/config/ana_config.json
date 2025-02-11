@@ -1,11 +1,4 @@
 {
-  "runs_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/",
-  "input_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/",
-  "rms_result_file": "VGain_RMS_LED0_Membrane.csv",
-  "output_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/",
-  "allowed_bsl_rms": 3,
-  "print_results": true,
-
   "display": false,
   "plot": false,
   "print": false,
@@ -13,5 +6,12 @@
   "tick_len": 0.016,
   "nbins": 300,
   "nmaxpeaks": 6,
-  "data_format": "esteban"
+  "data_format": "esteban",
+  
+  "runs_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/",
+  "input_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/",
+  "rms_result_file": "VGain_RMS_LED0_Membrane.csv",
+  "output_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/",
+  "allowed_bsl_rms": 3,
+  "print_results": true
 }
