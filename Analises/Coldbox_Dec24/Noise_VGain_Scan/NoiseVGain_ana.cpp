@@ -12,7 +12,7 @@ void NoiseVGain_ana(){
   // Class settings
   auto a = cla();
   a.data_format = "esteban";
-  a.n_wf = 30000;
+  a.n_wf = -1; // Full statistics
   a.memorydepth = 1024;
   a.prepulse_ticks = 1023;
   a.tick_len = 0.016;

@@ -20,8 +20,11 @@ The following should be run in sequence.
 ### Noise_VGain_scan
 It contains the single macro to analyze all the noise runs for the membrane modules (M1->M4). A bit of hard code here,
 but, in principle, just need to modify `output_ana_folder` and `LED` variables in the macro.
-The output of this macro is NECESSARY as input of the `Bias_and_VGain_scan` analysis.
+The output of this macro is NECESSARY as input of the `Bias_and_VGain_scan` analysis. The run numbers are computed in a `for` loop.
 The macro produces root files containing the FFTs and csv files with the RMS of the baseline for each channel and vgain.
+```bash
+root NoiseVGain_ana.cpp
+```
 
 ### FineBias_scan
 We performed a bias scan to estimate the V breakdown of the modules and to observe the dependence of few variables (e.g. gain,
