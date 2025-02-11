@@ -4,11 +4,9 @@
 // Description
 // ****************************************************************
 
-//*** MAIN ************************************
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void cla::LED_Analysis(){
-//*********************************************
   vector<vector<double>> sel_wf; // Wavefroms I select for the analysis
   vector<double> int_wf;         // Integrals of the selected waveforms
 
@@ -47,6 +45,12 @@ void cla::LED_Analysis(){
   fgaus = set_charge_fit_function(h_charge, hFind);
   cout << "\n\n----------- FIT CHARGE HISTO ----------------------\n" << endl;
   h_charge->Fit(fgaus, "QNR");
+  // Re-fit in case a peak is fallen into a valley
+  if (fgaus->GetParameter(5) < 0.5*fgaus->GetParameter(4) && fgaus->GetParameter(5) < 0.5*fgaus->GetParameter(6)){
+    fgaus->SetParameter(5, fgaus->GetParameter(6));
+    fgaus->SetParameter(1, 2*fgaus->GetParameter(1));
+    h_charge->Fit(fgaus, "QNR");
+  }
   // Compare the x axis upper limit of the histo h_charge and 6*fgaus->GetParameter(1)
   // set the upper limit of fgaus range to the minimum of the two
   spe_charge  = fgaus->GetParameter(1);

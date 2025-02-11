@@ -13,6 +13,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
   string rms_result_file = input_ana_folder+ana_config.rms_result_file;
   string output_ana_folder = ana_config.output_ana_folder;
   double allowed_bsl_rms = ana_config.allowed_bsl_rms;
+  bool   print_results = ana_config.print_results;
   // Class settings 
   a.display = ana_config.display;
   a.print= ana_config.print;
@@ -48,7 +49,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
     std::vector<int> runs = run_batches[idx_bias];
     vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
 
-    string out_files_name = Form("Module_%i_Bias_%i_VGain_3RMS", module, int(bias_dac));
+    string out_files_name = Form("Module_%i_Bias_%i", module, int(bias_dac));
     string out_root_file = output_ana_folder+out_files_name+".root";
     string out_csv_file  = output_ana_folder+out_files_name+".csv";
 
@@ -64,39 +65,50 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
 
     vector<pair<string, vector<double>>> ch_rms = read_vec_pair_CSV(rms_result_file.c_str()); // Store the results of the analysis to be printed 
    
-    std::cout << "files " << files.size() << std::endl;
+    // --- LOOP OVER THE FILES == RUNS ----------------------------
     for(size_t idx_file=0; idx_file<files.size(); idx_file++){
+      // --- LOOP OVER THE CHANNELS --------------------------------
+      // We have two channels per module
       for(size_t idx_channel=0; idx_channel<module_channels.size(); idx_channel++){
         double bias_volt, overvoltage, err_bias_volt, err_overvoltage;
         give_me_Bias_OV_and_errors(module, bias_dac, v_brs[idx_channel], err_v_brs[idx_channel],
                                    bias_volt, overvoltage, err_bias_volt, err_overvoltage);
-        
+       
+        // Look for baseline RMS in the file with the RMS results
         for(size_t j=0; j<ch_rms[0].second.size(); j++){
           if(ch_rms[1].second[j] == vgains[idx_file] && int(ch_rms[2].second[j]) == module_channels[idx_channel]){
             a.bsl = allowed_bsl_rms*ch_rms[3].second[j];
             a.sat_up = a.bsl*10;
           }
         }
-        
+       
+        // Load the file and check if it exists
         a.wf_file = files[idx_file]+"/channel_"+module_channels[idx_channel]+".dat";
-        std::cout << a.wf_file << std::endl;
         ifstream this_file(a.wf_file);
         if (!this_file.is_open()){
           std::cout << "File not found: " << a.wf_file << std::endl;
           this_file.close();
           continue;
         }
-        std::cout << "\n\n\nReading file: " << a.wf_file << std::endl;  
-        cout << a.wf_file << endl;
+        
+        // The actual analysis
         a.LED_Analysis();
         a.LoadFitParameters(a.fgaus);
         a.SPE();
+      
+        // --- OUTPUT ------------------------------------------------
+        int daphne_channel = module_channels[idx_channel];
+        int arap_ch;
+        if (daphne_channel == 0 || daphne_channel == 1
+            || daphne_channel == 27 || daphne_channel == 26) arap_ch = 1;
+        else arap_ch = 2;
 
         a.h_charge->SetTitle(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
         a.h_charge->SetName(Form("Ch_%i_Bias_%.2f_VGain_%i", module_channels[idx_channel], bias_volt, vgains[idx_file]));
         h_charge_vec.push_back(a.h_charge);
         feature_value.push_back({"Run", double(runs[idx_file])});
-        feature_value.push_back({"Channel", double(module_channels[idx_channel])});
+        feature_value.push_back({"ARAPUCA Channel", double(arap_ch)});
+        feature_value.push_back({"DAPHNE Channel", double(daphne_channel)});
         feature_value.push_back({"Bias [dac]", bias_dac});
         feature_value.push_back({"Bias [V]", bias_volt});
         feature_value.push_back({"Err Bias [V]", err_bias_volt});
@@ -114,7 +126,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         feature_value.push_back({"DR", pow(2,14)/a.spe_ampl});
         feature_value.push_back({"SNR", a.SNR});
         feature_value.push_back({"Err SNR", a.err_SNR});
-        feature_value.push_back({"RMS", ch_rms[3].second[idx_file]});
+        feature_value.push_back({"RMS", a.bsl/allowed_bsl_rms});
         feature_value.push_back({"CX", a.cx});
         feature_value.push_back({"Err CX", a.err_cx});
         feature_value.push_back({"Avg #ph cx", a.avg_n_ph_cx});
@@ -122,7 +134,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         feature_value.push_back({"Avg #ph", a.avg_n_photons});
         feature_value.push_back({"Avg #pe", a.avg_n_photoelectrons});
         
-        if(a.print==true){
+        if(print_results==true){
           std::cout << "\n\nPRINTING\n\n" << std::endl;
           print_vec_pair_csv(out_csv_file, feature_value);
         }
@@ -133,7 +145,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
     }
     
     std::cout << "\n\nOUT OF THE LOOP\n\n" << std::endl;
-    if(a.print==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
+    if(print_results==true) hf.cd("chargehistos"); for(auto h : h_charge_vec) h->Write();
     hf.Close();
   }
 }

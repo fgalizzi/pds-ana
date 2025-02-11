@@ -1,4 +1,4 @@
-//
+///
 //  G_Read.hpp
 //
 //  Created by Federico Galizzi on 28/09/23
@@ -25,6 +25,7 @@ using namespace std;
 //**********************************************************
 void CompleteWF_Binary(std::string fileName, vector<vector<double>>& y, int WFs, int len){
 //**********************************************************
+  if (WFs < 0) WFs = 100000;
   y.resize(WFs, vector<double>(len));
   double t;
   std::ifstream file;
@@ -35,27 +36,23 @@ void CompleteWF_Binary(std::string fileName, vector<vector<double>>& y, int WFs,
     std::cout << "Error opening file" << std::endl;
     return;
   }
-/*
-  int count = 0;
-    std::string line;
-    while (std::getline(file, line)) {
-        count++;
-    }
-
-  file.seekg(0, std::ios::beg);
-
-  if(WFs > file.eof()) WFs = count;
-  if(WFs == -1) WFs = count;
-  
-  y.resize(WFs, vector<double>(len));
-*/
+ 
   for (int n_wf=0; n_wf < WFs; n_wf++) {
     for (int i=0; i < len; i++) {
-      file.read( reinterpret_cast<char*>(&t), sizeof(t) );
+      file.read( reinterpret_cast<char*>(&t), sizeof(t));
+
+      if (file.eof()) {
+        std::cout << "End of file reached" << std::endl;
+        WFs = n_wf+1;
+        break;
+      }
+
       y[n_wf][i] = t;
     }
   }
+  y.resize(WFs);
   std::cout << "The file has been correctly read \t \t" << std::endl;
+  return;
 }
 
 // Single wf version
@@ -82,7 +79,7 @@ void CompleteWF_Binary(std::string fileName, vector<double>& y, int len){
 }
 // Open a decoded ProtoDUNE .root file 
 //**********************************************************
-void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, int WFs){
+void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, int& WFs){
 //**********************************************************
   int len = 1024;
   int wf_counter = 0;
@@ -122,12 +119,14 @@ void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, i
   }
   std::cout << "The file has been correctly read \t \t" << std::endl;
   std::cout << wf_counter << std::endl;
+  WFs = wf_counter;
 }
 
 // Read CAEN-Wavedump Binary file with #WF=WFs len-tick long
 //**********************************************************
-void CAEN_WF_Binary(std::string fileName, vector<vector<double>>& y, int WFs, int len){
+void CAEN_WF_Binary(std::string fileName, vector<vector<double>>& y, int& WFs, int len){
 //**********************************************************
+  if (WFs < 0) WFs = 100000;
   y.resize(WFs, std::vector<double>(len));
   int skip;
   uint16_t t;
@@ -144,15 +143,25 @@ void CAEN_WF_Binary(std::string fileName, vector<vector<double>>& y, int WFs, in
     for (int i=0; i < 6; i++) file.read( reinterpret_cast<char*>(&skip), sizeof(skip) );
     for (int i=0; i < len; i++) {
       file.read( reinterpret_cast<char*>(&t), sizeof(t) );
+      
+      if (file.eof()) {
+        std::cout << "End of file reached" << std::endl;
+        WFs = n_wf+1;
+        break;
+      }
+
       y[n_wf][i] = double(t);
     }
   }
+  y.resize(WFs);
   std::cout << "The file has been correctly read \t \t" << std::endl;
+  return;
 }
 
 //*********************************************
-void CompleteWF_Binary_Swap(std::string fileName, vector<vector<double>>& y, int WFs, int len){
+void CompleteWF_Binary_Swap(std::string fileName, vector<vector<double>>& y, int& WFs, const int& len){
 //*********************************************
+  if (WFs < 0) WFs = 100000;
   y.resize(WFs, vector<double>(len)); 
   int skip;
   uint16_t t;
@@ -169,19 +178,28 @@ file.open( fileName, std::ios::binary );
   for (int n_wf=0; n_wf<WFs; n_wf++) {
     for (int i=0; i<len; i++) {
       file.read( reinterpret_cast<char*>( &t ), sizeof( t ) );
+
+      if (file.eof()) {
+        std::cout << "End of file reached" << std::endl;
+        WFs = n_wf+1;
+        break;
+      }
+
       //t = OSSwapBigToHostInt16(t);
       y[n_wf][i]= double(t);
     }
   }
   
+  y.resize(WFs);
   std::cout << "The file has been correctly read \t \t" << std::endl;
-  
+  return; 
 }
 
 // Read CSV file with #WF=WFs len-tick long
 //**********************************************************
-void CSV_WF_Binary(std::string fileName, vector<vector<double>>& y, int WFs, int len){
+void CSV_WF_Binary(std::string fileName, vector<vector<double>>& y, int& WFs, int len){
 //**********************************************************
+  if (WFs < 0) WFs = 100000;
   y.resize(WFs, vector<double>(len));
   int t;
   std::ifstream file;
@@ -196,10 +214,17 @@ void CSV_WF_Binary(std::string fileName, vector<vector<double>>& y, int WFs, int
   for (int n_wf=0; n_wf < WFs; n_wf++) {
     for (int i=0; i < len; i++) {
       file >> t; 
+      if (file.eof()) {
+        std::cout << "End of file reached" << std::endl;
+        WFs = n_wf+1;
+        break;
+      }
       y[n_wf][i] = double(t);
     }
   }
+  y.resize(WFs);
   std::cout << "The file has been correctly read \t \t" << std::endl;
+  return;
 }
 
 // Read CSV file with #WF=WFs len-tick long

@@ -13,8 +13,8 @@ struct AnaConfig {
   double allowed_bsl_rms;
   bool   print_results;
   int display;
-  int print;
   int plot;
+  int print;
   int memorydepth;
   double tick_len;
   int nbins;
@@ -48,6 +48,7 @@ AnaConfig load_ana_config(const std::string& filename) {
   return config;
 }
 
+
 // --- MODULE CONFIG ------------------------------------------------
 struct ModuleConfig {
   bool invert;
@@ -55,13 +56,12 @@ struct ModuleConfig {
   int prepulse_ticks;
   int int_low;
   int int_up;
+  double scan_sat_up;
+
   int module;
   std::vector<int> module_channels;
-  std::vector<double> v_brs;
-  std::vector<double> err_v_brs;
-  std::vector<int> vgains;
-  std::vector<double> bias_dacs;
-  std::vector<std::vector<int>> run_batches;
+  std::vector<double> biases;
+  std::vector<int> runs;
 };
 
 ModuleConfig load_module_config(const std::string& filename) {
@@ -79,22 +79,18 @@ ModuleConfig load_module_config(const std::string& filename) {
   config.prepulse_ticks = j.at("prepulse_ticks").get<int>();
   config.int_low = j.at("int_low").get<int>();
   config.int_up = j.at("int_up").get<int>();
+  config.scan_sat_up = j.at("scan_sat_up").get<double>();
 
   config.module = j.at("module").get<int>();
   config.module_channels = j.at("module_channels").get<std::vector<int>>();
-  config.v_brs = j.at("v_brs").get<std::vector<double>>();
-  config.err_v_brs = j.at("err_v_brs").get<std::vector<double>>();
-  config.vgains = j.at("vgains").get<std::vector<int>>();
-  config.bias_dacs = j.at("bias_dacs").get<std::vector<double>>();
-  config.run_batches = j.at("run_batches").get<std::vector<std::vector<int>>>();
+  config.biases = j.at("biases").get<std::vector<double>>();
+  config.runs = j.at("runs").get<std::vector<int>>();
   
   return config;
 }
 
 // Function to calculate the bias voltage, overvoltage and their errors
-void give_me_Bias_OV_and_errors(int module, double bias_dac, double v_br,
-                                double err_v_br, double& bias_volt,
-                                double &overvoltage, double &err_bias_volt, double &err_overvoltage){
+void DAC_to_Volt(int module, double bias_dac, double& bias_volt, double& err_bias_volt){
 
   double err_volt_m1_m2 = 0.03; // to have chi2 ~1
   double err_volt_m3_m4 = 0.07; // to have chi2 ~1
@@ -125,11 +121,8 @@ void give_me_Bias_OV_and_errors(int module, double bias_dac, double v_br,
   double err_this_bias_volt[1];
   r1->GetConfidenceIntervals(1, 1, 1, this_bias_dac, err_this_bias_volt, 0.683, false);
 
-  error_propagation(bias_volt, err_bias_volt, v_br, err_v_br, "sub");
   bias_volt = f1->Eval(this_bias_dac[0]);
   err_bias_volt = err_this_bias_volt[0];
-  overvoltage = bias_volt - v_br;
-  err_overvoltage = error_propagation(bias_volt, err_bias_volt, v_br, err_v_br, "sub");
 
   return;
 }

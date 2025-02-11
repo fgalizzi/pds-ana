@@ -4,27 +4,27 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-vector<int> modules = {11,2,3,4}; // M1, M2, M3, M4
+vector<int> modules = {1,2,3,4}; // M1, M2, M3, M4
 vector<pair<double,double>> channels = {{20,27},{21,26},{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
 double err_volt_m1_m2 = 0.03; // to have chi2 ~1
 double err_volt_m3_m4 = 0.07; // to have chi2 ~1
 // --- INPUT -----------------------------------------------------
 TString input_ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
 
-size_t channel_colunm = 0;
-size_t biases_colunm = 1;
-size_t gains_colunm = 7;
-size_t err_gains_colunm = 8;
-size_t spe_ampls_colunm = 9;
-size_t drs_colunm = 10;
-size_t snrs_colunm = 11;
-size_t err_snrs_colunm = 12;
-size_t cxs_colunm = 13;
-size_t err_cxs_colunm = 14;
-size_t navg_cx_phs_colunm = 15;
-size_t err_navg_cx_phs_colunm = 16;
-size_t navg_phs_colunm = 17;
-size_t navg_pes_colunm = 18;
+size_t channel_colunm = 2;
+size_t biases_colunm = 3;
+size_t gains_colunm = 12;
+size_t err_gains_colunm = 13;
+size_t spe_ampls_colunm = 14;
+size_t drs_colunm = 15;
+size_t snrs_colunm = 16;
+size_t err_snrs_colunm = 17;
+size_t cxs_colunm = 18;
+size_t err_cxs_colunm = 19;
+size_t navg_cx_phs_colunm = 20;
+size_t err_navg_cx_phs_colunm = 21;
+size_t navg_phs_colunm = 22;
+size_t navg_pes_colunm = 23;
 
 // --- OUTPUT ----------------------------------------------------
 TString output_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
@@ -154,13 +154,13 @@ void Gain_vs_VBias_fit(){
       (TVirtualFitter::GetFitter())->GetConfidenceIntervals(h_Confidence);
       // loop over the h_Confidence bins and find when content+error is 0
       for (int i = 0; i < h_Confidence->GetNbinsX(); i++) {
-        if (h_Confidence->GetBinContent(i)+h_Confidence->GetBinError(i) > 0) {
+        if (h_Confidence->GetBinContent(i)+h_Confidence->GetBinError(i)*3 > 0) {
           v_br_low = h_Confidence->GetBinCenter(i-1);
           break;
         }
       }
       for (int i = h_Confidence->GetNbinsX(); i > 0; i--) {
-        if (h_Confidence->GetBinContent(i)-h_Confidence->GetBinError(i) < 0) {
+        if (h_Confidence->GetBinContent(i)-h_Confidence->GetBinError(i)*3 < 0) {
           v_br_up = h_Confidence->GetBinCenter(i+1);
           break;
         }
