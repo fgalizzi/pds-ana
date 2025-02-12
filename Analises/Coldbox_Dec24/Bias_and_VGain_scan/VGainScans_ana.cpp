@@ -78,10 +78,15 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         for(size_t j=0; j<ch_rms[0].second.size(); j++){
           if(ch_rms[1].second[j] == vgains[idx_file] && int(ch_rms[2].second[j]) == module_channels[idx_channel]){
             a.bsl = allowed_bsl_rms*ch_rms[3].second[j];
-            a.sat_up = a.bsl*10;
           }
         }
        
+        // Hard Code: we don't have noise runs with vgain==0
+        if (a.bsl>1000){
+          a.bsl = 200;
+        }
+        a.sat_up = a.bsl*10;
+
         // Load the file and check if it exists
         a.wf_file = files[idx_file]+"/channel_"+module_channels[idx_channel]+".dat";
         ifstream this_file(a.wf_file);
