@@ -5,15 +5,17 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-vector<int> modules = {1,2,3,4}; // M1, M2, M3, M4
-vector<vector<int>> module_channels = {{20,27},{21,26},{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
+vector<int> modules = {3,4}; // M1, M2, M3, M4
+//vector<int> modules = {1,2,3,4}; // M1, M2, M3, M4
+vector<vector<int>> module_channels = {{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
+//vector<vector<int>> module_channels = {{20,27},{21,26},{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
 
 vector<int> m1_m2_biases = {1148, 1161, 1174, 1187, 1200};
 vector<int> m3_m4_biases = {754, 767, 780, 793, 806};
 
 bool verbose = false;
 // --- INPUT -----------------------------------------------------
-TString input_ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
+TString ana_folder = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
 
 size_t channel_colunm = 2;
 size_t bias_volt_colunm = 4;
@@ -33,9 +35,6 @@ size_t err_navg_cx_phs_colunm = 24;
 size_t navg_phs_colunm = 25;
 size_t navg_pes_colunm = 26;
 
-// --- OUTPUT ----------------------------------------------------
-TString output_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/VGain_Scans/";
-
 ///////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------
@@ -48,7 +47,7 @@ void VGainScan_ResultAnalyzer(){
   style->SetStatBorderSize(0);
 
   // Create and open a file.root where to store the canvas
-  TFile* file = new TFile(output_folder+"VGainScans_ResultSummary_3RMS_noverbose.root", "RECREATE");
+  TFile* file = new TFile(ana_folder+"VGainScans_ResultSummary_3RMS_noverbose.root", "RECREATE");
   file->cd();
 
   // --- LOOP OVER MODULES ---------------------------------------
@@ -73,7 +72,7 @@ void VGainScan_ResultAnalyzer(){
       for (const auto& bias : biases){
         dir_ch->cd();
         
-        string input_file((input_ana_folder+Form("Module_%i_Bias_%i_VGain_3RMS.csv", module, bias)).Data());
+        string input_file((ana_folder+Form("Module_%i_Bias_%i.csv", module, bias)).Data());
         vector<pair<string, vector<double>>> input_data = read_vec_pair_CSV(input_file.c_str());
         float bias_volt, overvoltage;
         for (size_t j=0; j<input_data[0].second.size(); j++){

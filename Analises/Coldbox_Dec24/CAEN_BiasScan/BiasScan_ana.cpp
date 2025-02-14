@@ -23,6 +23,7 @@ void Loop_VBias_Scan_Caen(){
   if(module == 2) {
 	  if(day == 3) name_file = Form("M%i_LED6p35_", module);
 	  else name_file = Form("M%i_LED6p2_", module);
+  }
   if(module == 3) name_file = Form("M%i_LED7p25_", module);
   if(module == 4) name_file = Form("M%i_LED6p75_", module);
  
@@ -38,7 +39,7 @@ void Loop_VBias_Scan_Caen(){
   	}
   	else{
           biases = {29, 29.5, 30, 30.5, 31, 31.5, 32, 32.5, 33, 33.5};
-          bias_volt = {"29p0", "29p5", "30p0", "30p5","31p0V", "31p5V", "32p0V", "32p5V", "33p0V", "33p5V"};
+          bias_volt = {"29p0V", "29p5V", "30p0V", "30p5V","31p0V", "31p5V", "32p0V", "32p5V", "33p0V", "33p5V"};
   	}
   }
 
@@ -53,7 +54,7 @@ void Loop_VBias_Scan_Caen(){
 
   // OUTPUT
   bool print_results = true;
-  TString out_file = output_ana_folder+Form("VBias_Scan_%i_Module_%i", day, module);
+  TString out_file = output_ana_folder+Form("VBias_Scan_0%i_Module_%i", day, module);
   TString out_root_file = out_file+".root";
   string out_csv_file(out_file+".csv");
   // --- END HARD CODE -------------------------------------------
@@ -95,7 +96,7 @@ void Loop_VBias_Scan_Caen(){
       LED_Analysis();
       LoadFitParameters(fgaus);
       SPE();
-      sat_up = spe_ampl*20;
+      sat_up = spe_ampl*8;
       LED_Analysis();
       LoadFitParameters(fgaus);
       SPE();

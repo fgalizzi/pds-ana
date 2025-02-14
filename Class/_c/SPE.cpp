@@ -49,7 +49,7 @@ void cla::SPE() {
     return;
   }
   avg_wf.push_back(avg);
-  spe_ampl  = *std::max_element(avg.begin(), avg.end());
+  spe_ampl  = *std::max_element(avg.begin()+int_low, avg.begin()+int_up);
   spe_under = *std::min_element(avg.begin(), avg.end());
 
 

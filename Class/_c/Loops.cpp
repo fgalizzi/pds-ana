@@ -123,7 +123,7 @@ void cla::Loop_VBias_Scan(){
   // --- HARD CODE -----------------------------------------------
   // INPUT
   TString runs_folder        = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
-  TString output_ana_folder  = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
+  TString output_ana_folder  = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
   // Runs and corresponding Bias
   // Channels good for these runs
 std::vector<double> biases = {751,758,765,772,779,786,793,800,807,814,821,828};
@@ -233,5 +233,3 @@ std::vector<int> runs = {34353,34352,34351,34350,34349,34348,34347,34346,34345,3
   hf.Close();
 }
 
-
-      
