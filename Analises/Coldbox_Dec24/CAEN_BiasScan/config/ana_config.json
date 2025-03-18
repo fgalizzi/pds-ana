@@ -1,0 +1,17 @@
+{
+  "display": false,
+  "plot": false,
+  "print": false,
+  "memorydepth": 5000,
+  "tick_len": 0.016,
+  "nbins": 300,
+  "nmaxpeaks": 6,
+  "data_format": "caen",
+  
+  "runs_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/CAEN/",
+  "input_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/Noise/",
+  "rms_result_file": "VGain_RMS_Membrane",
+  "output_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/",
+  "allowed_bsl_rms": 3,
+  "print_results": true
+}

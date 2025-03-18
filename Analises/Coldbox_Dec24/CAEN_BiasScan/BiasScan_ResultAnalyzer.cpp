@@ -5,7 +5,7 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-  vector<int> modules = {3,4}; // M1, M2, M3, M4
+  vector<int> modules = {3,4}; // M1, M2, M3, M4i
   vector<pair<double,double>> channels = {{0,1}, {0,1}}; //CAEN channels
   int day = 3; //Day of data taking 3 or 4
 
@@ -13,31 +13,28 @@ using namespace std;
   bool verbose = false;
 
 // --- INPUT -----------------------------------------------------
-  TString input_ana_folder = "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/FineBiasScan/";
+  TString ana_folder = "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/NEW/day3/";
 
-  size_t channel_colunm = 0;
-  size_t biases_colunm = 1;
-  size_t gains_colunm = 7;
-  size_t err_gains_colunm = 8;
-  size_t spe_ampls_colunm = 9;
-  size_t drs_colunm = 10;
-  size_t snrs_colunm = 11;
-  size_t err_snrs_colunm = 12;
-  size_t cxs_colunm = 13;
-  size_t err_cxs_colunm = 14;
-  size_t navg_cx_phs_colunm = 15;
-  size_t err_navg_cx_phs_colunm = 16;
-  size_t navg_phs_colunm = 17;
-  size_t navg_pes_colunm = 18;
-
-// --- OUTPUT ----------------------------------------------------
-  TString output_folder = "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/FineBiasScan/";
+  size_t channel_colunm = 2;
+  size_t biases_colunm = 3;
+  size_t gains_colunm = 12;
+  size_t err_gains_colunm = 13;
+  size_t spe_ampls_colunm = 14;
+  size_t drs_colunm = 15;
+  size_t snrs_colunm = 16;
+  size_t err_snrs_colunm = 17;
+  size_t cxs_colunm = 18;
+  size_t err_cxs_colunm = 19;
+  size_t navg_cx_phs_colunm = 20;
+  size_t err_navg_cx_phs_colunm = 21;
+  size_t navg_phs_colunm = 22;
+  size_t navg_pes_colunm = 23;
 
 ///////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
-void Gain_vs_VBias_fit(){
+void fit(){
   dunestyle::SetDuneStyle();
   auto style = gROOT->GetStyle("duneStyle");
   style->SetOptFit(1111); style->SetOptTitle(0);
@@ -45,7 +42,7 @@ void Gain_vs_VBias_fit(){
   style->SetStatBorderSize(0);
 
   // Create and open a file.root where to store the canvas
-  TFile* file = new TFile(output_folder+"Gain_vs_VBias_fit.root", "RECREATE");
+  TFile* file = new TFile(ana_folder+"Results.root", "RECREATE");
   file->cd();
   // Create a folder to store the canvas
   TDirectory* dir_gains = file->mkdir("Gains");
@@ -61,10 +58,11 @@ void Gain_vs_VBias_fit(){
   // --- LOOP OVER MODULES ---------------------------------------
   for(int idx_module=0; idx_module<modules.size(); idx_module++){
     int module = modules[idx_module];
-    string input_file((input_ana_folder+Form("VBias_Scan_0%i_Module_%i.csv", day, module)).Data());
+    string input_file((ana_folder+Form("VBias_Scan_%i_Module_%i.csv", day, module)).Data());
     vector<double> channel_this_module = {channels[idx_module].first, channels[idx_module].second};
     
   if(module == 1 || module == 2) volts = {45, 45.5, 46, 46.5, 47};
+  	
   else{
 	if(day == 3) volts = {31, 31.5, 32, 32.5, 33, 33.5};
 	else volts = {29, 29.5, 30, 30.5, 31, 31.5, 32, 32.5, 33, 33.5};

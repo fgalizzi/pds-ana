@@ -9,7 +9,7 @@ vector<pair<double,double>> channels = {{20,27},{21,26},{0,2},{1,3}}; // M1 (20,
 double err_volt_m1_m2 = 0.03; // to have chi2 ~1
 double err_volt_m3_m4 = 0.07; // to have chi2 ~1
 // --- INPUT -----------------------------------------------------
-TString input_ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
+TString ana_folder = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
 
 size_t channel_colunm = 2;
 size_t biases_colunm = 3;
@@ -26,9 +26,6 @@ size_t err_navg_cx_phs_colunm = 21;
 size_t navg_phs_colunm = 22;
 size_t navg_pes_colunm = 23;
 
-// --- OUTPUT ----------------------------------------------------
-TString output_folder = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/";
-
 ///////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------
@@ -41,7 +38,7 @@ void Gain_vs_VBias_fit(){
   style->SetStatBorderSize(0);
 
   // Create and open a file.root where to store the canvas
-  TFile* file = new TFile(output_folder+"Gain_vs_VBias_fit_results.root", "RECREATE");
+  TFile* file = new TFile(ana_folder+"Gain_vs_VBias_fit_results.root", "RECREATE");
   file->cd();
   // Create a folder to store the canvas
   TDirectory* dir_gains = file->mkdir("Gains");
@@ -59,7 +56,7 @@ void Gain_vs_VBias_fit(){
   // --- LOOP OVER MODULES ---------------------------------------
   for(int idx_module=0; idx_module<modules.size(); idx_module++){
     int module = modules[idx_module];
-    string input_file((input_ana_folder+Form("VBias_Scan_Module_%i.csv", module)).Data());
+    string input_file((ana_folder+Form("VBias_Scan_Module_%i.csv", module)).Data());
     vector<double> channel_this_module = {channels[idx_module].first, channels[idx_module].second};
     
     double err_volt;
