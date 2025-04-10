@@ -4,6 +4,7 @@
 //  Created by Federico Galizzi on 03/10/23
 //
 
+#include <cstddef>
 #ifndef G_Utility_hpp
   #include <stdio.h>
   #include <iostream>
@@ -78,7 +79,7 @@ void VecDouble_in_Binary(std::string fileName, std::vector<double>& vec){
 //*********************************************
   double t;
   std::ofstream OutFile (fileName, ios::binary);
-  for(int i = 0; i < vec.size(); i++) OutFile.write(reinterpret_cast<char*>( &vec[i] ), sizeof(t));
+  for(size_t i = 0; i < vec.size(); i++) OutFile.write(reinterpret_cast<char*>( &vec[i] ), sizeof(t));
   
   std::cout << "Vector saved in ---> " << fileName << std::endl;
   OutFile.close();

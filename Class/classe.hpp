@@ -21,6 +21,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TAxis.h>
+#include <TLine.h>
 #include <TMath.h>
 #include <TGraphErrors.h>
 #include <TGraphSmooth.h>
@@ -169,6 +170,7 @@ class cla{
     void Convolution();
     void Muon_PDHD();
     void Avg_Muon();
+    void Avg_Alpha();
     void DCR();
     void Self_Trigger();
     void Jitter();

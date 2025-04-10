@@ -11,6 +11,7 @@
 
 
 
+#include "RtypesCore.h"
 #ifndef hdf5torootclass_cxx
 #include "../Class/ProtoduneHD/wffunctions2.h"
 #include "../Class/ProtoduneHD/hdf5torootclass.h"
@@ -102,7 +103,7 @@ void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, i
 
      cout << "\nFile open -> " << f.second << "\tentries: " << nentries << endl;
 
-       for (size_t ievt=0; ievt<nentries && wf_counter<WFs; ievt++){ // loop over entries in root file
+       for (Long64_t ievt=0; ievt<nentries && wf_counter<WFs; ievt++){ // loop over entries in root file
 
           event.GetEntry(ievt);
 
@@ -238,13 +239,13 @@ void CSV_double_WF_Binary(std::string filename, vector<vector<double>>& y, int& 
   }
 
   std::string line;
-  size_t row_count = 0;
+  int row_count = 0;
 
   while (std::getline(file, line) && row_count < n_wf) {
     std::vector<double> row;
     std::stringstream ss(line);
     std::string value;
-    size_t col_count = 0;
+    int col_count = 0;
 
     while (std::getline(ss, value, ',') && col_count < len) {
       try {
@@ -257,10 +258,10 @@ void CSV_double_WF_Binary(std::string filename, vector<vector<double>>& y, int& 
       col_count++;
     }
 
-    if (row.size() != len) {
+    if (int(row.size()) != len) {
       std::cerr << "Warning: Row " << row_count + 1 << " does not have "
                 << len << " elements. Filling with zeros." << std::endl;
-      while (row.size() < len) {
+      while (int(row.size()) < len) {
         row.push_back(0.0);
       }
     }

@@ -59,6 +59,7 @@
 
 #include "AverageWF.cpp"
 #include "Avg_Muon.cpp"
+#include "Avg_Alpha.cpp"
 #include "DCR.cpp"
 // #include "DUNEStyle.h"
 // #include "FFT_Comp.cpp"

@@ -39,7 +39,7 @@ void avgWF (const vector<vector<T>>& y, vector<T>& avg_wf){
   }
 
   double w = 1./y.size();
-  for (int i = 0; i < len; i++) avg_wf[i] *= w;
+  for (size_t i = 0; i < len; i++) avg_wf[i] *= w;
 }
 
 // Subtract baseline to all the len-long waveform in all_wf. Baseline
@@ -265,7 +265,7 @@ void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf,
   int nspe_wf=0;
   int len = all_wf[0].size();
   
-  for (int i = 0; i < int_wf.size(); i++) {
+  for (size_t i = 0; i < int_wf.size(); i++) {
     if (int_wf[i] > I_low && int_wf[i] < I_up) {
       nspe_wf += 1;
       sel_wf.push_back(all_wf[i]);
@@ -287,7 +287,7 @@ void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf, std::vector<double>& 
   spe_wf.erase(spe_wf.begin(), spe_wf.end());
   spe_wf.resize(len, 0.);
   
-  for (int i = 0; i < int_wf.size(); i++) {
+  for (size_t i = 0; i < int_wf.size(); i++) {
     if (int_wf[i] > I_low && int_wf[i] < I_up) {
       nspe_wf += 1;
       for (size_t j=0; j<len; j++) spe_wf[j] += all_wf[i][j];
@@ -748,7 +748,7 @@ void FilterAllWF(const vector<vector<double>>& all_wf, vector<vector<double>>& f
   TComplex xY[len]; double xY_re[len]; double xY_im[len];
   TVirtualFFT* fft = TVirtualFFT::FFT(1, &len, "M R2C");
   
-  for (int i=0; i<all_wf.size(); i++) {
+  for (size_t i=0; i<all_wf.size(); i++) {
     for (int j=0; j<len; j++) xv[j] = all_wf[i][j];
     
     fft = TVirtualFFT::FFT(1, &len, "M R2C");
@@ -809,10 +809,10 @@ void MovingAverageWF (vector<vector<T>> in, vector<vector<T>>& out, int w){
   for(size_t i=0; i<wfs; i++){
     sum = 0;
 
-    for (int j=0; j<len; j++) {
+    for (size_t j=0; j<len; j++) {
       sum += in[i][j];
 
-      if (j >= w){
+      if (int(j) >= w){
         sum -= in[i][j-w];
         out[i][j] = sum/w;
       } else out[i][j] = sum/((T)j+1.);

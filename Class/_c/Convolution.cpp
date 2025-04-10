@@ -96,7 +96,7 @@ double* conv_templ_dexp(const double* p, TComplex* templ_fft, size_t len, double
   fft->Transform();
   xy = fft->GetPointsReal();
 
-  for (int j=0; j<len; j++) xy[j] *= norm; 
+  for (int j=0; j<len_; j++) xy[j] *= norm; 
 
   return xy;
 }
@@ -123,7 +123,7 @@ void cla::Convolution(){
   CompleteWF_Binary(templ_f, templ_v, 1, memorydepth);
   CompleteWF_Binary(muon_f, avg_muon_v, 1, memorydepth);
   
-  for(size_t i=0; i<memorydepth; i++){
+  for(int i=0; i<memorydepth; i++){
     templ_td[i] = templ_v[0][i];
     avg_muon_original[i] = avg_muon_v[0][i];
     time[i] = double(i)*tick_len;
@@ -289,7 +289,7 @@ void cla::Convolution(){
   TGraphErrors* g_muon = new TGraphErrors(memorydepth, &time[0], &avg_muon[0],
                                           &e_x[0], &e_y[0]);
 
-  for(size_t i=0; i<memorydepth; i++) sin_muon[i]=xy[i];
+  for(int i=0; i<memorydepth; i++) sin_muon[i]=xy[i];
   TGraph* g_sint = new TGraph(memorydepth, &time[0], &sin_muon[0]);
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,800);

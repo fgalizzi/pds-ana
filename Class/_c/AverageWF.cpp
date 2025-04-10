@@ -13,7 +13,7 @@ void cla::AverageWF() {
   double y0, y1, r_time, f_time, undershoot;
   vector<double> x, avg_wf, avg_wf2;
   vector<vector<double>> y2;
-  for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
+  for (int i = 0; i < memorydepth; i++) x.push_back( (double) i);
   //for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i*tick_len);
   
   // Read and subtract the baseline

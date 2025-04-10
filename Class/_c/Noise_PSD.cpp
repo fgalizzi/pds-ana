@@ -18,7 +18,7 @@ void cla::Noise_PSD(){
   vector<double> x, avg, int_wf, noise_td;
   vector<vector<double>> noise, noise2, avg_wf;
     
-  for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
+  for (int i = 0; i < memorydepth; i++) x.push_back( (double) i);
   string ifile_noisetd          = noise_f;
   string ofilename_noise_td     = trg_f;
 
