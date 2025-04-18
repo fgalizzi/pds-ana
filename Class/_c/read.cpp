@@ -24,12 +24,9 @@ void cla::read(){
     if(data_format == "esteban") CompleteWF_Binary_Swap(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csv")     CSV_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csvd")    CSV_double_WF_Binary(wf_file, wfs, n_wf, memorydepth);
-    
-    // ProtoDUNE-HD: update n_wf because the reading function stops automatically
-    if(data_format == "pdhd"){
-      PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
-      n_wf = wfs.size();
-    }
+    if(data_format == "pdhd")    PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
+    if(data_format == "hdf5")    StructuredWaveformSetReader(wf_file, wfs, channel, n_wf);
+  
    
     //Subtract the baseline and invert the wfs according to "invert"
     if(sub_bsl == true){
