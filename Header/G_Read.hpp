@@ -7,7 +7,10 @@
 #ifndef G_Read_hpp
 #define G_Read_hpp
 
-
+// #pragma cling add_include_path("/opt/homebrew/include")
+// #pragma cling add_library_path("/opt/homebrew/lib")
+// #pragma cling load("H5Cpp")
+// #pragma cling load("hdf5")
 
 
 
@@ -325,70 +328,47 @@ void StructuredWaveformSetReader(const std::string fileName,
 
   // Get dimensions of adcs: [n_waveforms, n_samples]
   H5::DataSpace dsp_adcs = ds_adcs.getSpace();
-  if (dsp_adcs.getSimpleExtentNdims() != 2)
-    throw std::runtime_error("adcs dataset is not 2D");
   hsize_t dims[2];
   dsp_adcs.getSimpleExtentDims(dims);
   size_t n_waveforms = dims[0];
   size_t n_samples   = dims[1];
-  int selected_wfs = 0;
 
-  // Read endpoints (int32) and channels (uint8) fully
+  // Read endpoints and channels
   std::vector<int32_t> endpoints(n_waveforms);
   ds_endpoints.read(endpoints.data(), H5::PredType::NATIVE_INT32);
 
   std::vector<uint8_t> channels(n_waveforms);
   ds_channels.read(channels.data(), H5::PredType::NATIVE_UINT8);
 
-
+  // Filter waveform indices
   std::vector<size_t> idx_wfs;
   for (size_t i = 0; i < n_waveforms; ++i) {
-    if (endpoints[i] == endpoint && channels[i] == channel) {
+    if (endpoints[i] == endpoint && channels[i] == channel)
       idx_wfs.push_back(i);
-    }
   }
 
-  int n_chwfs = int(idx_wfs.size());
-
+  int n_chwfs = static_cast<int>(idx_wfs.size());
   if (n_chwfs > n_wfs && n_wfs > 0) n_chwfs = n_wfs;
   else n_wfs = n_chwfs;
-
 
   std::cout << "n_waveforms: " << n_waveforms << std::endl;
   std::cout << "n_chwfs: " << n_chwfs << std::endl;
 
-  wfs.resize(n_chwfs, vector<double>(n_samples));
+  // Read all adcs at once (much faster!)
+  std::vector<uint16_t> all_adcs(n_waveforms * n_samples);
+  ds_adcs.read(all_adcs.data(), H5::PredType::NATIVE_UINT16);
 
-  // DataSpace for hyperslab selection
-  H5::DataSpace filespace = ds_adcs.getSpace();
-  hsize_t count[2] = {1, n_samples};
-  H5::DataSpace memspace(2, count);
-
-  // Temporary row buffer (uint16 in file, convert to double)
-  std::vector<uint16_t> row_buf(n_samples);
-
-  // Loop over rows; pick only matching endpoint+channel
-  for (size_t i = 0; i < n_chwfs; ++i) {
-    std::cout << "Reading waveform " << i << " of " << n_chwfs << std::endl;
-    // Select row in filespace
-    hsize_t offset[2] = { idx_wfs[i], 0 };
-    filespace.selectHyperslab(H5S_SELECT_SET, count, offset);
-
-    // Read that row
-    ds_adcs.read(row_buf.data(),
-                 H5::PredType::NATIVE_UINT16,
-                 memspace, filespace);
-
-    for (size_t j = 0; j < n_samples; j++) wfs[i][j] = row_buf[j];
+  // Extract only the waveforms we want
+  wfs.resize(n_chwfs, std::vector<double>(n_samples));
+  for (int i = 0; i < n_chwfs; ++i) {
+    size_t row = idx_wfs[i];
+    size_t offset = row * n_samples;
+    for (size_t j = 0; j < n_samples; ++j) {
+      wfs[i][j] = static_cast<double>(all_adcs[offset + j]);
+    }
   }
 
-  n_wfs = n_chwfs;
-  std::cout << wfs.size() << " " << n_wfs << std::endl;
-
-  return;
 }
-
-
 
 
 // ---------------------------------------------------------
