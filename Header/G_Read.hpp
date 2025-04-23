@@ -356,9 +356,11 @@ void StructuredWaveformSetReader(const std::string fileName,
 
   // Read all adcs at once (much faster!)
   std::vector<uint16_t> all_adcs(n_waveforms * n_samples);
+  std::cout << "reading adcs" << std::endl;
   ds_adcs.read(all_adcs.data(), H5::PredType::NATIVE_UINT16);
-
+  std::cout << "done reading adcs" << std::endl;
   // Extract only the waveforms we want
+  std::cout << "extracting wfs" << std::endl;
   wfs.resize(n_chwfs, std::vector<double>(n_samples));
   for (int i = 0; i < n_chwfs; ++i) {
     size_t row = idx_wfs[i];
@@ -367,6 +369,7 @@ void StructuredWaveformSetReader(const std::string fileName,
       wfs[i][j] = static_cast<double>(all_adcs[offset + j]);
     }
   }
+  std::cout << "done extracting wfs" << std::endl;
 
 }
 
