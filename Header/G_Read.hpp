@@ -7,12 +7,6 @@
 #ifndef G_Read_hpp
 #define G_Read_hpp
 
-// #pragma cling add_include_path("/opt/homebrew/include")
-// #pragma cling add_library_path("/opt/homebrew/lib")
-// #pragma cling load("H5Cpp")
-// #pragma cling load("hdf5")
-
-
 
 #include "RtypesCore.h"
 #include <algorithm>

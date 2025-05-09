@@ -10,3 +10,5 @@
 *.swn
 *swo
 .__afs*
+*ACLiC*
+extra_includes.hpp
