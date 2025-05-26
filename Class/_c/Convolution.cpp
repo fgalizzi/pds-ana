@@ -51,24 +51,7 @@ void conv_templfft_arraytd(double* conv, TComplex* templ_fft, double* array_td, 
 
   for (int j=0; j<len_; j++) conv[j] *= norm;
 
-<<<<<<< HEAD
   return;
-=======
-  for (int j=0; j<len*0.5+1; j++) {
-    xY[j] = templ_fft[j]*dexp_fft[j]; 
-    xY_re[j] = xY[j].Re(); xY_im[j] = xY[j].Im();
-  }
-
-  TVirtualFFT* fft = TVirtualFFT::FFT(1, &len_, "M C2R");
-
-  fft->SetPointsComplex(xY_re, xY_im);
-  fft->Transform();
-  xy = fft->GetPointsReal();
-
-  for (int j=0; j<len; j++) xy[j] *= norm; 
-
-  return xy;
->>>>>>> deff1318b99aedb8334620d3240944927f952bce
 }
 
 
@@ -94,7 +77,7 @@ void cla::Convolution(){
   CompleteWF_Binary(templ_f, templ_v, 1, memorydepth);
   CompleteWF_Binary(muon_f, avg_muon_v, 1, memorydepth);
   
-  for(size_t i=0; i<memorydepth; i++){
+  for(int i=0; i<memorydepth; i++){
     templ_td[i] = templ_v[0][i];
     avg_muon_original[i] = avg_muon_v[0][i];
     time[i] = double(i)*tick_len;
@@ -246,13 +229,8 @@ void cla::Convolution(){
   vector_roll(avg_muon, best_fit_roll);
   TGraphErrors* g_muon = new TGraphErrors(memorydepth, &time[0], &avg_muon[0],
                                           &e_x[0], &e_y[0]);
-<<<<<<< HEAD
   
   for(int i=0; i<memorydepth; i++) sin_muon[i]=convolution[i];
-=======
-
-  for(size_t i=0; i<memorydepth; i++) sin_muon[i]=xy[i];
->>>>>>> deff1318b99aedb8334620d3240944927f952bce
   TGraph* g_sint = new TGraph(memorydepth, &time[0], &sin_muon[0]);
   g_sint->SetLineWidth(2);
   g_sint->SetLineColor(kRed);
