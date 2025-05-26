@@ -27,6 +27,7 @@ string pde_result_file = pde_result_folder+"res.csv";
 #include "TGraph.h"
 #include "TGraphErrors.h"
 #include "TVirtualFFT.h"
+#include "TLegend.h"
 
 #include <TF1.h>
 #include <cstddef>
@@ -36,69 +37,21 @@ string pde_result_file = pde_result_folder+"res.csv";
 #include <Math/Functor.h>
 #include "Fit/Fitter.h"
 
-
 //*********************************************
-void double_expo(double* y, const double* p, size_t len, double tick_len){
+void conv_templfft_arraytd(double* conv, TComplex* templ_fft, double* array_td, size_t len){
 //*********************************************
-  double amp = p[0];
-  double f_f = p[1];
-  double t_f = p[2];
-  double t_s = p[3];
-
-  double tf_inv = 1./t_f;
-  double ts_inv = 1./t_s;
-
-  for(size_t i=0; i<len; i++){
-    double td = -double(i)*tick_len;
-    if (i==0) y[i] = amp;
-    else      y[i] = amp*(f_f*exp(td*tf_inv)*tf_inv + (1-f_f)*exp(td*ts_inv)*ts_inv);
-    // if (i==0) y[i] = a_f + a_s;
-    // else      y[i] = a_f*exp(td*tf_inv) + a_s*exp(td*ts_inv);
-  }
-}
-
-
-//*********************************************
-void Build_FFT(TComplex* G, double* xt, int len){
-//*********************************************
-  double G_re[len]; double G_im[len];
-
-  TVirtualFFT* fft_r2c = TVirtualFFT::FFT(1, &len, "M R2C");
-  fft_r2c->SetPoints(xt);
-  fft_r2c->Transform();
-  fft_r2c->GetPointsComplex(G_re, G_im);
-  
-  for (int j=0; j<len*0.5+1; j++) G[j] = TComplex(G_re[j], G_im[j]);
-  return;
-}
-
-//*********************************************
-double* conv_templ_dexp(const double* p, TComplex* templ_fft, size_t len, double tick_len){
-//*********************************************
-  TComplex dexp_fft[len];
-  double   dexp_td[len];
-  TComplex xY[len]; double xY_re[len]; double xY_im[len];
+  TComplex array_fft[len];
+  TComplex xY[len];
   int len_ = int(len);
   double norm = 1./double(len);
-  double* xy;
+  
+  compute_r2c_fft(&array_fft[0], &array_td[0], len_);
+  freq_domain_convolution(&templ_fft[0], &array_fft[0], xY, len);
+  compute_c2r_fft(&conv[0], xY, len);
 
-  double_expo(&dexp_td[0], p, len, tick_len);
-  Build_FFT(&dexp_fft[0], &dexp_td[0], len_);
+  for (int j=0; j<len_; j++) conv[j] *= norm;
 
-  for (int j=0; j<len*0.5+1; j++) {
-    xY[j] = templ_fft[j]*dexp_fft[j]; 
-    xY_re[j] = xY[j].Re(); xY_im[j] = xY[j].Im();
-  }
-
-  TVirtualFFT* fft = TVirtualFFT::FFT(1, &len_, "M C2R");
-
-  fft->SetPointsComplex(xY_re, xY_im);
-  fft->Transform();
-  xy = fft->GetPointsReal();
-
-  for (int j=0; j<len_; j++) xy[j] *= norm; 
-
-  return xy;
+  return;
 }
 
 
@@ -107,8 +60,9 @@ double* conv_templ_dexp(const double* p, TComplex* templ_fft, size_t len, double
 void cla::Convolution(){
 
   size_t   nsample = memorydepth;
+  double norm = 1./double(memorydepth);
   TComplex templ_fft[nsample], dexp_fft[nsample];
-  double   templ_td[nsample], dexp_td[nsample];
+  double   templ_td[nsample], dexp_td[nsample], convolution[nsample];
   
   std::vector<std::vector<double>> templ_v, avg_muon_v;
   std::vector<double> avg_muon_original(memorydepth, 0.0); 
@@ -133,11 +87,12 @@ void cla::Convolution(){
   // Rotate vector to adjust the convolution offset. Need a good guess!
   vector_roll(avg_muon_original, roll);
   avg_muon = avg_muon_original;
-  Build_FFT(&templ_fft[0], &templ_td[0], memorydepth);
+  compute_r2c_fft(&templ_fft[0], &templ_td[0], memorydepth);
 
   double params[4] = {amp, f_fast, tau_fast, tau_slow}; 
   double* par = &params[0];
-  double* xy = conv_templ_dexp(par, &templ_fft[0], nsample, tick_len);
+  double_expo_timedomain(&dexp_td[0], par, memorydepth, tick_len);
+  conv_templfft_arraytd(&convolution[0], &templ_fft[0], &dexp_td[0], nsample);
   TComplex xY[nsample]; double xY_re[nsample]; double xY_im[nsample];
 
 
@@ -145,19 +100,16 @@ void cla::Convolution(){
   int best_fit_roll = 0;
   double min_chi2 = 1.e10;
   double NDf = 0.;
+  int int_fit_l = int(fit_l/tick_len);
+  int int_fit_u = min(int(fit_u/tick_len), memorydepth);
+  bool fit_check;
 
   if(!nofit){
-    bool fit_check;
     double best_params[4];
-    double norm = 1./double(memorydepth);
     double fit_amp, err_amp;  
     double fit_f_fast, err_f_fast;  
     double fit_tau_fast, err_tau_fast;
     double fit_tau_slow, err_tau_slow;
-    int int_fit_l = int(fit_l/tick_len);
-    int int_fit_u = min(int(fit_u/tick_len), memorydepth);
-
-
  
     // Scan different t0s
     for (size_t idx_fit=0; idx_fit<30; idx_fit++){
@@ -171,24 +123,12 @@ void cla::Convolution(){
         double chi2 = 0.;
         double* y = g_muon->GetY();
 
-        double_expo(&dexp_td[0], par, nsample, tick_len);
-        Build_FFT(&dexp_fft[0], &dexp_td[0], memorydepth);
-
-        for (int j=0; j<memorydepth*0.5+1; j++) {
-          xY[j] = templ_fft[j]*dexp_fft[j]; 
-          xY_re[j] = xY[j].Re(); xY_im[j] = xY[j].Im();
-        }
-
-        TVirtualFFT* fft = TVirtualFFT::FFT(1, &memorydepth, "M C2R");
-
-        fft->SetPointsComplex(xY_re, xY_im);
-        fft->Transform();
-        xy = fft->GetPointsReal();
-        for (int j=0; j<memorydepth; j++) xy[j] *= norm; 
+        compute_c2r_fft(&convolution[0], xY, memorydepth);
+        double_expo_timedomain(&dexp_td[0], par, memorydepth, tick_len);
+        conv_templfft_arraytd(&convolution[0], &templ_fft[0], &dexp_td[0], nsample);
 
         for (int i=int_fit_l; i<int_fit_u; i++){
-          double d = y[i]-xy[i];
-          // double err = g_muon->GetErrorY(i);
+          double d = y[i]-convolution[i];
           chi2 += d*d/(yerr*yerr);
         }
 
@@ -198,10 +138,10 @@ void cla::Convolution(){
       ROOT::Math::Functor fnc(chi2Function, 4);
       ROOT::Fit::Fitter fitter;
       fitter.SetFCN(fnc, par);
-      fitter.Config().ParSettings(0).SetName("A_{f}");
-      fitter.Config().ParSettings(1).SetName("#tau_{f}");
-      fitter.Config().ParSettings(2).SetName("A_{s}");
-      fitter.Config().ParSettings(3).SetName("#tau_{s}");
+      fitter.Config().ParSettings(0).SetName("Amplitude");
+      fitter.Config().ParSettings(1).SetName("Fast fraction");
+      fitter.Config().ParSettings(2).SetName("#tau_{fast}");
+      fitter.Config().ParSettings(3).SetName("#tau_{slow}");
 
       std::cout << "---- Fit " << idx_fit << " ---------" << std::endl;
       fit_check = fitter.FitFCN();
@@ -223,7 +163,9 @@ void cla::Convolution(){
       }
       
       par  = &best_params[0];
-      xy   = conv_templ_dexp(par, &templ_fft[0], nsample, tick_len);
+
+      double_expo_timedomain(&dexp_td[0], par, memorydepth, tick_len);
+      conv_templfft_arraytd(&convolution[0], &templ_fft[0], &dexp_td[0], nsample);
       std::cout << "\n" << std::endl;
     }
  
@@ -233,6 +175,7 @@ void cla::Convolution(){
     f_fast   = fit_f_fast;  
     tau_fast = fit_tau_fast;
     tau_slow = fit_tau_slow;
+    par[0] = fit_amp;
    
 
     if (print == true){
@@ -263,8 +206,6 @@ void cla::Convolution(){
       feature_value.push_back({"Min chi2", min_chi2});
       feature_value.push_back({"NDf", NDf});
 
-      // feature_value.push_back({"I slow pure", fit_a_slow*1.5/(fit_a_fast*fit_tau_fast+fit_a_slow*1.5)});
-
       print_vec_pair_csv(pde_result_file, feature_value, comment);
       update_thisfile(pde_result_folder+Form("Convolution_ana_parameters_%i_el_%i", int(date), int(electronic)));
     }
@@ -288,18 +229,73 @@ void cla::Convolution(){
   vector_roll(avg_muon, best_fit_roll);
   TGraphErrors* g_muon = new TGraphErrors(memorydepth, &time[0], &avg_muon[0],
                                           &e_x[0], &e_y[0]);
-
-  for(int i=0; i<memorydepth; i++) sin_muon[i]=xy[i];
+  
+  for(int i=0; i<memorydepth; i++) sin_muon[i]=convolution[i];
   TGraph* g_sint = new TGraph(memorydepth, &time[0], &sin_muon[0]);
+  g_sint->SetLineWidth(2);
+  g_sint->SetLineColor(kRed);
+
+  auto legend = new TLegend(0.6,0.7,0.9,0.9);
+  if(!nofit){
+    double last_fit_params[4] = {par[0], par[1], par[2], par[3]};
+    double* pp = &last_fit_params[0];
+
+    auto chi2Function = [&](const double* pp){
+      double chi2 = 0.;
+      double* y = g_muon->GetY();
+
+      compute_c2r_fft(&convolution[0], xY, memorydepth);
+      double_expo_timedomain(&dexp_td[0], pp, memorydepth, tick_len);
+      conv_templfft_arraytd(&convolution[0], &templ_fft[0], &dexp_td[0], nsample);
+
+      for (int i=int_fit_l; i<int_fit_u; i++){
+        double d = y[i]-convolution[i];
+        chi2 += d*d/(yerr*yerr);
+      }
+
+      return chi2;
+    };
+
+    ROOT::Math::Functor fnc(chi2Function, 4);
+    ROOT::Fit::Fitter fitter;
+    fitter.SetFCN(fnc, pp);
+    fitter.Config().ParSettings(0).SetName("Amplitude");
+    fitter.Config().ParSettings(1).SetName("Fast fraction");
+    fitter.Config().ParSettings(2).SetName("#tau_{fast}");
+    fitter.Config().ParSettings(3).SetName("#tau_{slow}");
+
+    std::cout << "---- Final Fit ------------------------" << std::endl;
+    fit_check = fitter.FitFCN();
+    fitter.SetNumberOfFitPoints(static_cast<size_t>(int_fit_u-int_fit_l));
+    auto result = fitter.Result();
+    result.Print(std::cout);
+
+    legend->SetBorderSize(0);
+    legend->SetFillStyle(0);
+
+    std::string chi2_entry = Form("#chi2/n_{dof} = %.2f", result.MinFcnValue()/result.Ndf());
+    std::string amp_entry = Form("A = %.2f #pm %.2f", result.GetParams()[0], result.GetErrors()[0]);
+    std::string ffast_entry = Form("f_{fast} = %.3f #pm %.3f", result.GetParams()[1], result.GetErrors()[1]);
+    std::string taufast_entry = Form("#tau_{fast} = %.3f #pm %.3f", result.GetParams()[2], result.GetErrors()[2]);
+    std::string tauslow_entry = Form("#tau_{slow} = %.3f #pm %.3f", result.GetParams()[3], result.GetErrors()[3]);
+    legend->AddEntry(g_muon, "Average waveform", "p");
+    legend->AddEntry(g_sint, "Fit", "l");
+    legend->AddEntry((TObject*)0, chi2_entry.c_str(), "");
+    legend->AddEntry((TObject*)0, amp_entry.c_str(), "");
+    legend->AddEntry((TObject*)0, ffast_entry.c_str(), "");
+    legend->AddEntry((TObject*)0, taufast_entry.c_str(), "");
+    legend->AddEntry((TObject*)0, tauslow_entry.c_str(), "");
+    
+  }
+
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,800);
   c2->cd();
   g_muon->GetXaxis()->SetTitle("Time [#mus]");
-  g_muon->GetYaxis()->SetTitle("Amplitude [a.u.]");
+  g_muon->GetYaxis()->SetTitle("Amplitude [ADC]");
 
-  g_sint->SetLineWidth(2);
-  g_sint->SetLineColor(kRed);
   g_muon->Draw();
+  if (!nofit) legend->Draw("same");
   g_sint->Draw("same");
   c2->Modified(); c2->Update();
 
