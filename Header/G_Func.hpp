@@ -78,6 +78,29 @@ void fScintLight_set(TF1 *f){
   f->SetParNames("A_{s}", "#tau_{s}", "A_{t}", "#tau_{t}", "#sigma", "t_{0}", "c");
 }
 
+// Lar scintillation response function
+double double_expo(const double& dt, const double& amp, const double& f_f, const double& tf_inv, const double& ts_inv){
+  double res = amp*(f_f*exp(dt*tf_inv)*tf_inv + (1-f_f)*exp(dt*ts_inv)*ts_inv);
+  return res;
+}
 
+// LAr scintillation response function in the time domain
+//*********************************************
+void double_expo_timedomain(double* y, const double* p, size_t len, double tick_len){
+//*********************************************
+  double amp = p[0];
+  double f_f = p[1];
+  double t_f = p[2];
+  double t_s = p[3];
+
+  double tf_inv = 1./t_f;
+  double ts_inv = 1./t_s;
+
+  for(size_t i=0; i<len; i++){
+    double td = -double(i)*tick_len;
+    if (i==0) y[i] = amp;
+    else      y[i] = double_expo(td, amp, f_f, tf_inv, ts_inv);
+  }
+}
 
 #endif /* G_Func_hpp */
