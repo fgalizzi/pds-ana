@@ -41,6 +41,7 @@ void cla::read(){
 void cla::waveforms_from_multifile(const vector<string>& files){
   vector<vector<vector<double>>> wfs_temp;
   for (auto& file : files){
+    wfs.clear();
     wf_file = file;
     read();
     wfs_temp.push_back(wfs);
