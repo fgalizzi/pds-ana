@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -35,6 +36,18 @@ void cla::read(){
     }
   }
 
+}
+
+void cla::waveforms_from_multifile(const vector<string>& files){
+  vector<vector<vector<double>>> wfs_temp;
+  for (auto& file : files){
+    wf_file = file;
+    read();
+    wfs_temp.push_back(wfs);
+  }
+  vectorVector_to_vector(wfs, wfs_temp);
+  n_wf = wfs.size();
+  wfs_temp.clear();
 }
 
 //Read the ProtoDUNE-HD channel-map
