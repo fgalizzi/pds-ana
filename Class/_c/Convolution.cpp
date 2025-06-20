@@ -208,6 +208,8 @@ void cla::Convolution(){
 
       print_vec_pair_csv(pde_result_file, feature_value, comment);
       update_thisfile(pde_result_folder+Form("Convolution_ana_parameters_%i_el_%i", int(date), int(electronic)));
+
+      print = false; // Reset print flag
     }
 
 
@@ -293,6 +295,8 @@ void cla::Convolution(){
   c2->cd();
   g_muon->GetXaxis()->SetTitle("Time [#mus]");
   g_muon->GetYaxis()->SetTitle("Amplitude [ADC]");
+  g_muon->GetXaxis()->CenterTitle();
+  g_muon->GetYaxis()->CenterTitle();
 
   g_muon->Draw();
   if (!nofit) legend->Draw("same");
