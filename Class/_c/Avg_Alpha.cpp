@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////
 /////// HARD CODE //////////////////////////////////////
 
-std::string alpha_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Alpha_files/";
+std::string alpha_files_path = "./Alpha_files/";
 double nl_sigma = 2.5; // Lower selection = mu - nl_sigma*sigma
 double nr_sigma = 0.5; // Upper selection = mu + nr_sigma*sigma
 
@@ -80,7 +80,7 @@ void cla::Avg_Alpha(){
 
   //-----------------------------------------------------------------
   //----- SELECTION LOOPS -------------------------------------------
-  double max_el, min_el, t, integral;
+  double max_el, min_el, t, integral_prompt, fprompt;
   size_t len = sel_wfs[0].size();
   size_t nwfs = sel_wfs.size();
   int bsl_counter = 0;
@@ -98,19 +98,26 @@ void cla::Avg_Alpha(){
   std::cout << "Sigma " << sigma << std::endl;
     
   for (size_t i=0; i<nwfs; i++) {
-    if (int_wf[i] < mu+nl_sigma*sigma && int_wf[i] > mu-nr_sigma*sigma) {
+    if (int_wf[i] < fit_u && int_wf[i] > fit_l) {
       int_counter++;
-      t = *max_element(sel_wfs[i].begin()+int_low, sel_wfs[i].begin()+int_up);
-      max_el = *max_element(sel_wfs[i].begin()+int_up, sel_wfs[i].end());
+      integral_prompt = accumulate(sel_wfs[i].begin()+int_low, sel_wfs[i].begin()+int_prompt, 0.);
+      fprompt = integral_prompt/int_wf[i];
 
-      if (max_el < 0.5*t) {
-        sel_counter++;
-        for(size_t j=0; j<len; j++) first_avg[j] += sel_wfs[i][j];
-        preliminary_selection[i]=true;
+      // Select wfs with frompt < f_prompt
+      if (fprompt>f_prompt){
+        fpr_counter++;
+        t = *max_element(sel_wfs[i].begin()+int_low, sel_wfs[i].begin()+int_up);
+        max_el = *max_element(sel_wfs[i].begin()+int_up, sel_wfs[i].end());
+
+        if (max_el < 0.5*t) {
+          sel_counter++;
+          for(size_t j=0; j<len; j++) first_avg[j] += sel_wfs[i][j];
+          preliminary_selection[i]=true;
+        }
       }
     }
   }  
- 
+
   double norm = 1./ *max_element(first_avg.begin(), first_avg.end());
   for (auto& e : first_avg) e*=norm;
 
@@ -136,6 +143,7 @@ void cla::Avg_Alpha(){
   
   cout << "WFs selected on the baseline "  << nwfs << "/" << wfs.size() << endl;
   cout << "WFs selected on the integral " << int_counter << "/" << wfs.size() << endl;
+  cout << "WFs selected on the fprompt " << fpr_counter << "/" << wfs.size() << endl;
   cout << "WFs preliminary selected " << sel_counter << "/" << wfs.size() << endl;
   cout << "WFs selected " << alpha_wfs.size() << "/" << wfs.size() << endl;
 
@@ -208,13 +216,22 @@ void cla::Avg_Alpha(){
     g_alpha_avg->Draw();
     c_alpha_avg->Modified(); c_alpha_avg->Update();
 
+    // F prompt histogram -------------------------------------------
+    TH2D* h2_fprompt_charge_wfs = BuildChargeFpromptHisto(wfs, int_low, int_up, int_prompt);
+    TH1D* h_fprompt_wfs = h2_fprompt_charge_wfs->ProjectionY("h_prompt_wfs");
+    
+    TCanvas *c_fprompt_charge_wfs = new TCanvas("c_fprompt_charge_wfs","c_fprompt_charge_wfs",0,550,500,450);
+    c_fprompt_charge_wfs->cd();
+    h2_fprompt_charge_wfs->Draw();
+    c_fprompt_charge_wfs->Modified(); c_fprompt_charge_wfs->Update();
+    
     // Charge histogram ---------------------------------------------
     TCanvas *c_charge = new TCanvas("c_charge","c_charge",550,550,500,450);
     auto ll = new TLine(); auto rl = new TLine();
     c_charge->cd();
     h_charge->Draw();
-    ll->DrawLine(mu-nl_sigma*sigma, 0., mu-nl_sigma*sigma, h_charge->GetMaximum());
-    rl->DrawLine(mu+nr_sigma*sigma, 0., mu+nr_sigma*sigma, h_charge->GetMaximum());
+    ll->DrawLine(fit_l, 0., fit_l, h_charge->GetMaximum());
+    rl->DrawLine(fit_u, 0., fit_u, h_charge->GetMaximum());
     c_charge->Modified(); c_charge->Update();
 
   }
