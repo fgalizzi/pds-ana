@@ -140,6 +140,7 @@ void cla::Convolution(){
       fitter.SetFCN(fnc, par);
       fitter.Config().ParSettings(0).SetName("Amplitude");
       fitter.Config().ParSettings(1).SetName("Fast fraction");
+      fitter.Config().ParSettings(1).SetLimits(0.05, 0.95);
       fitter.Config().ParSettings(2).SetName("#tau_{fast}");
       fitter.Config().ParSettings(3).SetName("#tau_{slow}");
 
@@ -293,11 +294,22 @@ void cla::Convolution(){
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,800);
   c2->cd();
-  g_muon->GetXaxis()->SetTitle("Time [#mus]");
+  g_muon->GetXaxis()->SetTitle("Time [ns]");
   g_muon->GetYaxis()->SetTitle("Amplitude [ADC]");
   g_muon->GetXaxis()->CenterTitle();
   g_muon->GetYaxis()->CenterTitle();
 
+  // if (print==true){
+  //   TFile* outfile = TFile::Open("ConvFitResult.root", "RECREATE");
+  //   outfile->cd();
+  //   g_muon->SetName("g_muon"); g_muon->SetTitle("g_muon");
+  //   g_muon->Write();
+  //   g_sint->SetName("g_sint"); g_sint->SetTitle("g_sint");
+  //   g_sint->Write();
+  //   legend->Write();
+  //   outfile->Close();
+  //   print = false;
+  // }
   g_muon->Draw();
   if (!nofit) legend->Draw("same");
   g_sint->Draw("same");
