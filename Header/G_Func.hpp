@@ -98,8 +98,6 @@ void double_expo_timedomain(double* y, const double* p, size_t len, double tick_
 
   for(size_t i=0; i<len; i++){
     double td = -double(i)*tick_len;
-    // if (i==0) y[i] = amp;
-    // else      y[i] = double_expo(td, amp, f_f, tf_inv, ts_inv);
     y[i] = double_expo(td, amp, f_f, tf_inv, ts_inv);
   }
 }
