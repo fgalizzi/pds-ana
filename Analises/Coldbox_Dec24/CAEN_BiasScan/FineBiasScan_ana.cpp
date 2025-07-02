@@ -120,13 +120,13 @@ void FineBiasScan_ana(cla& a, string jsonfile_module_config){
             }
       // The actual analysis
       //a.sat_up = scan_sat_up;
-      a.sat_low = -0.1*a.sat_up;
+      a.sat_low = -0.2*a.sat_up;
       a.LED_Analysis();
       cout << "LED() completato" << endl;
       a.LoadFitParameters(a.fgaus);
       a.SPE();
       cout << "SPE() completato" << endl;
-      a.sat_up = a.spe_ampl*15;
+      a.sat_up = a.spe_ampl*20;
       a.sat_low = -0.2*a.sat_up;
       cout << "Secondo ciclo di LED_Analysis()" << endl;
       a.LED_Analysis();

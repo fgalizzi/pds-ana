@@ -64,18 +64,12 @@ void NoiseVGain_ana(){
     TGraph* gNoise_spectral_density = build_avg_spectral_density(a.memorydepth,
       a.tick_len*a.memorydepth, a.tick_len, a.wfs, a.res);
 
-/*    string gr_name = "VGain_"+to_string(get<2>(tuple));
-    gNoise_spectral_density->SetName(gr_name.c_str());
-    gNoise_spectral_density->SetTitle(gr_name.c_str());
-  */  
     string dir_name = "Ch_"+to_string(get<1>(tuple));
     fft_ofile.cd(dir_name.c_str());
     gNoise_spectral_density->Write();
     if (a.print == true){
         vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
 
-        //feature_value.push_back({"Run", get<1>(tuple)});
-       // feature_value.push_back({"VGain", get<2>(tuple)});
         feature_value.push_back({"Ch", get<1>(tuple)});
         feature_value.push_back({"Rms", standard_deviation_vec_vec(a.wfs)});
 

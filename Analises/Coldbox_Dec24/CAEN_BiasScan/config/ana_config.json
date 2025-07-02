@@ -10,7 +10,7 @@
   
   "runs_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/CAEN/",
   "input_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/Noise/",
-  "rms_result_file": "VGain_RMS_Membrane",
+  "rms_result_file": "VGain_RMS_Day4_Membrane3.csv",
   "output_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/CAEN/",
   "allowed_bsl_rms": 3,
   "print_results": true
