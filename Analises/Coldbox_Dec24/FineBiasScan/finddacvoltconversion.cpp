@@ -29,8 +29,11 @@ void finddacvoltconversion(){
     dacs = {1148, 1161, 1174, 1187, 1200};
     volts = {45.06, 45.54, 46.09, 46.55, 47.03};
   } else {
-    dacs = {754, 767, 780, 793, 806};
-    volts = {30.54, 31.11, 31.63, 32.01, 32.52};
+//    dacs = {754, 767, 780, 793, 806};
+//    volts = {30.54, 31.11, 31.63, 32.01, 32.52};
+  dacs = {300, 400, 500};
+  volts = {12.45, 16.38, 20.28};
+  
   }
   vector<double> err_volts(volts.size(), 0.07);
   vector<double> err_dacs(dacs.size(), 0.);

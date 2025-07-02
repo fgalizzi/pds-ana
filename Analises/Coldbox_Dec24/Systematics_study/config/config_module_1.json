@@ -1,0 +1,13 @@
+{
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 121,
+  "int_low": 123,
+  "int_up" : 152,
+  "scan_sat_up": 3000,
+  
+  "module": 1,
+  "module_channels": [20, 27],
+  "biases": [1182],
+  "runs": [34393]
+}

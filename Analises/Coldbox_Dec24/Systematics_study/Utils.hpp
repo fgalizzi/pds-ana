@@ -101,12 +101,9 @@ void DAC_to_Volt(int module, double bias_dac, double& bias_volt, double& err_bia
     volts = {45.06, 45.54, 46.09, 46.55, 47.03};
     err_volt = err_volt_m1_m2;
   } else {
-//    dacs = {754, 767, 780, 793, 806};
-//    volts = {30.54, 31.11, 31.64, 32.01, 32.52};
- 
-     dacs = {300, 400, 500};
-     volts = {12.45, 16.38,20.28};
-     err_volt = err_volt_m3_m4;
+    dacs = {754, 767, 780, 793, 806};
+    volts = {30.54, 31.11, 31.64, 32.01, 32.52};
+    err_volt = err_volt_m3_m4;
   }
   vector<double> err_volts(volts.size(), err_volt);
   vector<double> err_dacs(dacs.size(), 0.);
