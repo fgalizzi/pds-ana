@@ -3,7 +3,7 @@ void cla::Saturation() {
   double y0, y1;
   vector<double> x;
   vector<vector<double>> sat_wf;
-  for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
+  for (int i = 0; i < memorydepth; i++) x.push_back( (double) i);
   
   read(); 
 

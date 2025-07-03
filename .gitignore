@@ -9,3 +9,6 @@
 *TF1.cpp
 *.swn
 *swo
+.__afs*
+*ACLiC*
+extra_includes.hpp

@@ -4,6 +4,9 @@
 //  Created by Federico Galizzi on 03/10/23
 //
 
+#include "TComplex.h"
+#include "TVirtualFFT.h"
+#include <cstddef>
 #ifndef G_Utility_hpp
   #include <stdio.h>
   #include <iostream>
@@ -78,7 +81,7 @@ void VecDouble_in_Binary(std::string fileName, std::vector<double>& vec){
 //*********************************************
   double t;
   std::ofstream OutFile (fileName, ios::binary);
-  for(int i = 0; i < vec.size(); i++) OutFile.write(reinterpret_cast<char*>( &vec[i] ), sizeof(t));
+  for(size_t i = 0; i < vec.size(); i++) OutFile.write(reinterpret_cast<char*>( &vec[i] ), sizeof(t));
   
   std::cout << "Vector saved in ---> " << fileName << std::endl;
   OutFile.close();
@@ -386,5 +389,95 @@ double error_propagation(double p1, double e1, double p2, double e2, std::string
 
   return result;
 }
+
+// Compute the FFT of a real (time domain) signal
+//*********************************************
+void compute_r2c_fft(TComplex* c_fft, double* xt, int len){
+//*********************************************
+  double fft_re[len]; double fft_im[len];
+
+  TVirtualFFT* fft_r2c = TVirtualFFT::FFT(1, &len, "M R2C");
+  fft_r2c->SetPoints(xt);
+  fft_r2c->Transform();
+  fft_r2c->GetPointsComplex(fft_re, fft_im);
+  
+  for (int j=0; j<len*0.5+1; j++) c_fft[j] = TComplex(fft_re[j], fft_im[j]);
+  return;
+}
+
+// Compute the FFT of a complex (frequency domain) signal
+//*********************************************
+void compute_c2r_fft(double* xt, TComplex* c_fft, int len){
+//*********************************************
+  double* xy;
+  double fft_re[size_t(len*0.5+1)]; double fft_im[size_t(0.5*len+1)];
+  for (int j=0; j<len*0.5+1; j++) {
+    fft_re[j] = c_fft[j].Re();
+    fft_im[j] = c_fft[j].Im();
+  }
+
+  TVirtualFFT* fft_c2r = TVirtualFFT::FFT(1, &len, "M C2R");
+  fft_c2r->SetPointsComplex(fft_re, fft_im);
+  fft_c2r->Transform();
+  xy = fft_c2r->GetPointsReal();
+  for (int j=0; j<len; j++) xt[j] = xy[j];
+  return;
+}
+
+// Frequency domain convolution
+//*********************************************
+void freq_domain_convolution(TComplex* c_fft1, TComplex* c_fft2, TComplex* c_fft_out, const int& len){
+//*********************************************
+  for (int j=0; j<len*0.5+1; j++) {
+    c_fft_out[j] = c_fft1[j]*c_fft2[j];
+  }
+  return;
+}
+
+//*********************************************
+void Build_Matched_Filter(TComplex* G, vector<double> t_template){
+//*********************************************
+  int len = t_template.size();
+
+  double xt[len];
+  double G_re[len]; double G_im[len];
+  TVirtualFFT* fft = TVirtualFFT::FFT(1, &len, "M R2C");
+  
+  for (int j=0; j<len; j++) xt[j] = t_template[len-j-1];
+
+  fft = TVirtualFFT::FFT(1, &len, "M R2C");
+  fft->SetPoints(xt);
+  fft->Transform();
+  fft->GetPointsComplex(G_re, G_im);
+
+
+  for (int j=0; j<len*0.5+1; j++) G[j] = TComplex(G_re[j], G_im[j]);
+  
+}
+
+//*********************************************
+void Build_Wiener_Filter(TComplex* G, vector<double>& t_template, double n2){
+//*********************************************
+  size_t len = t_template.size();
+  std::vector<double> xs_v(len, 0.0); xs_v[1] = 1.;
+  TComplex templ[len]; compute_r2c_fft(templ, t_template.data(), len);
+  TComplex xS[len];    compute_r2c_fft(xS, xs_v.data(), len);
+  for (size_t i=0; i<len; i++){
+    G[i] = TComplex::Conjugate(templ[i])*xS[i].Rho2() / (templ[i].Rho2()*xS[i].Rho2() + n2);
+  }
+}
+
+//*********************************************
+template<typename T>
+void vectorVector_to_vector(vector<T>& vec1, vector<vector<T>>& vec2) {
+//*********************************************
+  vec1.clear();
+  for (const auto& vec : vec2) {
+    for (const auto& val : vec) {
+      vec1.push_back(val);
+    }
+  }
+}
+
 
 #endif /* G_Utility_hpp */

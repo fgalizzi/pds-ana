@@ -21,6 +21,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TAxis.h>
+#include <TLine.h>
 #include <TMath.h>
 #include <TGraphErrors.h>
 #include <TGraphSmooth.h>
@@ -167,8 +168,10 @@ class cla{
     void SPE();
     void Build_Template();
     void Convolution();
+    void Deconvolution();
     void Muon_PDHD();
     void Avg_Muon();
+    void Avg_Alpha();
     void DCR();
     void Self_Trigger();
     void Jitter();
@@ -185,6 +188,7 @@ class cla{
     void Loop_VBias_Scan();
 
     void read();//Read the wf_file and store the waveforms in wfs
+    void waveforms_from_multifile(const vector<string>& files);
     
   //Constructor
     cla(){set();}
@@ -210,7 +214,7 @@ class cla{
     std::vector<std::vector<double>> trg_wf;
     int sf_bins = 100;      //Number of bins in self-trigger histos
     double sf_hmin = -2.;   //Lower limit [pe] self-trigger histos
-    double sf_hmax =  7.;   //Upper " " " "
+    double sf_hmax =  27.;   //Upper " " " "
 
     // When running many channels from the same run
     size_t calibration_run; //Needed create the root file with the results

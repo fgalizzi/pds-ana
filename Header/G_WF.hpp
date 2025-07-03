@@ -39,16 +39,44 @@ void avgWF (const vector<vector<T>>& y, vector<T>& avg_wf){
   }
 
   double w = 1./y.size();
-  for (int i = 0; i < len; i++) avg_wf[i] *= w;
+  for (size_t i = 0; i < len; i++) avg_wf[i] *= w;
 }
 
 // Subtract baseline to all the len-long waveform in all_wf. Baseline
 // computed in pre-trigger
 //*********************************************
-void SubBaseline(std::vector<std::vector<double>>& all_wf, int pre, bool invert){
+void SubBaseline(std::vector<double>& wf, int window, bool invert, int initial_tick = 0){
 //*********************************************
-  if (pre<20) {
+  if (window<20) {
     std::cout << "Too few ticks to subtract the baseline \t \t " ;
+    exit(0);
+  }
+
+  if (initial_tick+window > wf.size()){
+    std::cout << "Initial tick + window > waveform length \t \t " ;
+    exit(0);
+  }
+   
+  int len = wf.size();
+  double baseline = 0.;
+  
+  for (int j = initial_tick; j<initial_tick+window; j++) baseline += wf[j];
+
+  baseline /= (double) window;
+  if(invert==false) for (int j=0; j<len; j++) wf[j] -= baseline;
+  else for (int j=0; j<len; j++) wf[j] = -wf[j]+baseline;
+}
+
+//*********************************************
+void SubBaseline(std::vector<std::vector<double>>& all_wf, int window, bool invert, int initial_tick = 0){
+//*********************************************
+  if (window<20) {
+    std::cout << "Too few ticks to subtract the baseline \t \t " ;
+    exit(0);
+  }
+
+  if (initial_tick+window > all_wf[0].size()){
+    std::cout << "Initial tick + window > waveform length \t \t " ;
     exit(0);
   }
    
@@ -58,14 +86,13 @@ void SubBaseline(std::vector<std::vector<double>>& all_wf, int pre, bool invert)
   
   for(int i=0; i<WFs; i++){
     baseline = 0.;
-    for (int j = 0; j<pre; j++) baseline += all_wf[i][j];
+    for (int j = initial_tick; j<initial_tick+window; j++) baseline += all_wf[i][j];
 
-    baseline /= (double) pre;
+    baseline /= (double) window;
     if(invert==false) for (int j=0; j<len; j++) all_wf[i][j] -= baseline;
     else for (int j=0; j<len; j++) all_wf[i][j] = -all_wf[i][j]+baseline;
   }
 }
-
 
 // Subtract baseline using the most provable value
 //********************************************
@@ -208,21 +235,22 @@ TH2D* BuildChargeFpromptHisto(vector<vector<double>>& wfs,
 //*********************************************
   int len = wfs[0].size();
   size_t nwfs = wfs.size();
+  double prompt_integral, integral;
   std::vector<double> f_wf, i_wf;
   
   for(auto& wf: wfs){
-    double prompt_integral= accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
-    double integral= accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
+    prompt_integral = accumulate(wf.begin()+I_low, wf.begin()+I_pr, 0.);
+    integral        = accumulate(wf.begin()+I_low, wf.begin()+I_up, 0.);
     f_wf.push_back(prompt_integral/integral);
     i_wf.push_back(integral);
   }
   
-  double ymin = *min_element(std::begin(i_wf), std::end(i_wf));
-  double ymax = *max_element(std::begin(i_wf), std::end(i_wf));
+  double xmin = *min_element(std::begin(i_wf), std::end(i_wf));
+  double xmax = *max_element(std::begin(i_wf), std::end(i_wf));
   
   TH2D* h2_charge_fprompt = new TH2D("h2_charge_fprompt",
                                      Form("%s;%s;%s", "fprompt_vs_charge", "Charge [ADC #times ticks]", "F prompt"),
-                                     500, ymin, ymax, 500, 0., 1.);
+                                     500, xmin, xmax, 500, 0., 1.);
   for (size_t i=0; i<nwfs; i++) h2_charge_fprompt->Fill(i_wf[i], f_wf[i]);
   
   return h2_charge_fprompt;
@@ -265,7 +293,7 @@ void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf,
   int nspe_wf=0;
   int len = all_wf[0].size();
   
-  for (int i = 0; i < int_wf.size(); i++) {
+  for (size_t i = 0; i < int_wf.size(); i++) {
     if (int_wf[i] > I_low && int_wf[i] < I_up) {
       nspe_wf += 1;
       sel_wf.push_back(all_wf[i]);
@@ -287,7 +315,7 @@ void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf, std::vector<double>& 
   spe_wf.erase(spe_wf.begin(), spe_wf.end());
   spe_wf.resize(len, 0.);
   
-  for (int i = 0; i < int_wf.size(); i++) {
+  for (size_t i = 0; i < int_wf.size(); i++) {
     if (int_wf[i] > I_low && int_wf[i] < I_up) {
       nspe_wf += 1;
       for (size_t j=0; j<len; j++) spe_wf[j] += all_wf[i][j];
@@ -713,27 +741,6 @@ void DisplayWFs (const vector<vector<T>>& y, const vector<vector<T>>& y2, T tt, 
   }
 }
 
-//
-//*********************************************
-void Build_Matched_Filter(TComplex* G, vector<double> t_template){
-//*********************************************
-  int len = t_template.size();
-
-  double xt[len];
-  double G_re[len]; double G_im[len];
-  TVirtualFFT* fft = TVirtualFFT::FFT(1, &len, "M R2C");
-  
-  for (int j=0; j<len; j++) xt[j] = t_template[len-j-1];
-
-  fft = TVirtualFFT::FFT(1, &len, "M R2C");
-  fft->SetPoints(xt);
-  fft->Transform();
-  fft->GetPointsComplex(G_re, G_im);
-
-
-  for (int j=0; j<len*0.5+1; j++) G[j] = TComplex(G_re[j], G_im[j]);
-  
-}
 
 // Filter all the wfs according to the G filter
 //*********************************************
@@ -748,7 +755,7 @@ void FilterAllWF(const vector<vector<double>>& all_wf, vector<vector<double>>& f
   TComplex xY[len]; double xY_re[len]; double xY_im[len];
   TVirtualFFT* fft = TVirtualFFT::FFT(1, &len, "M R2C");
   
-  for (int i=0; i<all_wf.size(); i++) {
+  for (size_t i=0; i<all_wf.size(); i++) {
     for (int j=0; j<len; j++) xv[j] = all_wf[i][j];
     
     fft = TVirtualFFT::FFT(1, &len, "M R2C");
@@ -809,10 +816,10 @@ void MovingAverageWF (vector<vector<T>> in, vector<vector<T>>& out, int w){
   for(size_t i=0; i<wfs; i++){
     sum = 0;
 
-    for (int j=0; j<len; j++) {
+    for (size_t j=0; j<len; j++) {
       sum += in[i][j];
 
-      if (j >= w){
+      if (int(j) >= w){
         sum -= in[i][j-w];
         out[i][j] = sum/w;
       } else out[i][j] = sum/((T)j+1.);

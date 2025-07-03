@@ -4,7 +4,7 @@
 #include <string>
 
 // ****************************************************************
-// This macro is used to create an average muon waveform and save it
+// This macro is used to create an average muon-waveform and save it
 // in a binary file, setting print=true, once you are happy with the
 // selection cuts. The idea is to select the muon waveforms on an
 // f_prompt basis and remove the ones that have light in coincidence.
@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////
 /////// HARD CODE //////////////////////////////////////
 
-std::string muon_files_path = "/Users/federico/PhD/PDE/Muon_files/";
+std::string muon_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/GMuon_files/";
 
 
 ////////////////////////////////////////////////////////
@@ -39,9 +39,6 @@ void cla::Avg_Muon(){
 
   // Read and subtract the baseline
   read();
-
-  // SelPDE_WF(wfs, sel_wf, prepulse_ticks, int_prompt,
-  //           sat_low, amp_low, amp_up, bsl, rms); 
 
   //-----------------------------------------------------------------
   //----- SELECTION LOOPS -------------------------------------------
@@ -138,7 +135,7 @@ void cla::Avg_Muon(){
     string outfile_name;
     cout << "Name of the muon file (without .dat)" << endl;
     cin >> outfile_name;
-    outfile_name = muon_files_path+outfile_name;
+    outfile_name = muon_files_path+outfile_name+".dat";
     VecDouble_in_Binary(outfile_name, avg_mu);
     print = false;
   }
@@ -156,7 +153,7 @@ void cla::Avg_Muon(){
         memorydepth/2, 0., memorydepth, 
         120, ymin, ymax);
     
-    for (int i=0; i< mu_wfs.size(); i++) 
+    for (size_t i=0; i< mu_wfs.size(); i++) 
       for (int j=0; j<memorydepth; j=j+2) h2_mu_pers->Fill(j, mu_wfs[i][j]);
 
     

@@ -71,7 +71,7 @@ void cla::Muon_PDHD(){
   }
 
   double max_avg = *max_element(std::begin(templ), std::end(templ));
-  for (int i=0; i<NSAMPLE; i++) templ[i] = templ[i]*(spe_ampl/max_avg);
+  for (unsigned i=0; i<NSAMPLE; i++) templ[i] = templ[i]*(spe_ampl/max_avg);
   
   // prepare auxiliary arrays
   double t0 = 0.;      // in us
@@ -89,7 +89,7 @@ void cla::Muon_PDHD(){
   double* xy;               // deconvoluted signal
   
   // fill the above arrays
-  for (int i=0; i<nsample; i++) {
+  for (unsigned i=0; i<nsample; i++) {
     xv[i] = avg_muon[i];     //Deconvolution of the avg_muon wf
     xm[i] = 0.;
     xs[i] = NSAMPLE*TMath::Gaus(i, 6, 0.09, false); // signal = delta function
@@ -98,7 +98,7 @@ void cla::Muon_PDHD(){
     t+=tick_len;
    }
   
-  for (int ip=0; ip<NSAMPLE; ip++) xh[ip] = templ[ip]; // template=spe
+  for (unsigned ip=0; ip<NSAMPLE; ip++) xh[ip] = templ[ip]; // template=spe
   
   //******************************
   //  Perform FFT
@@ -186,7 +186,7 @@ void cla::Muon_PDHD(){
   vector<double> deco_wf(memorydepth, 0.0);
   vector<double> e_x(memorydepth, 0.0);
   vector<double> e_y(memorydepth, 0.0);
-  for (int i=0; i<nsample; i++){
+  for (unsigned i=0; i<nsample; i++){
     deco_wf[i] = xy[i]*0.01;
     e_x[i] = 0.004;
     e_y[i] = sqrt(abs(deco_wf[i]));
