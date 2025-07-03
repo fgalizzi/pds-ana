@@ -8,9 +8,14 @@
 #define G_Read_hpp
 
 
-
-
-
+#include "RtypesCore.h"
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <H5Cpp.h>
 #ifndef hdf5torootclass_cxx
 #include "../Class/ProtoduneHD/wffunctions2.h"
 #include "../Class/ProtoduneHD/hdf5torootclass.h"
@@ -102,7 +107,7 @@ void PDHD_ch_wfs(std::string fileName, vector<vector<double>>& y, int this_ch, i
 
      cout << "\nFile open -> " << f.second << "\tentries: " << nentries << endl;
 
-       for (size_t ievt=0; ievt<nentries && wf_counter<WFs; ievt++){ // loop over entries in root file
+       for (Long64_t ievt=0; ievt<nentries && wf_counter<WFs; ievt++){ // loop over entries in root file
 
           event.GetEntry(ievt);
 
@@ -238,13 +243,13 @@ void CSV_double_WF_Binary(std::string filename, vector<vector<double>>& y, int& 
   }
 
   std::string line;
-  size_t row_count = 0;
+  int row_count = 0;
 
   while (std::getline(file, line) && row_count < n_wf) {
     std::vector<double> row;
     std::stringstream ss(line);
     std::string value;
-    size_t col_count = 0;
+    int col_count = 0;
 
     while (std::getline(ss, value, ',') && col_count < len) {
       try {
@@ -257,10 +262,10 @@ void CSV_double_WF_Binary(std::string filename, vector<vector<double>>& y, int& 
       col_count++;
     }
 
-    if (row.size() != len) {
+    if (int(row.size()) != len) {
       std::cerr << "Warning: Row " << row_count + 1 << " does not have "
                 << len << " elements. Filling with zeros." << std::endl;
-      while (row.size() < len) {
+      while (int(row.size()) < len) {
         row.push_back(0.0);
       }
     }
@@ -299,6 +304,67 @@ void CompleteWF(std::string fileName, vector<double>& y){
     y.push_back(t);
   }
   return;
+}
+
+void StructuredWaveformSetReader(const std::string fileName,
+                                 std::vector<std::vector<double>>& wfs,
+                                 const int& daphne_channel,
+                                 int& n_wfs) {
+  // Open the file
+  H5::H5File file(fileName, H5F_ACC_RDONLY);
+  int endpoint    = int(daphne_channel/100);
+  uint8_t channel = uint8_t(daphne_channel%100);
+
+  // Open datasets
+  auto ds_adcs       = file.openDataSet("adcs");
+  auto ds_endpoints  = file.openDataSet("endpoints");
+  auto ds_channels   = file.openDataSet("channels");
+
+  // Get dimensions of adcs: [n_waveforms, n_samples]
+  H5::DataSpace dsp_adcs = ds_adcs.getSpace();
+  hsize_t dims[2];
+  dsp_adcs.getSimpleExtentDims(dims);
+  size_t n_waveforms = dims[0];
+  size_t n_samples   = dims[1];
+
+  // Read endpoints and channels
+  std::vector<int32_t> endpoints(n_waveforms);
+  ds_endpoints.read(endpoints.data(), H5::PredType::NATIVE_INT32);
+
+  std::vector<uint8_t> channels(n_waveforms);
+  ds_channels.read(channels.data(), H5::PredType::NATIVE_UINT8);
+
+  // Filter waveform indices
+  std::vector<size_t> idx_wfs;
+  for (size_t i = 0; i < n_waveforms; ++i) {
+    if (endpoints[i] == endpoint && channels[i] == channel)
+      idx_wfs.push_back(i);
+  }
+
+  int n_chwfs = static_cast<int>(idx_wfs.size());
+  if (n_chwfs > n_wfs && n_wfs > 0) n_chwfs = n_wfs;
+  else n_wfs = n_chwfs;
+
+  std::cout << "n_waveforms: " << n_waveforms << std::endl;
+  std::cout << "n_chwfs: " << n_chwfs << std::endl;
+
+  // Read all adcs at once (much faster!)
+  std::vector<uint16_t> all_adcs(n_waveforms * n_samples);
+  std::cout << "reading adcs" << std::endl;
+  ds_adcs.read(all_adcs.data(), H5::PredType::NATIVE_UINT16);
+  std::cout << "done reading adcs" << std::endl;
+  // Extract only the waveforms we want
+  std::cout << "extracting wfs" << std::endl;
+  wfs.resize(n_chwfs, std::vector<double>(n_samples));
+  for (int i = 0; i < n_chwfs; ++i) {
+    size_t row = idx_wfs[i];
+    size_t offset = row * n_samples;
+    for (size_t j = 0; j < n_samples; ++j) {
+      wfs[i][j] = static_cast<double>(all_adcs[offset + j]);
+    }
+  }
+  std::cout << "done extracting wfs" << std::endl;
+
 }
 
 

@@ -12,5 +12,6 @@
 *_C.d
 *_C.so
 *.pcm
-*_C_ACLiC_dict*
-*_cpp_ACLiC_dict*
+.__afs*
+*ACLiC*
+extra_includes.hpp

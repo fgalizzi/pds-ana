@@ -1,0 +1,18 @@
+{
+  "display": false,
+  "plot": false,
+  "print": false,
+  "memorydepth": 1024,
+  "tick_len": 0.016,
+  "nbins": 300,
+  "nmaxpeaks": 6,
+  "data_format": "hdf5",
+  
+  "runs_folder": "/eos/home-f/fegalizz/ProtoDUNE_HD/files/",
+  "input_ana_folder": "/eos/home-f/fegalizz/ProtoDUNE_HD/Noise_Studies/analysis/Configs/Config_VGain2394_IntOFF/",
+  "rms_result_file": "OfflineCh_RMS_Config.csv",
+  "channel_map_file": "/afs/cern.ch/user/f/fegalizz/pds-ana/Class/ProtoduneHD/PDHD_PDS_NewChannelMap.csv",
+  "output_ana_folder": "/eos/home-f/fegalizz/ProtoDUNE_HD/TimeResolution/analysis/",
+  "allowed_bsl_rms": 4,
+  "print_results": true
+}

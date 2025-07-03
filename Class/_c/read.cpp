@@ -4,12 +4,13 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
 void cla::read(){
-  if(wfs.size()!=n_wf || oldwf_file!=wf_file || oldprepulse_ticks != prepulse_ticks ||
-      oldchannel!=channel || wfs[0].size()!=memorydepth){
+  if(int(wfs.size())!=n_wf || oldwf_file!=wf_file || oldprepulse_ticks != prepulse_ticks ||
+      oldchannel!=channel || int(wfs[0].size())!=memorydepth){
     //Store old values to decide whether to re-read the file 
     oldwf_file = wf_file;
     oldprepulse_ticks = prepulse_ticks;
@@ -24,12 +25,9 @@ void cla::read(){
     if(data_format == "esteban") CompleteWF_Binary_Swap(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csv")     CSV_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "csvd")    CSV_double_WF_Binary(wf_file, wfs, n_wf, memorydepth);
-    
-    // ProtoDUNE-HD: update n_wf because the reading function stops automatically
-    if(data_format == "pdhd"){
-      PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
-      n_wf = wfs.size();
-    }
+    if(data_format == "pdhd")    PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
+    if(data_format == "hdf5")    StructuredWaveformSetReader(wf_file, wfs, channel, n_wf);
+  
    
     //Subtract the baseline and invert the wfs according to "invert"
     if(sub_bsl == true){
@@ -38,6 +36,19 @@ void cla::read(){
     }
   }
 
+}
+
+void cla::waveforms_from_multifile(const vector<string>& files){
+  vector<vector<vector<double>>> wfs_temp;
+  for (auto& file : files){
+    wfs.clear();
+    wf_file = file;
+    read();
+    wfs_temp.push_back(wfs);
+  }
+  vectorVector_to_vector(wfs, wfs_temp);
+  n_wf = wfs.size();
+  wfs_temp.clear();
 }
 
 //Read the ProtoDUNE-HD channel-map

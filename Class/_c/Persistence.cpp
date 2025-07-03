@@ -11,7 +11,7 @@ void cla::Persistence() {
   vector<double> x;
   vector<vector<double>> y2;
   
-  for (size_t i = 0; i < memorydepth; i++) x.push_back( (double) i);
+  for (int i = 0; i < memorydepth; i++) x.push_back( (double) i);
     
   // Read and subtract the baseline
   read();

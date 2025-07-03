@@ -10,11 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-  // string template_file = "../Template_files/sp20240314_newElec_45v"; 
-  // string noise_file    = "../Noise_files/noise20240314_newel_45V.dat"; 
-
-// string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Template_files/";
-string template_files_path = "/eos/home-f/fegalizz/ColdBox_VD/December24/Daphne_DAQ/LargeLED/";
+string template_files_path = "/eos/home-f/fegalizz/PDE_MiB/PDE_Results/Template_files/";
 ///////////////////////////////////////////////////////////////////
 
 
@@ -65,7 +61,7 @@ void cla::Build_Template() {
     string outfile_name;
     cout << "Name of the new template file (without .dat)" << endl;
     cin >> outfile_name;
-    outfile_name = template_files_path+outfile_name;
+    outfile_name = template_files_path+outfile_name+".dat";
     
     norm = 1./ *max_element(std::begin(avg_template), std::end(avg_template));
     for(auto& e: avg_template) e *= norm*spe_ampl;

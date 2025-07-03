@@ -59,6 +59,7 @@
 
 #include "AverageWF.cpp"
 #include "Avg_Muon.cpp"
+#include "Avg_Alpha.cpp"
 #include "DCR.cpp"
 // #include "DUNEStyle.h"
 // #include "FFT_Comp.cpp"
@@ -73,6 +74,7 @@
 // #include "MuonDeco.cpp"
 #include "Muon_PDHD.cpp"
 #include "Convolution.cpp"
+#include "Deconvolution.cpp"
 #include "Noise_PSD.cpp"
 // #include "Pdhd_FFT.cpp"
 #include "Persistence.cpp"

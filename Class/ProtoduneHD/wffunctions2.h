@@ -101,7 +101,7 @@ int wffunctions::getWindowBaseline(void)
 
     int adcsum = 0;
     int window = 0;
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         if (i <= low || i >= high)
         {
@@ -124,7 +124,7 @@ int wffunctions::getLimitBaseline(void)
 
     int adcsum = 0;
     int window = 0;
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         if (i <= low)
         {
@@ -138,7 +138,7 @@ int wffunctions::getLimitBaseline(void)
 
 void wffunctions::fillWaveform(TH1 *histo, int bs)
 {
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         // if()
         histo->Fill(i, -(adc[i] - bs));
@@ -147,7 +147,7 @@ void wffunctions::fillWaveform(TH1 *histo, int bs)
 
 void wffunctions::fillBaselineHisto(TH1 *histo, int bs)
 {
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         if (i <= 100)
         {
@@ -159,7 +159,7 @@ void wffunctions::fillBaselineHisto(TH1 *histo, int bs)
 int wffunctions::fillChargeHistogram(TH1 *histo, int bs)
 {
     int charge = 0;
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         if (i <= highcharge && i >= lowcharge)
         {
@@ -174,7 +174,7 @@ int wffunctions::fillChargeHistogram(TH1 *histo, int bs)
 
 void wffunctions::fillWaveform2D(TH2 *histo2D, int bs)
 {
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
 
         histo2D->Fill(i, -(adc[i] - bs), 1);
@@ -196,7 +196,7 @@ bool wffunctions::filterleft(int adcutlw, int adcuthg, int bsl)
 
     bool endcutleft = false;
 
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         int adcv = -(adc[i] - bsl);
 
@@ -233,7 +233,7 @@ bool wffunctions::filterright(int adcutlw, int adcuthg, int bsl)
 
     bool endcutright = false;
 
-    for (int i = 0; i < adc.size(); i++)
+    for (int i = 0; i < int(adc.size()); i++)
     {
         int adcv = -(adc[i] - bsl);
 
