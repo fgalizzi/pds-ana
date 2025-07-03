@@ -146,7 +146,8 @@ TH1D* BuildRawChargeHisto(std::vector<std::vector<double>>& all_wf , std::vector
   // Duplicate to preserve the int_wf order
   std::vector int_dual = int_wf;
   std::sort(int_dual.begin(), int_dual.end());
-  double x_low = int_dual[int(int_dual.size()*0.005)];
+  double x_low = int_dual[0];
+  //double x_low = int_dual[int(int_dual.size()*0.005)];
   double x_up  = int_dual[int(int_dual.size()*0.99)];
 
   TH1D* hI  = new TH1D("hI" ,"hI", nbins, x_low, x_up);
