@@ -636,7 +636,7 @@ void SelCalib_WF(vector<vector<T>>& y, vector<vector<T>>& y2, int pre, T sat_low
     max_el = *max_element( y[i].begin(), y[i].begin()+pre);
     min_el = *min_element( y[i].begin(), y[i].begin()+pre);
     
-    if (max_el<bsl && min_el > -bsl && max_el-min_el>3) {
+    if (max_el<bsl && min_el > -bsl && max_el-min_el>=0.5) {
       max_el = *max_element( y[i].begin()+pre, y[i].end());
       min_el = *min_element( y[i].begin()+pre, y[i].end());
       
