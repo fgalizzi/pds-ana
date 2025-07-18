@@ -850,9 +850,11 @@ void AllignWFs (vector<vector<T>> wfs){
 vector<double> TriggerTime(vector<double>& waveform){
 //*********************************************
   vector<double> trgs;
-  for(size_t i=0; i<waveform.size(); i++) if (waveform[i] > 0.5){
-    trgs.push_back(i);
-    while(waveform[i]>0.5) i++;
+  for(size_t i=0; i<waveform.size(); i++) {
+    if (waveform[i] > 0.5){
+      trgs.push_back(i);
+      while(waveform[i]>0.5) i++;
+    }
   }
   return trgs;
 }
