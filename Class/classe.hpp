@@ -214,7 +214,7 @@ class cla{
     std::vector<std::vector<double>> trg_wf;
     int sf_bins = 100;      //Number of bins in self-trigger histos
     double sf_hmin = -2.;   //Lower limit [pe] self-trigger histos
-    double sf_hmax =  27.;   //Upper " " " "
+    double sf_hmax =  7.;   //Upper " " " "
 
     // When running many channels from the same run
     size_t calibration_run; //Needed create the root file with the results

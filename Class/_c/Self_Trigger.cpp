@@ -4,18 +4,6 @@
 // Description
 // ****************************************************************
 
-#ifndef sf_bins
-  int sf_bins = 100;
-#endif
-
-#ifndef sf_hmin
-  double sf_hmin = -2.;
-#endif
-
-#ifndef sf_hmax
-  double sf_hmax = 7.;
-#endif
-
 
 //*********************************************
 void SelfHistos_(std::vector<std::vector<double>>& all_wf,
@@ -69,7 +57,6 @@ void cla::Self_Trigger(){
   vector<vector<double>> trg_wf, filt_wf;
   vector<double> int_wf, t_templ, n_pe, eff_pe, fps, tps;
   double t, max_eff, thr = -1e6;
-  bool stop_search = false;
   size_t nsample = memorydepth;
   TComplex G[nsample];
   std::vector<double> thrs = {1,2,3,4,5}; // N pe
@@ -77,7 +64,8 @@ void cla::Self_Trigger(){
   // Read and subtract the baseline
   read();
   
-  CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
+  // CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
+  StructuredWaveformSetReader(wf_file, trg_wf, 11220, n_wf);
   if (display == true) DisplayWFs (wfs, trg_wf, tick_len, 10);
 
   TH1D* hAll  = new TH1D("hAll" ,"hAll", sf_bins, sf_hmin, sf_hmax);
@@ -109,9 +97,9 @@ void cla::Self_Trigger(){
   
   for (int i=1; i<hAll->GetNbinsX(); i++){
     hAcc->SetBinContent(i,hAll->Integral(1,i)-hTrg->Integral(1,i)+hTrg->Integral(i,hAll->GetNbinsX()));
-    if (eTrg->GetEfficiency(i)>max_eff*0.5 && stop_search==0){
+    if (eTrg->GetEfficiency(i)>max_eff*0.5){
       thr = hAll->GetBinCenter(i);
-      stop_search = 1;
+      break;
     }
   }
 

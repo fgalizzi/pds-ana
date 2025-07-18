@@ -18,7 +18,8 @@ void cla::Jitter(){
     std::cout << "\n\npretrg<prepulse_ticks !!\n\n" << std::endl;
     return;
   }
-  CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
+  // CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
+  StructuredWaveformSetReader(wf_file, trg_wf, 11220, n_wf);
 
   TH1D* hTrg  = new TH1D("hTrg", Form("%s;%s;%s","hTrg","Ticks","Counts"), memorydepth, 0, memorydepth);
 
