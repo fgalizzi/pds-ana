@@ -33,7 +33,7 @@ void cla::Filt_Analysis(){
 
   FilterAllWF(sel_wf, filt_wf, G);
   
-  if (display==true) DisplayWFs(filt_wf, 1., 10);
+  if (ndisplay>0) DisplayWFs(filt_wf, 1., ndisplay);
 
   TH1D* hI = new TH1D();
 
