@@ -173,8 +173,8 @@ class cla{
     void Avg_Muon();
     void Avg_Alpha();
     void DCR();
-    void Self_Trigger();
-    void Jitter();
+    void Self_Trigger(int st_channel);
+    void Jitter(int st_channel);
     void ST_Analysis();
     void configDCR();
     void Saturation();

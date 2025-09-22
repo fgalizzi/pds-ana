@@ -52,7 +52,7 @@ void SelfHistos_(std::vector<std::vector<double>>& all_wf,
 //*** MAIN ************************************
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
-void cla::Self_Trigger(){
+void cla::Self_Trigger(int st_channel){
 //*********************************************
   vector<vector<double>> trg_wf, filt_wf;
   vector<double> int_wf, t_templ, n_pe, eff_pe, fps, tps;
@@ -65,7 +65,7 @@ void cla::Self_Trigger(){
   read();
   
   // CompleteWF_Binary_Swap(trg_f, trg_wf, n_wf, memorydepth);
-  StructuredWaveformSetReader(wf_file, trg_wf, 11220, n_wf);
+  StructuredWaveformSetReader(wf_file, trg_wf, st_channel, n_wf);
   if (display == true) DisplayWFs (wfs, trg_wf, tick_len, 10);
 
   TH1D* hAll  = new TH1D("hAll" ,"hAll", sf_bins, sf_hmin, sf_hmax);
