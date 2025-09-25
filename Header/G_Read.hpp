@@ -347,6 +347,11 @@ void StructuredWaveformSetReader(const std::string fileName,
 
   std::cout << "n_waveforms: " << n_waveforms << std::endl;
   std::cout << "n_chwfs: " << n_chwfs << std::endl;
+  if (n_chwfs == 0) {
+    std::cout << "No waveforms found for channel " << daphne_channel << std::endl;
+    wfs.clear();
+    return;
+  }
 
   // Read all adcs at once (much faster!)
   std::vector<uint16_t> all_adcs(n_waveforms * n_samples);
