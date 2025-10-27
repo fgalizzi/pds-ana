@@ -175,8 +175,8 @@ class cla{
     void Avg_Muon();
     void Avg_Alpha();
     void DCR();
-    void Self_Trigger();
-    void Jitter();
+    void Self_Trigger(int st_channel);
+    void Jitter(int st_channel);
     void ST_Analysis();
     void configDCR();
     void Saturation();
@@ -216,7 +216,7 @@ class cla{
     std::vector<std::vector<double>> trg_wf;
     int sf_bins = 100;      //Number of bins in self-trigger histos
     double sf_hmin = -2.;   //Lower limit [pe] self-trigger histos
-    double sf_hmax =  27.;   //Upper " " " "
+    double sf_hmax =  7.;   //Upper " " " "
 
     // When running many channels from the same run
     size_t calibration_run; //Needed create the root file with the results

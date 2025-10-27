@@ -6,6 +6,15 @@
 // the ones with integral > spe_low. The (baseline) rms parameter 
 // help you in selecting the waveforms with no extra pulses (after
 // pulses or scintillation light in coincidence)
+// Run this macro after LED_analysis(), LoadFitParameters(fgaus),
+// SPE() to have the correct spe_ampl and spe_charge.
+// Parameters to tune:
+// - prepulse_ticks (where to compute the baseline and cut on pre-LED pulses)
+// - sat_up, sat_low (saturation levels, tune to match LED-pulse amplitudes)
+// - bsl (cut in prepulse_ticks region. You cut [-bsl; +bsl])
+// - rms (cut on the shape of the waveform)
+// Typically, you tune prepulse_ticks, sat_up, sat_low and bsl
+// before running LED_analysis() to have a good calibration.
 // ****************************************************************
 
 ///////////////////////////////////////////////////////////////////

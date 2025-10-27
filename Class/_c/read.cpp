@@ -19,6 +19,31 @@ void cla::read(){
     ite = 0; // For the macros whose behaviour must be different at the first iteration
 
     wfs.erase(wfs.begin(),wfs.end());
+
+    bool consistency_checks = true;
+
+    if (prepulse_ticks > memorydepth){
+      std::cout << "\n\nprepulse_ticks > memorydepth !!\n\n" << std::endl;
+      std::cout << "Setting prepulse_ticks = memorydepth" << std::endl;
+      prepulse_ticks = memorydepth;
+      consistency_checks = false;
+    }
+    if (int_low > int_up){
+      std::cout << "\n\nint_low > int_up !!\n\n" << std::endl;
+      std::cout << "Setting int_low = int_up" << std::endl;
+      int_low = int_up-1;
+      consistency_checks = false;
+    }
+    if (prepulse_ticks+int_up > memorydepth){
+      std::cout << "\n\nprepulse_ticks+int_up > memorydepth !!\n\n" << std::endl;
+      std::cout << "Setting int_up = 0" << std::endl;
+      int_up = 0;
+      consistency_checks = false;
+    }
+
+    if (consistency_checks == false){
+      std::cout << "\n\n\n---Consistecy checks failed---\n\n\n" << std::endl;
+    }
     
     if(data_format == "caen")    CAEN_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "daphne")  CompleteWF_Binary(wf_file, wfs, n_wf, memorydepth);
