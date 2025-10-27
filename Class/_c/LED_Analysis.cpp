@@ -7,34 +7,36 @@
 //-----------------------------------------------------------------
 //------- Macro ---------------------------------------------------
 void cla::LED_Analysis(){
-  vector<vector<double>> sel_wf; // Wavefroms I select for the analysis
-  vector<double> int_wf;         // Integrals of the selected waveforms
+  if (!keep_hcharge){
+    vector<vector<double>> sel_wf; // Wavefroms I select for the analysis
+    vector<double> int_wf;         // Integrals of the selected waveforms
 
-  // Read and subtract the baseline
-  read();
+    // Read and subtract the baseline
+    read();
 
-  // Select the with a baseline within the [-bsl; bsl] range and 
-  // fully contained in the [sat_low; sat_up] range
-  SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
-  if (sel_wf.size() == 0){
-    class_skip = 1;
-    return;
-  }
-  h_charge = new TH1D();
+    // Select the with a baseline within the [-bsl; bsl] range and 
+    // fully contained in the [sat_low; sat_up] range
+    SelCalib_WF(wfs, sel_wf, prepulse_ticks, sat_low, sat_up, bsl);  
+    if (sel_wf.size() == 0){
+      class_skip = 1;
+      return;
+    }
+    h_charge = new TH1D();
 
-  if (manual == 0) {
-    if(mov_win == true){
-      MovingAverageWF(sel_wf, sel_wf, win);   
-      h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
-    } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
-  }
-  else {
-    if(mov_win == true){
-      MovingAverageWF(sel_wf, sel_wf, win);   
-      h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
-        hmin, hmax, nbins);
-    } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
-        hmin, hmax, nbins);
+    if (manual == 0) {
+      if(mov_win == true){
+        MovingAverageWF(sel_wf, sel_wf, win);   
+        h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
+      } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
+    }
+    else {
+      if(mov_win == true){
+        MovingAverageWF(sel_wf, sel_wf, win);   
+        h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win,
+            hmin, hmax, nbins);
+      } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up,
+          hmin, hmax, nbins);
+    }
   }
   
   TH1D* hFind = new TH1D(*h_charge); //Delcared to plot it later
@@ -56,13 +58,15 @@ void cla::LED_Analysis(){
   spe_charge  = fgaus->GetParameter(1);
   sigma_zero  = fgaus->GetParameter(2);
   double last_fitted_peak_pe; // last fitted peak in photoelectrons
-  if (h_charge->GetXaxis()->GetXmax() < 5*spe_charge+1.5*sigma_zero){
+  if (h_charge->GetXaxis()->GetXmax() < (nmaxpeaks-1)*spe_charge+sigma_zero){
+    std::cout << "\n\n\n HERE \n\n\n" << std::endl;
     fgaus->SetRange(-2.5*sigma_zero, h_charge->GetXaxis()->GetXmax());
     last_fitted_peak_pe = h_charge->GetXaxis()->GetXmax()/(spe_charge);
   }
   else{
-    fgaus->SetRange(-2.5*sigma_zero, 5*spe_charge+1.5*sigma_zero);
-    last_fitted_peak_pe = 5;
+    std::cout << "\n\n\n HpE \n\n\n" << std::endl;
+    fgaus->SetRange(-2.5*sigma_zero, (nmaxpeaks-1)*spe_charge+sigma_zero);
+    last_fitted_peak_pe = nmaxpeaks;
   }
 
   TFitResultPtr FitRes = h_charge->Fit(fgaus, "RMES");
