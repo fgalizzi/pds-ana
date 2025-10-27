@@ -48,13 +48,13 @@ void avgWF (const vector<vector<T>>& y, vector<T>& avg_wf){
 void SubBaseline(std::vector<double>& wf, int window, bool invert, int initial_tick = 0){
 //*********************************************
   if (window<20) {
-    std::cout << "Too few ticks to subtract the baseline \t \t " ;
-    exit(0);
+    std::cout << "\n\n!!!\nToo few ticks to subtract the baseline\n!!!\n\n" ;
+    return;
   }
 
   if (initial_tick+window > wf.size()){
-    std::cout << "Initial tick + window > waveform length \t \t " ;
-    exit(0);
+    std::cout << "\n\n!!!\nInitial tick + window > waveform length\n!!!\n\n" ;
+    return;
   }
    
   int len = wf.size();
@@ -71,13 +71,13 @@ void SubBaseline(std::vector<double>& wf, int window, bool invert, int initial_t
 void SubBaseline(std::vector<std::vector<double>>& all_wf, int window, bool invert, int initial_tick = 0){
 //*********************************************
   if (window<20) {
-    std::cout << "Too few ticks to subtract the baseline \t \t " ;
-    exit(0);
+    std::cout << "\n\n!!!\nToo few ticks to subtract the baseline\n!!!\n\n" ;
+    return;
   }
 
   if (initial_tick+window > all_wf[0].size()){
-    std::cout << "Initial tick + window > waveform length \t \t " ;
-    exit(0);
+    std::cout << "\n\n!!!\nInitial tick + window > waveform length\n!!!\n\n" ;
+    return;
   }
    
   int WFs = all_wf.size();
