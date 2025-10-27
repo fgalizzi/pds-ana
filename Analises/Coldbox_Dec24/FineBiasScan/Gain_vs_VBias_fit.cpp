@@ -153,13 +153,13 @@ void Gain_vs_VBias_fit(){
       (TVirtualFitter::GetFitter())->GetConfidenceIntervals(h_Confidence);
       // loop over the h_Confidence bins and find when content+error is 0
       for (int i = 0; i < h_Confidence->GetNbinsX(); i++) {
-        if (h_Confidence->GetBinContent(i)+h_Confidence->GetBinError(i)*3 > 0) {
+        if (h_Confidence->GetBinContent(i)+h_Confidence->GetBinError(i) > 0) {
           v_br_low = h_Confidence->GetBinCenter(i-1);
           break;
         }
       }
       for (int i = h_Confidence->GetNbinsX(); i > 0; i--) {
-        if (h_Confidence->GetBinContent(i)-h_Confidence->GetBinError(i)*3 < 0) {
+        if (h_Confidence->GetBinContent(i)-h_Confidence->GetBinError(i) < 0) {
           v_br_up = h_Confidence->GetBinCenter(i+1);
           break;
         }
