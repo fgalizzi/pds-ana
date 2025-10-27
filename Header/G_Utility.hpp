@@ -148,11 +148,13 @@ TGraphErrors* Build_CX_Graph (TF1* fgaus, TH1* hI){
 // Given an average waveform, it prints the rise time 10%->90% and the fall
 // time 90->10. It assumes a flat baseline before the pulse.
 //*********************************************
-void RiseFallTimeUndershoot(std::vector<double>& waveform, const double& tick_len, const int& int_up){
+void RiseFallTimeUndershoot(std::vector<double>& waveform, const double& tick_len, int& int_up){
 //*********************************************
   double* wf = waveform.data();
   auto* g_wf = new TGraph(waveform.size(), wf);
   double x0, x1, xm, undershoot, r_time, f_time;
+
+  if (int_up < 0 || int_up >= waveform.size()) int_up = waveform.size()-1;
 
   // Find the maximum amplitude
   double max_amplitude = *std::max_element(waveform.begin(), waveform.begin()+int_up);
