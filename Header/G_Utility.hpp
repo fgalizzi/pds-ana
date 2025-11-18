@@ -187,22 +187,19 @@ TGraphErrors* Build_CX_Graph(TF1* fgaus, TH1* hI, double& avg_n_photons){
   vector<double> Err_X(npeaks, 0.0);
   double G = fgaus->GetParameter(1);
   double mu_0 = fgaus->GetParameter(0);
+  double sigma0 = fgaus->GetParameter(2);
+  double err_sigma0 = fgaus->GetParError(2);
+  double sigmac = fgaus->GetParameter(3);
+  double err_sigmac = fgaus->GetParError(3);
+  double norm_factor = 1./(hI->GetEntries()*hI->GetBinWidth(5));
  
   for (int peak=0; peak<npeaks; peak++) {
-    double sigma0 = fgaus->GetParameter(2);
-    double sigmac = fgaus->GetParameter(3);
     double sigma  = sqrt(pow(sigma0,2)+peak*pow(sigmac,2));
-    double err_sigma0 = fgaus->GetParError(2);
-    double err_sigmac = fgaus->GetParError(3);
     double err_sigma  = error_propagation(sigma0, err_sigma0, sqrt(peak)*sigmac, sqrt(peak)*err_sigmac, "sqrt_sum"); 
-    double ampl  = fgaus->GetParameter(4+peak);
-    double err_ampl = fgaus->GetParError(4+peak);
-    double area  = ampl*sigma*sqrt(2*TMath::Pi());
 
-    Pi[peak] = area/(hI->GetBinWidth(5)*hI->GetEntries());
-    double err_stat = sqrt(area)/(hI->GetBinWidth(5)*hI->GetEntries());
-    double err_fit  = error_propagation(ampl, err_ampl, sigma, err_sigma, "mul")*sqrt(2*TMath::Pi())/(hI->GetBinWidth(5)*hI->GetEntries());
-    Err_Pi[peak] = sqrt( err_stat*err_stat + err_fit*err_fit );
+    Pi[peak] = fgaus->GetParameter(4+peak)*sigma*sqrt(2*TMath::Pi())*norm_factor;
+    double err_fit  = error_propagation(fgaus->GetParameter(4+peak), fgaus->GetParError(4+peak), sigma, err_sigma, "mul"); // Error in estimating A*sigma
+    Err_Pi[peak] = err_fit*sqrt(2*TMath::Pi())*norm_factor; 
     X[peak] = peak;
     
     if(peak==0) avg_n_photons = -log(Pi[peak]);
