@@ -136,7 +136,7 @@ void cla::Filt_Analysis(){
   std::cout << q1q2 << "\t" << s0 << "\t" << SNR << "\n\n" << std::endl; 
   return; 
   //fit CX
-  auto g_CX = Build_CX_Graph(fgaus, hI);
+  auto g_CX = Build_CX_Graph(fgaus, hI, avg_n_photons);
   TF1* f_CX = new TF1("f_CX", fCX, -0.5, 5.5, 2);
   fCX_set(f_CX);
   

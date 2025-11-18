@@ -104,8 +104,10 @@ void cla::LED_Analysis(){
   }
 
   // --- CROSS TALK ----------------------------------------------
-  auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes, avg_n_photons);
-  TF1* f_CX = new TF1("f_CX", fCX, -0.5, last_fitted_peak_pe+0.5, 2);
+  auto g_CX = Build_CX_Graph(fgaus, h_charge, avg_n_photons);
+  // auto g_CX = Build_CX_Graph_Cov(fgaus, h_charge, FitRes, avg_n_photons); // With covariance matrix
+                                                                             // seems to overestimate the errors
+  TF1* f_CX = new TF1("f_CX", fCX, -0.5, last_fitted_peak_pe+0.5, 3);
   fCX_set(f_CX);
   cout << "\n\n----------- FIT CROSS-TALK ------------------------\n" << endl;
   g_CX->Fit("f_CX", "R");
