@@ -201,7 +201,7 @@ TGraphErrors* Build_CX_Graph(TF1* fgaus, TH1* hI, double& avg_n_photons){
 
     Pi[peak] = area/(hI->GetBinWidth(5)*hI->GetEntries());
     double err_stat = sqrt(area)/(hI->GetBinWidth(5)*hI->GetEntries());
-    double err_fit  = error_propagation(ampl, sigma, err_ampl, err_sigma, "mul")*sqrt(2*TMath::Pi())/(hI->GetBinWidth(5)*hI->GetEntries());
+    double err_fit  = error_propagation(ampl, err_ampl, sigma, err_sigma, "mul")*sqrt(2*TMath::Pi())/(hI->GetBinWidth(5)*hI->GetEntries());
     Err_Pi[peak] = sqrt( err_stat*err_stat + err_fit*err_fit );
     X[peak] = peak;
     
