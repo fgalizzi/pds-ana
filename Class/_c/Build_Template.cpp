@@ -55,6 +55,7 @@ void cla::Build_Template() {
   // light signal in the window. Tune rms for a more strict/loose selection
   SelTemplate_WF(calib_wfs, template_wfs, int_wf, double(spe_low),
                  rms, int_low, int_up);
+  if(mov_win == true) MovingAverageWF<double>(template_wfs, template_wfs, win);
 
   // Averages for plots. "avg_template" is our template
   avgWF(calib_wfs, avg_calib);
@@ -85,10 +86,12 @@ void cla::Build_Template() {
     norm = 1./ *max_element(std::begin(avg_calib), std::end(avg_calib));
     for(auto& e: avg_calib) e*=norm;
     norm = 1./ *max_element(std::begin(avg_template), std::end(avg_template));
-    for(auto& e: avg_template) e*=norm;
+    for(auto& e: avg_template) e*=norm*spe_ampl;
     
     TGraph *g_avg_calib = new TGraph(avg_calib.size(), &x[0], &avg_calib[0]);
+    g_avg_calib->SetName("g_avg_calib");
     TGraph *g2 = new TGraph(avg_template.size(), &x[0], &avg_template[0]);
+    g2->SetName("g_template");
     g_avg_calib->GetXaxis()->SetTitle("Time [#mus]");
     g_avg_calib->GetYaxis()->SetTitle("ADC counts");
     g_avg_calib->SetLineColor(2);
@@ -100,12 +103,12 @@ void cla::Build_Template() {
 
     double y_low, y_up;
     min_max_element(template_wfs, y_low, y_up);
-    TH2D* h2_calib = new TH2D("h2", Form("%s;%s;%s", "Calibration Persistence",
-                                          "Ticks", "ADC Counts"), memorydepth/2, 0., memorydepth, 
+    TH2D* h2_calib = new TH2D("h2_calib", Form("%s;%s;%s", "Calibration Persistence",
+                                          "Ticks", "ADC Counts"), memorydepth/2, 0., double(memorydepth)*tick_len,
                                           120, y_low, y_up);
   
     for (auto& wf : calib_wfs)
-      for (int j=0; j<memorydepth; j=j+2) h2_calib->Fill(j, wf[j]);
+      for (int j=0; j<memorydepth; j=j+2) h2_calib->Fill(j*tick_len, wf[j]);
   
     TCanvas* c_calib_wfs = new TCanvas("c_calib_wfs","c_calib_wfs",0,0,800,600);
     c_calib_wfs->cd();
@@ -113,12 +116,12 @@ void cla::Build_Template() {
     h2_calib->Draw("COLZ");
     c_calib_wfs->Modified(); c_calib_wfs->Update();
 
-    TH2D* h2_templ = new TH2D("h2", Form("%s;%s;%s", "Template Persistence",
-                                          "Ticks", "ADC Counts"), memorydepth/2, 0., memorydepth, 
+    TH2D* h2_templ = new TH2D("h2_templ", Form("%s;%s;%s", "Template Persistence",
+                                          "Ticks", "ADC Counts"), memorydepth/2, 0., double(memorydepth)*tick_len, 
                                           120, y_low, y_up);
   
     for (auto& wf : template_wfs)
-      for (int j=0; j<memorydepth; j=j+2) h2_templ->Fill(j, wf[j]);
+      for (int j=0; j<memorydepth; j=j+2) h2_templ->Fill(j*tick_len, wf[j]);
   
     TCanvas* c_templ_wfs = new TCanvas("c_templ_wfs","c_templ_wfs",0,0,800,600);
     c_templ_wfs->cd();
@@ -126,6 +129,18 @@ void cla::Build_Template() {
     h2_templ->Draw("COLZ");
     c_templ_wfs->Modified(); c_templ_wfs->Update();
 
+    if (print){
+      TFile* out_root = new TFile("TemplatePersistence.root", "RECREATE");
+      out_root->cd();
+      TGraph* g_single_wfs = new TGraph(avg_template.size(), &x[0], &wfs[0][0]);
+      g_single_wfs->SetName("g_single_wfs"); g_single_wfs->SetTitle("g_single_wfs");
+      g_single_wfs->Write();
+      g2->Write();
+      h2_templ->Write();
+      out_root->Close();
+    }
   }
 
+
+  return;
 }

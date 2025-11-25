@@ -61,13 +61,13 @@ TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind, bool avoid_auto_peak){
   
   // Set limits manually
   if(manual==true){
-    fgaus->SetParLimits(0,mu0_low,mu0_up);
-    fgaus->SetParLimits(1,spe_low,spe_up);
-    fgaus->SetParLimits(2,s0_low,s0_up);
-    fgaus->SetParLimits(3,sc_low,sc_up);
+    ff->SetParLimits(0,mu0_low,mu0_up);
+    ff->SetParLimits(1,spe_low,spe_up);
+    ff->SetParLimits(2,s0_low,s0_up);
+    ff->SetParLimits(3,sc_low,sc_up);
   }
   
-  for(int i = 0 ; i < npeaks ; i++) ff->SetParLimits(i+4,0,2700);
+  for(int i = 0 ; i < npeaks; i++) ff->SetParLimits(i+4,0,5000);
   return ff;
 }
 

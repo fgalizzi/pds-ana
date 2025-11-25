@@ -86,7 +86,64 @@ void VecDouble_in_Binary(std::string fileName, std::vector<double>& vec){
   std::cout << "Vector saved in ---> " << fileName << std::endl;
   OutFile.close();
 }
+
+// Error propagation given a TFitResultPtr and a TF1 object
 //*********************************************
+double error_propagation(TFitResultPtr fit_res, TF1* fit_func, int idx_par1,
+                         int idx_par2, std::string operation){
+//*********************************************
+  double result = 0.;
+  double p1 = fit_func->GetParameter(idx_par1);
+  double p2 = fit_func->GetParameter(idx_par2);
+  double e1 = fit_func->GetParError(idx_par1);
+  double e2 = fit_func->GetParError(idx_par2);
+  TMatrixD cov = fit_res->GetCovarianceMatrix();
+  double cov_p1_p2 = cov(idx_par1, idx_par2);
+  
+  if (operation == "sum") 
+    result = sqrt(e1 * e1 + e2 * e2 + 2 * cov_p1_p2);
+  else if (operation == "sub") 
+    result = sqrt(e1 * e1 + e2 * e2 - 2 * cov_p1_p2);
+  else if (operation == "mul") 
+    result = sqrt((e1 * e1) * (p2 * p2) + (e2 * e2) * (p1 * p1) + 2 * p1 * p2 * cov_p1_p2);
+  else if (operation == "div") 
+    result = sqrt((e1 * e1) / (p2 * p2) + (e2 * e2) * (p1 * p1) / (p2 * p2 * p2 * p2) 
+                  - 2 * p1 * cov_p1_p2 / (p2 * p2 * p2));
+  else
+    throw std::invalid_argument("Invalid operation: must be 'sum', 'sub', 'mul', or 'div'.");
+
+  return result;
+}
+
+// Error propagation given two parameters and their errors (no covariance)
+//*********************************************
+double error_propagation(double p1, double e1, double p2, double e2, std::string operation){
+//*********************************************
+  double result = 0.;
+  if (operation == "sum") 
+    result = sqrt(e1 * e1 + e2 * e2);
+  else if (operation == "sub") 
+    result = sqrt(e1 * e1 + e2 * e2);
+  else if (operation == "mul") 
+    result = sqrt((e1 * e1) * (p2 * p2) + (e2 * e2) * (p1 * p1));
+  else if (operation == "div") 
+    result = sqrt((e1 * e1) / (p2 * p2) + (e2 * e2) * (p1 * p1) / (p2 * p2 * p2 * p2));
+  else if (operation == "sqrt_sum"){
+    double f2 = p1*p1 + p2*p2;
+    result    = sqrt( (e1*e1 * p1*p1)/f2 + (e2*e2 * p2*p2)/f2 );
+  }
+  else if (operation == "sqrt_sub"){
+    double f2 = p1*p1 - p2*p2;
+    result    = sqrt( (e1*e1 * p1*p1)/f2 + (e2*e2 * p2*p2)/f2 );
+  }
+  else
+    throw std::invalid_argument("Invalid operation: must be 'sum', 'sub', 'mul', 'div', 'sqrt_sum' or 'sqrt_sub'.");
+
+  return result;
+}
+
+//*********************************************
+// Probably, this is overestimating the error
 TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes, double& avg_n_photons){
 //*********************************************
   int npeaks = int(fgaus->GetXmax()/fgaus->GetParameter(1)+1); // only fitted peaks
@@ -98,46 +155,54 @@ TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes, dou
   double mu_0 = fgaus->GetParameter(0);
  
   for (int peak=0; peak<npeaks; peak++) {
-    TF1 gaus = *fgaus;
+    TF1 mock_fgaus = *fgaus;
     for(int i = 0; i<fgaus->GetNumberFreeParameters(); i++){
-      if(i>3 && i!=peak+4) gaus.SetParameter(i, 0.);
+      if(i>3 && i!=peak+4) mock_fgaus.SetParameter(i, 0.);
     }
+ 
+    double sigma = sqrt(pow(fgaus->GetParameter(2),2)+peak*pow(fgaus->GetParameter(3),2));
+    double ampl  = fgaus->GetParameter(4+peak);
+    double area  = ampl*sigma*sqrt(2*TMath::Pi());
 
-    Pi[peak] = gaus.Integral(mu_0-8*G, mu_0+8*G , 1e-5)/(hI->GetBinWidth(5)*hI->GetEntries());
-    Err_Pi[peak] = gaus.IntegralError(mu_0-8*G, mu_0+8*G, FitRes->GetParams(), 
+    Pi[peak] = area/(hI->GetBinWidth(5)*hI->GetEntries());
+    Err_Pi[peak] = mock_fgaus.IntegralError(mu_0+(peak-4)*G, mu_0+(peak+4)*G, FitRes->GetParams(), 
                         FitRes->GetCovarianceMatrix().GetMatrixArray())/(hI->GetBinWidth(5)*hI->GetEntries());
     X[peak] = peak;
     
     if(peak==0) avg_n_photons = -log(Pi[peak]);
   }
 
+  std::cout << "\n\nYOU ARE OVERESTIMATING THE ERROR??" << std::endl;
   TGraphErrors* g_CX = new TGraphErrors(Pi.size(), &X[0], &Pi[0], &Err_X[0], &Err_Pi[0]);
   return g_CX;
 }
 
-//*******************************yy**************
-TGraphErrors* Build_CX_Graph (TF1* fgaus, TH1* hI){
+//***********************************************
+TGraphErrors* Build_CX_Graph(TF1* fgaus, TH1* hI, double& avg_n_photons){
 //*********************************************
-  double norm, mean, sigma;
-  int npeaks = fgaus->GetNumberFreeParameters()-3;
-  vector <double> Pi(npeaks, 0.0);
-  vector <double> Err_Pi(npeaks, 0.0);
-  vector <double> X(npeaks, 0.0);
-  vector <double> Err_X(npeaks, 0.0);
+  int npeaks = int(fgaus->GetXmax()/fgaus->GetParameter(1)+1); // only fitted peaks
+  vector<double> Pi(npeaks, 0.0);
+  vector<double> Err_Pi(npeaks, 0.0);
+  vector<double> X(npeaks, 0.0);
+  vector<double> Err_X(npeaks, 0.0);
   double G = fgaus->GetParameter(1);
+  double mu_0 = fgaus->GetParameter(0);
+  double sigma0 = fgaus->GetParameter(2);
+  double err_sigma0 = fgaus->GetParError(2);
+  double sigmac = fgaus->GetParameter(3);
+  double err_sigmac = fgaus->GetParError(3);
+  double norm_factor = 1./(hI->GetEntries()*hI->GetBinWidth(5));
  
-  TF1* f[npeaks];
- 
-  for (int i=0; i<npeaks; i++) {
-    f[i] = new TF1("ff","[0]*TMath::Gaus(x[0],[1],[2])");
-    mean = fgaus->GetParameter(0)+G*i;
-    norm = fgaus->GetParameter(4+i);
-    sigma = sqrt(pow(fgaus->GetParameter(2),2)+i*pow(fgaus->GetParameter(3),2));
-    f[i]->SetParameters(norm, mean, sigma);
-    Pi[i] = f[i]->Integral(mean-4*sigma, mean+4*sigma, 1e-5)/(hI->GetBinWidth(5));
-    Err_Pi[i] = sqrt(Pi[i])/(hI->GetEntries());
-    Pi[i] = Pi[i]/(hI->GetEntries());
-    X[i] = i;
+  for (int peak=0; peak<npeaks; peak++) {
+    double sigma  = sqrt(pow(sigma0,2)+peak*pow(sigmac,2));
+    double err_sigma  = error_propagation(sigma0, err_sigma0, sqrt(peak)*sigmac, sqrt(peak)*err_sigmac, "sqrt_sum"); 
+
+    Pi[peak] = fgaus->GetParameter(4+peak)*sigma*sqrt(2*TMath::Pi())*norm_factor;
+    double err_fit  = error_propagation(fgaus->GetParameter(4+peak), fgaus->GetParError(4+peak), sigma, err_sigma, "mul"); // Error in estimating A*sigma
+    Err_Pi[peak] = err_fit*sqrt(2*TMath::Pi())*norm_factor; 
+    X[peak] = peak;
+    
+    if(peak==0) avg_n_photons = -log(Pi[peak]);
   }
 
   TGraphErrors* g_CX = new TGraphErrors(Pi.size(), &X[0], &Pi[0], &Err_X[0], &Err_Pi[0]);
@@ -148,11 +213,13 @@ TGraphErrors* Build_CX_Graph (TF1* fgaus, TH1* hI){
 // Given an average waveform, it prints the rise time 10%->90% and the fall
 // time 90->10. It assumes a flat baseline before the pulse.
 //*********************************************
-void RiseFallTimeUndershoot(std::vector<double>& waveform, const double& tick_len, const int& int_up){
+void RiseFallTimeUndershoot(std::vector<double>& waveform, const double& tick_len, int& int_up){
 //*********************************************
   double* wf = waveform.data();
   auto* g_wf = new TGraph(waveform.size(), wf);
   double x0, x1, xm, undershoot, r_time, f_time;
+
+  if (int_up < 0 || int_up >= waveform.size()) int_up = waveform.size()-1;
 
   // Find the maximum amplitude
   double max_amplitude = *std::max_element(waveform.begin(), waveform.begin()+int_up);
@@ -343,52 +410,7 @@ void allign_wfs(vector<vector<double>>& waveforms, const int x_half_height) {
 
 }
 
-// Error propagation given a TFitResultPtr and a TF1 object
-//*********************************************
-double error_propagation(TFitResultPtr fit_res, TF1* fit_func, int idx_par1,
-                         int idx_par2, std::string operation){
-//*********************************************
-  double result = 0.;
-  double p1 = fit_func->GetParameter(idx_par1);
-  double p2 = fit_func->GetParameter(idx_par2);
-  double e1 = fit_func->GetParError(idx_par1);
-  double e2 = fit_func->GetParError(idx_par2);
-  TMatrixD cov = fit_res->GetCovarianceMatrix();
-  double cov_p1_p2 = cov(idx_par1, idx_par2);
-  
-  if (operation == "sum") 
-    result = sqrt(e1 * e1 + e2 * e2 + 2 * cov_p1_p2);
-  else if (operation == "sub") 
-    result = sqrt(e1 * e1 + e2 * e2 - 2 * cov_p1_p2);
-  else if (operation == "mul") 
-    result = sqrt((e1 * e1) * (p2 * p2) + (e2 * e2) * (p1 * p1) + 2 * p1 * p2 * cov_p1_p2);
-  else if (operation == "div") 
-    result = sqrt((e1 * e1) / (p2 * p2) + (e2 * e2) * (p1 * p1) / (p2 * p2 * p2 * p2) 
-                  - 2 * p1 * cov_p1_p2 / (p2 * p2 * p2));
-  else
-    throw std::invalid_argument("Invalid operation: must be 'sum', 'sub', 'mul', or 'div'.");
 
-  return result;
-}
-
-// Error propagation given two parameters and their errors (no covariance)
-//*********************************************
-double error_propagation(double p1, double e1, double p2, double e2, std::string operation){
-//*********************************************
-  double result = 0.;
-  if (operation == "sum") 
-    result = sqrt(e1 * e1 + e2 * e2);
-  else if (operation == "sub") 
-    result = sqrt(e1 * e1 + e2 * e2);
-  else if (operation == "mul") 
-    result = sqrt((e1 * e1) * (p2 * p2) + (e2 * e2) * (p1 * p1));
-  else if (operation == "div") 
-    result = sqrt((e1 * e1) / (p2 * p2) + (e2 * e2) * (p1 * p1) / (p2 * p2 * p2 * p2));
-  else
-    throw std::invalid_argument("Invalid operation: must be 'sum', 'sub', 'mul', or 'div'.");
-
-  return result;
-}
 
 // Compute the FFT of a real (time domain) signal
 //*********************************************

@@ -83,14 +83,14 @@ class cla{
     int nbins;            //Number of bins
     int nmaxpeaks;        //Number of expected peaks in calibration run
     //Extra parameters for manual mode
-    int mu0_low;          //Lower bound of 0 pe peak integral
-    int mu0_up;           //Upper - below an event is classified as noise
-    int spe_low;          //Lower bound of spe peak - select spe cadidate 
-    int spe_up;           //Upper
-    int s0_low;           //Lower bound of 0 pe peak sigma
-    int s0_up;            //Upper
-    int sc_low;           //Lower bound of sigma channel
-    int sc_up;            //Upper
+    double mu0_low;       //Lower bound of 0 pe peak integral
+    double mu0_up;        //Upper - below an event is classified as noise
+    double spe_low;       //Lower bound of spe peak - select spe cadidate 
+    double spe_up;        //Upper
+    double s0_low;        //Lower bound of 0 pe peak sigma
+    double s0_up;         //Upper
+    double sc_low;        //Lower bound of sigma channel
+    double sc_up;         //Upper
     double fit_low;       //Fit lower limit 
     double fit_up;        //Upper
     double hmin;          //Histo lower limit 
@@ -135,6 +135,8 @@ class cla{
     //Subtract the baseline according to "prepulse_ticks"
     bool sub_bsl = true;
     int sub_bsl_mode = 1;
+    // Keep the current h_charge (useful to avoid reading)
+    bool keep_hcharge = false;
     //Saving data into files
     bool print = false;
     //Display single waveforms

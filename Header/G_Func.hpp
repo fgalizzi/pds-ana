@@ -19,7 +19,7 @@ double fRandomName(Double_t *x, Double_t *par){
   double sg1  = par[3];
 
   Double_t result = 0;
-  for (int i = 0 ; i < 6; i++){
+  for (int i = 0 ; i < 15; i++){
     Double_t norm  = par[i+4];
     Double_t mean  = mu0+i*gain;
     Double_t sigma = sqrt(pow(sg0,2)+i*pow(sg1,2));
@@ -56,13 +56,14 @@ double fCX(double *x, double *par){
 //**********************************************************
   double result = 0;
   for (int i=0; i<=x[0]; i++) result += fPK(i, (int)x[0], par[0], par[1]);
-  return result;
+  return par[2]*result;
 }
 
 void fCX_set(TF1 *f){
   f->SetNpx(2000);
-  f->SetParNames("L", "p");
+  f->SetParNames("L", "p", "NORM");
   f->SetParLimits(1, 0., 1.);
+  f->SetParameter(2, 1.);
 }
 
 // Function for deconvolved LAr scint. light waveform +c
