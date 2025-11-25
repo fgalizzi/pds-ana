@@ -52,6 +52,7 @@ void cla::read(){
     if(data_format == "csvd")    CSV_double_WF_Binary(wf_file, wfs, n_wf, memorydepth);
     if(data_format == "pdhd")    PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
     if(data_format == "hdf5")    StructuredWaveformSetReader(wf_file, wfs, channel, n_wf);
+    if(data_format == "eth")     StructuredEthWaveformSetReader(wf_file, wfs, channel, n_wf);
   
    
     //Subtract the baseline and invert the wfs according to "invert"
