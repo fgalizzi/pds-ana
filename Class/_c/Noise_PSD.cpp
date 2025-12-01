@@ -44,7 +44,6 @@ void cla::Noise_PSD(){
   TGraph* gNoise_spectral_density = build_avg_spectral_density(memorydepth,
       tick_len*memorydepth, tick_len, noise2, res);
 
-  gNoise_spectral_density->SaveAs(muon_f.c_str());
 
   TCanvas *c2 = new TCanvas("c2","c2",20,20,1000,900);
   c2->cd();
@@ -65,6 +64,7 @@ void cla::Noise_PSD(){
   c3->Update();
 
   if(print==true){
+  gNoise_spectral_density->SaveAs(muon_f.c_str());
     if (ofilename_noise_fft!=""){
       std::ofstream OutFile  (ofilename_noise_fft, ios::binary);
       for(int i = 0; i < gNoise_spectral_density->GetN(); i++){
