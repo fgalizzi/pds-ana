@@ -51,8 +51,10 @@ TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind, bool avoid_auto_peak){
   }
 
   // Gaussian sumatory
-  TF1* ff = new TF1("fgaus", fRandomName, -par[2]*2., par[1]*(npeaks-1), npeaks+4);
-  fRandomName_set(ff);
+  fMultiGauss f_multi_gauss;
+  f_multi_gauss.npeaks = npeaks;
+  TF1* ff = new TF1("fgaus", f_multi_gauss, -par[2]*2., par[1]*(npeaks-1), npeaks+4);
+  fMultiGauss_set(ff);
   ff->SetParameters(par);
   ff->SetParLimits(0, -par[1]*0.2, par[1]*0.2);
   ff->SetParLimits(1, par[1]*0.4, par[1]*1.9);

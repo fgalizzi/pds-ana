@@ -7,10 +7,29 @@
 #ifndef G_Func_hpp
 #define G_Func_hpp
 
+class fMultiGauss{
+  public:
+    int npeaks;
+    double operator()(double *x, double *par){
+      double mu0  = par[0];
+      double gain = par[1];
+      double sg0  = par[2];
+      double sg1  = par[3];
+
+      double result = 0;
+      for (int i = 0 ; i < npeaks; i++){
+        double norm  = par[i+4];
+        double mean  = mu0+i*gain;
+        double sigma = sqrt(pow(sg0,2)+i*pow(sg1,2));
+        result += norm*TMath::Gaus(x[0],mean,sigma);
+      }
+      return result;
+    }
+};
 
 // Charge Histogram - Calibration Function (multi-Gaussians)
 //**********************************************************
-double fRandomName(Double_t *x, Double_t *par){
+double fRandomName(double *x, double *par){
 //**********************************************************
 
   double mu0  = par[0];
@@ -18,17 +37,17 @@ double fRandomName(Double_t *x, Double_t *par){
   double sg0  = par[2];
   double sg1  = par[3];
 
-  Double_t result = 0;
+  double result = 0;
   for (int i = 0 ; i < 15; i++){
-    Double_t norm  = par[i+4];
-    Double_t mean  = mu0+i*gain;
-    Double_t sigma = sqrt(pow(sg0,2)+i*pow(sg1,2));
+    double norm  = par[i+4];
+    double mean  = mu0+i*gain;
+    double sigma = sqrt(pow(sg0,2)+i*pow(sg1,2));
     result += norm*TMath::Gaus(x[0],mean,sigma);
   }
   return result;
 }
 
-void fRandomName_set(TF1* &f){
+void fMultiGauss_set(TF1* &f){
   f->SetNpx(2000);
   f->SetParNames("#mu_{0}" , "G" , "#sigma_{0}" , "#sigma_{cel}");
 }
