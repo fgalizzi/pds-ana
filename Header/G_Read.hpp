@@ -9,10 +9,14 @@
 
 
 #include "RtypesCore.h"
+#include "TChain.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <fstream>
+#include <set>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <H5Cpp.h>

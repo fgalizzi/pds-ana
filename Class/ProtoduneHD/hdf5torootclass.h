@@ -10,6 +10,7 @@
 #define hdf5torootclass_h
 
 
+#include "TTree.h"
 using namespace std;
 
 class hdf5torootclass {

@@ -2,6 +2,12 @@
 #ifndef wffunctions2
 #define wffunctions2
 
+#include "TH1.h"
+#include "TH2.h"
+#include <iostream>
+#include <ostream>
+#include <vector>
+
 class wffunctions
 {
 public:
