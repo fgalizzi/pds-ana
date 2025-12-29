@@ -388,7 +388,7 @@ void StructuredEthWaveformSetReader(const std::string fileName,
                                  int& n_wfs) {
   // Open the file
   H5::H5File file(fileName, H5F_ACC_RDONLY);
-  int endpoint    = int(daphne_channel/100-1);
+  int endpoint    = int(daphne_channel/100);
   uint8_t channel = uint8_t(daphne_channel%1000);
   std::cout << "ep " << endpoint << " ch " << int(channel) << std::endl;
 

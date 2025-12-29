@@ -53,7 +53,25 @@ void cla::read(){
     if(data_format == "pdhd")    PDHD_ch_wfs(wf_file, wfs, channel, n_wf); 
     if(data_format == "hdf5")    StructuredWaveformSetReader(wf_file, wfs, channel, n_wf);
     if(data_format == "eth")     StructuredEthWaveformSetReader(wf_file, wfs, channel, n_wf);
-  
+    
+    if (int(wfs.size())==0){
+      std::cout << "\n\nNo waveforms read from file!!\n\n" << std::endl;
+      return;
+    }
+
+    if (remove_saturated == true) remove_saturated_wfs();
+
+    if (int(wfs.size())==0){
+      std::cout << "\n\nNo waveforms survived the saturation cut!!\n\n" << std::endl;
+      return;
+    }
+
+    if (peak_to_peak > 0.) remove_too_little_wfs(peak_to_peak);
+
+    if (int(wfs.size())==0){
+      std::cout << "\n\nNo waveforms survived the peak-to-peak cut!!\n\n" << std::endl;
+      return;
+    }
    
     //Subtract the baseline and invert the wfs according to "invert"
     if(sub_bsl == true){
