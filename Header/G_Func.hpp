@@ -7,7 +7,10 @@
 #ifndef G_Func_hpp
 #define G_Func_hpp
 
+// Charge Histogram - Calibration Function (multi-Gaussians)
+//**********************************************************
 class fMultiGauss{
+//**********************************************************
   public:
     int npeaks;
     double operator()(double *x, double *par){
@@ -26,26 +29,6 @@ class fMultiGauss{
       return result;
     }
 };
-
-// Charge Histogram - Calibration Function (multi-Gaussians)
-//**********************************************************
-double fRandomName(double *x, double *par){
-//**********************************************************
-
-  double mu0  = par[0];
-  double gain = par[1];
-  double sg0  = par[2];
-  double sg1  = par[3];
-
-  double result = 0;
-  for (int i = 0 ; i < 15; i++){
-    double norm  = par[i+4];
-    double mean  = mu0+i*gain;
-    double sigma = sqrt(pow(sg0,2)+i*pow(sg1,2));
-    result += norm*TMath::Gaus(x[0],mean,sigma);
-  }
-  return result;
-}
 
 void fMultiGauss_set(TF1* &f){
   f->SetNpx(2000);

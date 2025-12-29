@@ -84,26 +84,7 @@ void cla::Filt_Analysis(){
   
 
   // Gaussian sumatory
-  fgaus = new TF1("fgaus", fRandomName, -par[2]*2., par[1]*(npeaks-1), npeaks+4);
-  if(manual==true){
-    fgaus = new TF1("fgaus", fRandomName, fit_low, fit_up, npeaks+4);
-  }
-  fRandomName_set(fgaus);
-  fgaus->SetParameters(par);
-  fgaus->SetParLimits(0, -par[1]*0.2, par[1]*0.2);
-  fgaus->SetParLimits(1, par[1]*0.4, par[1]*1.9);
-  fgaus->SetParLimits(2, par[2]*0.3, par[2]*2.);
-  fgaus->SetParLimits(3, 0., par[2]*2.);
-  
-  // Set limits manually
-  if(manual==true){
-    fgaus->SetParLimits(0,mu0_low,mu0_up);
-    fgaus->SetParLimits(1,spe_low,spe_up);
-    fgaus->SetParLimits(2,s0_low,s0_up);
-    fgaus->SetParLimits(3,sc_low,sc_up);
-  }
-  
-  for(int i = 0 ; i < npeaks ; i++) fgaus->SetParLimits(i+4,0,2700);
+  fgaus = set_charge_fit_function(h_charge, hFind);
 
   TCanvas *c3 = new TCanvas("c3","c3",0,0,500,450);
   c3->cd();

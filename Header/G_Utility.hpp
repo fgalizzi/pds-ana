@@ -186,7 +186,6 @@ TGraphErrors* Build_CX_Graph(TF1* fgaus, TH1* hI, double& avg_n_photons){
   vector<double> X(npeaks, 0.0);
   vector<double> Err_X(npeaks, 0.0);
   double G = fgaus->GetParameter(1);
-  double mu_0 = fgaus->GetParameter(0);
   double sigma0 = fgaus->GetParameter(2);
   double err_sigma0 = fgaus->GetParError(2);
   double sigmac = fgaus->GetParameter(3);
