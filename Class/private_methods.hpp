@@ -136,3 +136,31 @@ void cla::self_histos(TH1D* h_all, TH1D* h_trg, std::vector<double>& int_wf){
 }
 
 
+void cla::remove_saturated_wfs(){
+  std::vector<std::vector<double>> wfs_new;
+  for(auto wf : wfs){
+    bool sat = false;
+    for(auto sample : wf){
+      if(sample >= pow(2,res)-1 || sample == 0){
+        sat = true;
+        break;
+      }
+    }
+    if(!sat) wfs_new.push_back(wf);
+  }
+  wfs = wfs_new;
+  n_wf = wfs.size();
+}
+
+void cla::remove_too_little_wfs(double peak_to_peak){
+  std::vector<std::vector<double>> wfs_new;
+  for(auto wf : wfs){
+    double max_el = *max_element(wf.begin(), wf.end());
+    double min_el = *min_element(wf.begin(), wf.end());
+    if((max_el - min_el) >= peak_to_peak){
+      wfs_new.push_back(wf);
+    }
+  }
+  wfs = wfs_new;
+  n_wf = wfs.size();
+}

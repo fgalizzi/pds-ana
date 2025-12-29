@@ -72,10 +72,12 @@ class cla{
     double sigma_zero;
     double pedestal;
 
+    //Waveform selection
     double sat_up;        //Saturation level - used to select wfs
     double sat_low;       //Low saturation level
     double bsl;           //To select wfs with baseline in [-bsl;+bsl]  
     double rms;           //Baseline RMS - used in baseline subtraction
+    double peak_to_peak;  //Used to remove too "quiet" wfs
 
     //Calibration
     int int_low;          //Lower limit of wf integration
@@ -135,6 +137,8 @@ class cla{
     //Subtract the baseline according to "prepulse_ticks"
     bool sub_bsl = true;
     int sub_bsl_mode = 1;
+    //Remove saturated wfs (wfs containint 0s or 2^res-1 values) before baseline subtraction
+    bool remove_saturated = false;
     // Keep the current h_charge (useful to avoid reading)
     bool keep_hcharge = false;
     //Saving data into files
@@ -204,6 +208,8 @@ class cla{
    
     // Private methods
     void set(); //Initialize the class according to const.hpp, plot syle, fit preferences
+    void remove_saturated_wfs();
+    void remove_too_little_wfs(double peak_to_peak);
     void update_thisfile(string out_file_name="ana_parameters");
     vector<size_t> read_pdhd_ch_map(int mask=0);
     vector<string> read_chs(string ch_file_name);
