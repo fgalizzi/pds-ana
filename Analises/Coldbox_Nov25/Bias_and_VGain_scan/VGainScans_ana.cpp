@@ -19,41 +19,41 @@ map<int, double> breakdown_voltages = {
 //------- Macro ---------------------------------------------------
 void VGainScans_ana(cla& a, string jsonfile_module_config){
   // --- ANA CONFIG -----------------------------------------------
-  AnaConfig ana_config = load_ana_config("config/ana_config.json");
-  string runs_folder = ana_config.runs_folder;
-  string input_ana_folder = ana_config.input_ana_folder;
-  string rms_result_file = input_ana_folder+ana_config.rms_result_file;
+  AnaConfig ana_config     = load_ana_config("config/ana_config.json");
+  string runs_folder       = ana_config.runs_folder;
+  string input_ana_folder  = ana_config.input_ana_folder;
+  string rms_result_file   = input_ana_folder+ana_config.rms_result_file;
   string output_ana_folder = ana_config.output_ana_folder;
-  double allowed_bsl_rms = ana_config.allowed_bsl_rms;
-  bool   print_results = ana_config.print_results;
-  string bias_fit_csv = ana_config.bias_fit_csv;
+  double allowed_bsl_rms   = ana_config.allowed_bsl_rms;
+  bool   print_results     = ana_config.print_results;
+  string bias_fit_csv      = ana_config.bias_fit_csv;
   // Class settings 
-  a.display = ana_config.display;
-  a.plot = ana_config.plot;
-  a.print= ana_config.print;
-  a.tick_len = ana_config.tick_len;
-  a.nbins = ana_config.nbins;
+  a.display     = ana_config.display;
+  a.plot        = ana_config.plot;
+  a.print       = ana_config.print;
+  a.tick_len    = ana_config.tick_len;
+  a.nbins       = ana_config.nbins;
   a.data_format = ana_config.data_format;
 
   
   // --- MODULE CONFIG --------------------------------------------
   ModuleConfig module_config = load_module_config(jsonfile_module_config);
   // Use configuration from JSON:
-  a.memorydepth = module_config.memorydepth;
-  a.invert = module_config.invert;
-  a.n_wf = module_config.n_wf;
+  a.memorydepth    = module_config.memorydepth;
+  a.invert         = module_config.invert;
+  a.n_wf           = module_config.n_wf;
   a.prepulse_ticks = module_config.prepulse_ticks;
-  a.int_low = module_config.int_low;
-  a.int_up = module_config.int_up;
-  a.nmaxpeaks = module_config.nmaxpeaks;
+  a.int_low        = module_config.int_low;
+  a.int_up         = module_config.int_up;
+  a.nmaxpeaks      = module_config.nmaxpeaks;
 
-  int module = module_config.module;
-  vector<int> module_channels = module_config.module_channels;
-  vector<double> biases = module_config.daphne_biases;
-  vector<int> vgains = module_config.vgains;
+  int module                   = module_config.module;
+  vector<int> module_channels  = module_config.module_channels;
+  vector<double> biases        = module_config.daphne_biases;
+  vector<int> vgains           = module_config.vgains;
   string modules_in_foldername = module_config.modules_in_foldername;
-  string led_afe_extension = module_config.led_afe_extension;
-  string custom_vgain_folder = module_config.custom_vgain_folder;
+  string led_afe_extension     = module_config.led_afe_extension;
+  string custom_vgain_folder   = module_config.custom_vgain_folder;
 
   auto bias_fit_table = read_bias_fit_csv(bias_fit_csv);
  
@@ -76,8 +76,8 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
     vector<pair<string, double>> feature_value; // Store the results of the analysis to be printed 
 
     string out_files_name = string(Form("M%i",module))+"/Bias_"+bias_str+led_afe_extension;
-    string out_root_file = output_ana_folder+out_files_name+".root";
-    string out_csv_file  = output_ana_folder+out_files_name+".csv";
+    string out_root_file  = output_ana_folder+out_files_name+".root";
+    string out_csv_file   = output_ana_folder+out_files_name+".csv";
 
     TFile hf(TString(out_root_file), "recreate");
     for(auto& channel : module_channels){

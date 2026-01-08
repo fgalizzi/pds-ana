@@ -57,23 +57,20 @@ int module = 6;
 // --- INPUT -----------------------------------------------------
 string ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/VGain_Scans/";
 
-size_t channel_colunm = 1;
-size_t bias_volt_colunm = 3;
-size_t overvoltage_colunm = 4;
-size_t vgain_colunm = 5;
-size_t gain_colunm = 11;
-size_t err_gain_colunm = 12;
-size_t spe_ampl_colunm = 13;
-size_t dr_colunm = 14;
-size_t snr_colunm = 15;
-size_t err_snr_colunm = 16;
-// size_t rms_colunm = 20;
-size_t cx_colunm = 18;
-size_t err_cx_colunm = 19;
-size_t navg_cx_phs_colunm = 20;
+size_t channel_colunm         = 1;
+size_t bias_volt_colunm       = 3;
+size_t overvoltage_colunm     = 4;
+size_t vgain_colunm           = 5;
+size_t gain_colunm            = 11;
+size_t err_gain_colunm        = 12;
+size_t spe_ampl_colunm        = 13;
+size_t dr_colunm              = 14;
+size_t snr_colunm             = 15;
+size_t err_snr_colunm         = 16;
+size_t cx_colunm              = 18;
+size_t err_cx_colunm          = 19;
+size_t navg_cx_phs_colunm     = 20;
 size_t err_navg_cx_phs_colunm = 21;
-// size_t navg_phs_colunm = 25;
-// size_t navg_pes_colunm = 26;
 
 ///////////////////////////////////////////////////////////////////
 
