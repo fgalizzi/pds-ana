@@ -1,0 +1,19 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 381,
+  "int_low": 382,
+  "int_up" : 406,
+  
+  "nmaxpeaks": 7,
+  "module": 3,
+  "modules_in_foldername": "M3_M4",
+  "led_afe_extension": "_LED_11V_AFE4_TOP",
+  "module_channels": [36, 37],
+
+  "daphne_biases": [30.3, 31.3, 33.8],
+  
+  "vgains": [1200,1400,1600,1800,
+             2000,2200,2400,2600,2800]
+}

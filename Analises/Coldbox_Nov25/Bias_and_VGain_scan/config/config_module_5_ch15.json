@@ -1,0 +1,19 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 391,
+  "int_low": 392,
+  "int_up" : 409,
+  
+  "nmaxpeaks": 7,
+  "module": 5,
+  "modules_in_foldername": "",
+  "led_afe_extension": "debug_reference",
+  "custom_vgain_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/November2025run/spy_buffer/debugs/M5/vgain_scan_M5_ch15/",
+  "module_channels": [15],
+
+  "daphne_biases": [5],
+  
+  "vgains": [500, 600, 700]
+}

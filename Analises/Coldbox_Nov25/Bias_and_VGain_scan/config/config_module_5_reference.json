@@ -1,0 +1,21 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 391,
+  "int_low": 392,
+  "int_up" : 409,
+  
+  "nmaxpeaks": 7,
+  "module": 5,
+  "modules_in_foldername": "",
+  "led_afe_extension": "reference",
+  "custom_vgain_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/November2025run/spy_buffer/VGAIN_SCAN/M5/vgain_scan_M5/",
+  "module_channels": [9, 14],
+
+  "daphne_biases": [5],
+  
+  "vgains": [500, 600, 700, 800, 900,
+             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000]
+}

@@ -1,0 +1,19 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 379,
+  "int_low": 380,
+  "int_up" : 395,
+  
+  "nmaxpeaks": 6,
+  "module": 1,
+  "modules_in_foldername": "M1_M2",
+  "led_afe_extension": "_LED_9V_AFE2_TOP",
+  "module_channels": [18, 19],
+
+  "daphne_biases": [43.45, 43.95, 45.95],
+  
+  "vgains": [1200,1400,1600,1800,
+             2000,2200,2400,2600,2800]
+}

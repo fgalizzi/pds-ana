@@ -1,0 +1,20 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 381,
+  "int_low": 382,
+  "int_up" : 406,
+  
+  "nmaxpeaks": 7,
+  "module": 3,
+  "modules_in_foldername": "",
+  "led_afe_extension": "",
+  "module_channels": [28, 29],
+
+  "daphne_biases": [30.47, 30.97, 31.47, 31.97, 32.47, 32.97, 33.47, 33.97],
+  
+  "vgains": [500, 600, 700, 800, 900,
+             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000]
+}
