@@ -9,7 +9,7 @@
   "nmaxpeaks": 7,
   "module": 5,
   "modules_in_foldername": "",
-  "led_afe_extension": "debug_reference",
+  "led_afe_extension": "_debug_ch15",
   "custom_vgain_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/November2025run/spy_buffer/debugs/M5/vgain_scan_M5_ch15/",
   "module_channels": [15],
 

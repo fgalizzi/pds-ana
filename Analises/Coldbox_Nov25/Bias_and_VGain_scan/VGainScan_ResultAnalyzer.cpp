@@ -41,8 +41,8 @@ TGraphErrors* form_tgraph(string title, string name, string x_title, string y_ti
   }
 
   TGraphErrors* graph = new TGraphErrors(x_values.size(),
-                                       &x_values[0], &y_values[0],
-                                       &x_errors[0], &y_errors[0]);
+                                         &x_values[0], &y_values[0],
+                                         &x_errors[0], &y_errors[0]);
   graph->SetTitle(title.c_str());
   graph->SetName(name.c_str());
   graph->GetXaxis()->SetTitle(x_title.c_str());
@@ -51,9 +51,36 @@ TGraphErrors* form_tgraph(string title, string name, string x_title, string y_ti
   return graph;
 }
 
+// Function to compute the weighted average and its error given two vectors
+// of values and their errors. Returns a pair (average, error).
+pair<double, double> weighted_average(const vector<double>& values, const vector<double>& errors) {
+  double sum_weighted_values = 0.0;
+  double sum_weights = 0.0;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    if (errors[i] == 0) continue; // Avoid division by zero
+    double weight = 1.0 / (errors[i] * errors[i]);
+    sum_weighted_values += values[i] * weight;
+    sum_weights += weight;
+  }
+
+  double average = sum_weighted_values / sum_weights;
+  double error = sqrt(1.0 / sum_weights);
+
+  return make_pair(average, error);
+}
+
+pair<double, double> weighted_average_from_data(const vector<pair<string, vector<double>>>& data,
+                                               size_t value_colunm, size_t error_colunm,
+                                               double channel) {
+  vector<double> values = get_channel_data(data, value_colunm, channel);
+  vector<double> errors = get_channel_data(data, error_colunm, channel);
+  return weighted_average(values, errors);
+}
+
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-int module = 6;
+vector<int> modules = {1, 2, 3, 4, 5, 6};
 // --- INPUT -----------------------------------------------------
 string ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/VGain_Scans/";
 
@@ -83,94 +110,124 @@ void VGainScan_ResultAnalyzer(){
   style->SetStatX(0.9);   style->SetStatY(0.9);
   style->SetStatBorderSize(0);
 
-  // Create and open a file.root where to store the canvas
-  TFile* out_file = new TFile((ana_folder+"M"+to_string(module)+"_VGainScans_ResultSummary.root").c_str(), "RECREATE");
-  out_file->cd();
+  // --- LOOP OVER MODULES ----------------------------------------
+  for (const auto& module : modules){
 
-  string module_folder = ana_folder + Form("M%i/", module);
-  // Store all the csv files in the module folder in a vector
-  vector<string> csv_files;
-  for (const auto& entry : filesystem::directory_iterator(module_folder)){
-    string file_path = entry.path().string();
-    if (file_path.find(".csv") != string::npos){
-      csv_files.push_back(file_path);
+    // Create and open a file.root where to store the canvas
+    TFile* out_file = new TFile((ana_folder+"M"+to_string(module)+"_VGainScans_ResultSummary.root").c_str(), "RECREATE");
+    out_file->cd();
+
+    string module_folder = ana_folder + Form("M%i/", module);
+    // Store all the csv files in the module folder in a vector
+    vector<string> csv_files;
+    for (const auto& entry : filesystem::directory_iterator(module_folder)){
+      string file_path = entry.path().string();
+      if (file_path.find(".csv") != string::npos){
+        csv_files.push_back(file_path);
+      }
     }
-  }
 
-  for (const auto& file : csv_files){
-    // remove ".csv" from the file name
-    std::cout << file << std::endl;
-    string dir_name = file.substr(file.find_last_of("/")+1);
-    dir_name = dir_name.substr(0, dir_name.find(".csv"));
-    std::cout << dir_name << std::endl;
+    vector<TGraphErrors*> g_CX_OV_vec = {};
+    for (size_t i = 1; i <= 2; i++) {
+      g_CX_OV_vec.push_back(new TGraphErrors());
+      g_CX_OV_vec.back()->SetTitle(Form("M%i_CX_OV_Ch%i", module, int(i)));
+      g_CX_OV_vec.back()->SetName(Form("M%i_CX_OV_Ch%i", module, int(i)));
+      g_CX_OV_vec.back()->GetXaxis()->SetTitle("Overvoltage [V]");
+      g_CX_OV_vec.back()->GetYaxis()->SetTitle("Cross Talk [%]");
+    }
 
-    TDirectory* dir_setting = out_file->mkdir(dir_name.c_str());
-    dir_setting->cd();
+    // --- LOOP OVER CSV FILES ------------------------------------
+    for (const auto& file : csv_files){
+      // remove ".csv" from the file name
+      std::cout << file << std::endl;
+      string dir_name = file.substr(file.find_last_of("/")+1);
+      dir_name = dir_name.substr(0, dir_name.find(".csv"));
+      std::cout << dir_name << std::endl;
 
-    vector<pair<string, vector<double>>> input_data = read_vec_pair_CSV(file.c_str());
-    vector<double> channels = unique_values_in_column(input_data, channel_colunm);
+      TDirectory* dir_setting = out_file->mkdir(dir_name.c_str());
+      dir_setting->cd();
 
-    // --- LOOP OVER CHANNELS ------------------------------------
-    for (const auto& channel : channels){
-      TDirectory* dir_ch = dir_setting->mkdir(Form("ch_%i", int(channel)));
-      dir_ch->cd();
+      vector<pair<string, vector<double>>> input_data = read_vec_pair_CSV(file.c_str());
+      vector<double> channels = unique_values_in_column(input_data, channel_colunm);
 
-      double bias_volt, overvoltage;
-      bias_volt = input_data[bias_volt_colunm].second[0];
-      overvoltage = input_data[overvoltage_colunm].second[0];
+      // --- LOOP OVER CHANNELS -----------------------------------
+      for (const auto& channel : channels){
+        TDirectory* dir_ch = dir_setting->mkdir(Form("ch_%i", int(channel)));
+        dir_ch->cd();
+
+        double bias_volt, overvoltage;
+        bias_volt = input_data[bias_volt_colunm].second[0];
+        overvoltage = input_data[overvoltage_colunm].second[0];
+
+        int ch_index = distance(channels.begin(),
+                                find(channels.begin(), channels.end(), channel));
+
+        // Fill CX vs OV graph
+        pair<double, double> cx_avg = weighted_average_from_data(input_data,
+                                                                 cx_colunm, err_cx_colunm,
+                                                                 channel);
+        g_CX_OV_vec[ch_index]->SetPoint(g_CX_OV_vec[ch_index]->GetN(),
+                                        overvoltage, cx_avg.first);
+        g_CX_OV_vec[ch_index]->SetPointError(g_CX_OV_vec[ch_index]->GetN()-1,
+                                             0., cx_avg.second);
 
 
-      // --- TGRAPHS -------------------------------------------
-      string graph_title = Form("M%i_Ch%i_BiasVolt_%.2f_OV_%.2f", module, int(channel), bias_volt, overvoltage);
-      TGraphErrors* g_Gain_VGain = form_tgraph(graph_title, "Gain_VGain", "VGain", "Gain [ADC#times ticks]",
-                                              input_data, channel,
-                                              vgain_colunm, gain_colunm,
-                                              SIZE_MAX, err_gain_colunm);
 
-      TGraphErrors* g_SPEampl_VGain = form_tgraph(graph_title, "SPEampl_VGain", "VGain", "SPE Amplitude [ADC]",
-                                              input_data, channel,
-                                              vgain_colunm, spe_ampl_colunm);
+        // --- TGRAPHS --------------------------------------------
+        string graph_title = Form("M%i_Ch%i_BiasVolt_%.2f_OV_%.2f", module, int(channel), bias_volt, overvoltage);
+        TGraphErrors* g_Gain_VGain = form_tgraph(graph_title, "Gain_VGain", "VGain", "Gain [ADC#times ticks]",
+                                                 input_data, channel,
+                                                 vgain_colunm, gain_colunm,
+                                                 SIZE_MAX, err_gain_colunm);
 
-      TGraphErrors* g_DR_VGain = form_tgraph(graph_title, "DR_VGain", "VGain", "Dynamic Range [pe]",
-                                              input_data, channel,
-                                              vgain_colunm, dr_colunm);
+        TGraphErrors* g_SPEampl_VGain = form_tgraph(graph_title, "SPEampl_VGain", "VGain", "SPE Amplitude [ADC]",
+                                                    input_data, channel,
+                                                    vgain_colunm, spe_ampl_colunm);
 
-      TGraphErrors* g_SNR_VGain = form_tgraph(graph_title, "SNR_VGain", "VGain", "SNR",
-                                              input_data, channel,
-                                              vgain_colunm, snr_colunm,
-                                              SIZE_MAX, err_snr_colunm);
+        TGraphErrors* g_DR_VGain = form_tgraph(graph_title, "DR_VGain", "VGain", "Dynamic Range [pe]",
+                                               input_data, channel,
+                                               vgain_colunm, dr_colunm);
 
-      TGraphErrors* g_CX_VGain = form_tgraph(graph_title, "CX_VGain", "VGain", "Cross Talk [%]",
-                                              input_data, channel,
-                                              vgain_colunm, cx_colunm,
-                                              SIZE_MAX, err_cx_colunm);
+        TGraphErrors* g_SNR_VGain = form_tgraph(graph_title, "SNR_VGain", "VGain", "SNR",
+                                                input_data, channel,
+                                                vgain_colunm, snr_colunm,
+                                                SIZE_MAX, err_snr_colunm);
 
-      TGraphErrors* g_Navg_CX_PH_VGain = form_tgraph(graph_title, "Navg_CX_PH_VGain", "VGain", "Navg CX PH",
-                                              input_data, channel,
-                                              vgain_colunm, navg_cx_phs_colunm,
-                                              SIZE_MAX, err_navg_cx_phs_colunm);
+        TGraphErrors* g_CX_VGain = form_tgraph(graph_title, "CX_VGain", "VGain", "Cross Talk [%]",
+                                               input_data, channel,
+                                               vgain_colunm, cx_colunm,
+                                               SIZE_MAX, err_cx_colunm);
 
-      TGraphErrors* g_SNR_DR = form_tgraph(graph_title, "SNR_DR", "Dynamic Range [pe]", "SNR",
-                                              input_data, channel,
-                                              dr_colunm, snr_colunm,
-                                              SIZE_MAX, err_snr_colunm);
+        TGraphErrors* g_Navg_CX_PH_VGain = form_tgraph(graph_title, "Navg_CX_PH_VGain", "VGain", "Navg CX PH",
+                                                       input_data, channel,
+                                                       vgain_colunm, navg_cx_phs_colunm,
+                                                       SIZE_MAX, err_navg_cx_phs_colunm);
 
-      TGraphErrors* g_SNR_SPEampl = form_tgraph(graph_title, "SNR_SPEampl", "SPE Amplitude [ADC]", "SNR",
-                                              input_data, channel,
-                                              spe_ampl_colunm, snr_colunm,
-                                              SIZE_MAX, err_snr_colunm);
+        TGraphErrors* g_SNR_DR = form_tgraph(graph_title, "SNR_DR", "Dynamic Range [pe]", "SNR",
+                                             input_data, channel,
+                                             dr_colunm, snr_colunm,
+                                             SIZE_MAX, err_snr_colunm);
 
-      // --- WRITE TGRAPHS -------------------------------------
-      g_Gain_VGain->Write();
-      g_SPEampl_VGain->Write();
-      g_DR_VGain->Write();
-      g_SNR_VGain->Write();
-      g_CX_VGain->Write();
-      g_Navg_CX_PH_VGain->Write();
-      g_SNR_DR->Write();
-      g_SNR_SPEampl->Write();
+        TGraphErrors* g_SNR_SPEampl = form_tgraph(graph_title, "SNR_SPEampl", "SPE Amplitude [ADC]", "SNR",
+                                                  input_data, channel,
+                                                  spe_ampl_colunm, snr_colunm,
+                                                  SIZE_MAX, err_snr_colunm);
+
+        // --- WRITE TGRAPHS --------------------------------------
+        g_Gain_VGain->Write();
+        g_SPEampl_VGain->Write();
+        g_DR_VGain->Write();
+        g_SNR_VGain->Write();
+        g_CX_VGain->Write();
+        g_Navg_CX_PH_VGain->Write();
+        g_SNR_DR->Write();
+        g_SNR_SPEampl->Write();
       } // end loop over biases
     } // end loop over channels
+    
+    out_file->cd();
+    for (auto g_CX_OV : g_CX_OV_vec) g_CX_OV->Write();
 
-  out_file->Close();
+    out_file->Close();
+  }
 }

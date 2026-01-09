@@ -1,6 +1,8 @@
 #include "TString.h"
 #include "Utils.hpp"
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 using json = nlohmann::json;
@@ -67,8 +69,11 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
       sub_folder = "debugs/";
     }
 
-
-    string bias_str = to_string(int(bias))+"V"+to_string(int(bias*100)%100);
+    ostringstream oss;
+    oss << int(bias)
+        << "V"
+        << setw(2) << setfill('0') << static_cast<int>(std::round(bias * 100)) % 100;
+    string bias_str = oss.str();
     string bias_folder = runs_folder+sub_folder+module_name+"/vgain_scan_"+module_name+"_DVbias_"+bias_str+led_afe_extension+"/";
     if (custom_vgain_folder != ""){
       bias_folder = custom_vgain_folder;
@@ -78,6 +83,9 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
     string out_files_name = string(Form("M%i",module))+"/Bias_"+bias_str+led_afe_extension;
     string out_root_file  = output_ana_folder+out_files_name+".root";
     string out_csv_file   = output_ana_folder+out_files_name+".csv";
+    if (std::remove(out_csv_file.c_str()) == 0) {
+      cout << "Old output file removed: " << out_csv_file << endl;
+    }
 
     TFile hf(TString(out_root_file), "recreate");
     for(auto& channel : module_channels){
@@ -145,9 +153,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         feature_value.push_back({"DAPHNE Channel", double(channel)});
         feature_value.push_back({"Bias [V]", bias});
         feature_value.push_back({"Real Bias [V]", real_bias_value});
-        // feature_value.push_back({"Err Bias [V]", err_bias_volt});
         feature_value.push_back({"OV [V]", real_bias_value - breakdown_voltages[module]});
-        // feature_value.push_back({"Err OV [V]", err_overvoltage});
         feature_value.push_back({"VGain", vgain});
         feature_value.push_back({"Baseline", a.bsl});
         feature_value.push_back({"Prepulse ticks", double(a.prepulse_ticks)});
@@ -170,7 +176,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         
         if(print_results==true){
           cout << "\n\nPRINTING\n\n" << endl;
-          print_vec_pair_csv(out_csv_file, feature_value, "comment", true);
+          print_vec_pair_csv(out_csv_file, feature_value);
           a.h_charge->Write();
         }
         
