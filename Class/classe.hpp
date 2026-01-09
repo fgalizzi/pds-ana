@@ -160,6 +160,8 @@ class cla{
     //(De)convolution stuff
     bool FFUNC = true;
     bool FIX_CONST = false;
+    // Useful to skip steps in case of failures
+    bool class_skip = false;
 
     //Macro
     void Persistence();
@@ -232,7 +234,6 @@ class cla{
     bool avoid_auto_peak = true;
     int pspe_low, pspe_up;  //ProtoDUNE spe_low and spe_up initial guess
 
-    bool class_skip=0;
 };
 
 
