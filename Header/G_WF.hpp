@@ -290,19 +290,22 @@ void Avg_Sel_WF (std::vector<std::vector<double>>& all_wf,
     std::vector<double>& spe_wf, const std::vector<double>& int_wf,
     double I_low, double I_up){
 //*********************************************
-  int nspe_wf=0;
   int len = all_wf[0].size();
   
   for (size_t i = 0; i < int_wf.size(); i++) {
     if (int_wf[i] > I_low && int_wf[i] < I_up) {
-      nspe_wf += 1;
       sel_wf.push_back(all_wf[i]);
     }
   }
   
+  if (sel_wf.size() == 0) {
+    std::cout << "\n \n !!! \n No WF selected \n Thresholds were set to [" << I_low << ";" << I_up << "]\n \n" ;
+    return;
+  }
+  std::cout << "#SPE candidates within 1 sigma " << sel_wf.size() << std::endl;
   avgWF(sel_wf, spe_wf);
-  std::cout << "N_sel " << nspe_wf << std::endl;
-
+  
+  return;
 }
 
 // Same, without storing the selected WFs
