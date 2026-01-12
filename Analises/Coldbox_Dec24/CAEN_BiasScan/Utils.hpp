@@ -59,9 +59,10 @@ struct ModuleConfig {
   double scan_sat_up;
 
   int module;
+  int day;
   std::vector<int> module_channels;
   std::vector<double> biases;
-  std::vector<int> runs;
+  //std::vector<int> runs;
 };
 
 ModuleConfig load_module_config(const std::string& filename) {
@@ -84,11 +85,11 @@ ModuleConfig load_module_config(const std::string& filename) {
   config.module = j.at("module").get<int>();
   config.module_channels = j.at("module_channels").get<std::vector<int>>();
   config.biases = j.at("biases").get<std::vector<double>>();
-  config.runs = j.at("runs").get<std::vector<int>>();
+  //config.runs = j.at("runs").get<std::vector<int>>();
   
   return config;
 }
-
+/*
 // Function to calculate the bias voltage, overvoltage and their errors
 void DAC_to_Volt(int module, double bias_dac, double& bias_volt, double& err_bias_volt){
 
@@ -101,12 +102,9 @@ void DAC_to_Volt(int module, double bias_dac, double& bias_volt, double& err_bia
     volts = {45.06, 45.54, 46.09, 46.55, 47.03};
     err_volt = err_volt_m1_m2;
   } else {
-//    dacs = {754, 767, 780, 793, 806};
-//    volts = {30.54, 31.11, 31.64, 32.01, 32.52};
- 
-     dacs = {300, 400, 500};
-     volts = {12.45, 16.38,20.28};
-     err_volt = err_volt_m3_m4;
+    dacs = {754, 767, 780, 793, 806};
+    volts = {30.54, 31.11, 31.64, 32.01, 32.52};
+    err_volt = err_volt_m3_m4;
   }
   vector<double> err_volts(volts.size(), err_volt);
   vector<double> err_dacs(dacs.size(), 0.);
@@ -126,6 +124,6 @@ void DAC_to_Volt(int module, double bias_dac, double& bias_volt, double& err_bia
 
   bias_volt = f1->Eval(this_bias_dac[0]);
   err_bias_volt = err_this_bias_volt[0];
-
   return;
 }
+*/
