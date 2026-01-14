@@ -8,13 +8,16 @@ using namespace std;
 using json = nlohmann::json;
 
 // map in the form { Module : breakdown voltage }
-map<int, double> breakdown_voltages = {
-  {1, 41.3},
-  {2, 41.4},
-  {3, 26.8},
-  {4, 26.7},
-  {5, 42.7},
-  {6, 41.8}
+// Values taken from the spreasdheet adding 0.2 V to HPK
+// modules and 0.1 V to FBK modules to account LAr-LN2
+// temperature difference, when needed
+map<int, pair<double,double>> breakdown_voltages = {
+  {1, {41.4, 41.5}},
+  {2, {41.5, 41.6}},
+  {3, {26.9, 26.9}},
+  {4, {26.8, 26.8}},
+  {5, {42.7, 42.6}},
+  {6, {42.0, 42.1}},
 };
 
 //-----------------------------------------------------------------
@@ -101,10 +104,20 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
       for(auto& channel : module_channels){
         int AFE = channel/8;
         double real_bias_value;
+        int ch_index = distance(module_channels.begin(),
+                                find(module_channels.begin(), module_channels.end(), channel));
+        double breakdown_voltage;
+        if (ch_index % 2 == 0){
+          breakdown_voltage = breakdown_voltages[module].first;
+        } else {
+          breakdown_voltage = breakdown_voltages[module].second;
+        }
+
         if (module < 5){
           real_bias_value = real_bias(AFE, "DaphnetoMult", bias,  bias_fit_table);
         } else {
-          real_bias_value = breakdown_voltages[module] + 5.;
+          double
+          real_bias_value = breakdown_voltage + 5.;
         }
         hf.cd(Form("Ch_%i", channel));
         // Look for baseline RMS in the file with the RMS results
@@ -153,7 +166,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         feature_value.push_back({"DAPHNE Channel", double(channel)});
         feature_value.push_back({"Bias [V]", bias});
         feature_value.push_back({"Real Bias [V]", real_bias_value});
-        feature_value.push_back({"OV [V]", real_bias_value - breakdown_voltages[module]});
+        feature_value.push_back({"OV [V]", real_bias_value - breakdown_voltage});
         feature_value.push_back({"VGain", vgain});
         feature_value.push_back({"Baseline", a.bsl});
         feature_value.push_back({"Prepulse ticks", double(a.prepulse_ticks)});
@@ -173,6 +186,9 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         feature_value.push_back({"Err #ph cx", a.err_avg_n_ph_cx});
         feature_value.push_back({"Avg #ph", a.avg_n_photons});
         feature_value.push_back({"Avg #pe", a.avg_n_photoelectrons});
+        feature_value.push_back({"StatLoss [%]", double(1-(a.h_charge->GetEntries()/a.n_wf))*100.});
+        feature_value.push_back({"CalibrationWFS", double(a.h_charge->GetEntries())});
+        feature_value.push_back({"TotalWFS", double(a.n_wf)});
         
         if(print_results==true){
           cout << "\n\nPRINTING\n\n" << endl;
