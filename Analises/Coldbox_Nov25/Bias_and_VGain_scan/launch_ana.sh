@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Print usage if no argument is provided
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <config_file>"
