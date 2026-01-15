@@ -10,7 +10,7 @@
   "input_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/Noise_Analysis/",
   "rms_result_file": "Noise_Results_vgain_scan_membrane_noise_n5V_below_Vbr_02122025_afternoon.csv",
   "output_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/VGain_Scans/",
-  "allowed_bsl_rms": 6,
+  "allowed_bsl_rms": 3,
   "print_results": true,
   "bias_fit_csv": "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/Daphne_Bias/bias_conversions.csv"
 }
