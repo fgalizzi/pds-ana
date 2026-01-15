@@ -116,7 +116,6 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         if (module < 5){
           real_bias_value = real_bias(AFE, "DaphnetoMult", bias,  bias_fit_table);
         } else {
-          double
           real_bias_value = breakdown_voltage + 5.;
         }
         hf.cd(Form("Ch_%i", channel));
@@ -146,6 +145,11 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         // The actual analysis
         cout << "Start LED analysis..." << endl;
         a.LED_Analysis();
+        if (a.class_skip == 1){
+          cout << "Skipping channel " << channel << " at VGain " << vgain << " due to lack of calibration wfs" << endl;
+          a.class_skip = 0;
+          continue;
+        }
         cout << "...end" << endl;
         a.LoadFitParameters(a.fgaus);
         a.h_charge->SetTitle(Form("Bias_%s_VGain_%i", bias_str.c_str(), vgain));
@@ -193,7 +197,7 @@ void VGainScans_ana(cla& a, string jsonfile_module_config){
         if(print_results==true){
           cout << "\n\nPRINTING\n\n" << endl;
           print_vec_pair_csv(out_csv_file, feature_value);
-          a.h_charge->Write();
+          a.h_charge->Write(); a.h_charge->Delete();
         }
         
         // Reset the vector
