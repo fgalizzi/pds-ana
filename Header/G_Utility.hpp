@@ -7,6 +7,7 @@
 #include "TComplex.h"
 #include "TVirtualFFT.h"
 #include <cstddef>
+#include <filesystem>
 #ifndef G_Utility_hpp
   #include <stdio.h>
   #include <iostream>
@@ -178,9 +179,10 @@ TGraphErrors* Build_CX_Graph_Cov (TF1* fgaus, TH1* hI, TFitResultPtr FitRes, dou
 }
 
 //***********************************************
-TGraphErrors* Build_CX_Graph(TF1* fgaus, TH1* hI, double& avg_n_photons){
+TGraphErrors* Build_CX_Graph(TF1* fgaus, TH1* hI, double& avg_n_photons, int npeaks_max=20){
 //*********************************************
   int npeaks = int(fgaus->GetXmax()/fgaus->GetParameter(1)+1); // only fitted peaks
+  if (npeaks > npeaks_max || npeaks < 0) npeaks = npeaks_max;
   vector<double> Pi(npeaks, 0.0);
   vector<double> Err_Pi(npeaks, 0.0);
   vector<double> X(npeaks, 0.0);
