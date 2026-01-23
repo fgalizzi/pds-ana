@@ -1,10 +1,17 @@
 #include "../../../Class/_c/class_include.hpp"
 #include "../../../plotter/DUNEStyle.h"
 #include "TGraphErrors.h"
+#include <cstddef>
 #include <string>
 #include <vector>
 using namespace std;
 
+// --- HARDCODED DECLARATIONS ---------------------------------------
+double ce_snr_edge = 25.; // From SNR vs SPE ampl. plots we observed
+                          // that for SPE > 25 ADC the CE noise dominates
+
+
+// --- FUNCTIONS ----------------------------------------------------
 vector<double> unique_values_in_column(const vector<pair<string, vector<double>>>& data, size_t column_index){
   set<double> unique_values_set;
   for (const auto& value : data[column_index].second){
@@ -17,6 +24,18 @@ vector<double> get_channel_data(const vector<pair<string, vector<double>>>& data
   vector<double> channel_data;
   for (size_t i=0; i<data[0].second.size(); i++){
     if (data[1].second[i] == channel){
+      channel_data.push_back(data[column_index].second[i]);
+    }
+  }
+  return channel_data;
+}
+
+vector<double> get_channel_data(const vector<pair<string, vector<double>>>& data, size_t column_index, double channel,
+                                size_t filter_columnn, double filter_value, string condition = ">"){
+  vector<double> channel_data;
+  for (size_t i=0; i<data[0].second.size(); i++){
+    if (data[1].second[i] == channel){
+      if (condition == ">" && data[filter_columnn].second[i] <= filter_value) continue;
       channel_data.push_back(data[column_index].second[i]);
     }
   }
@@ -54,6 +73,9 @@ TGraphErrors* form_tgraph(string title, string name, string x_title, string y_ti
 // Function to compute the weighted average and its error given two vectors
 // of values and their errors. Returns a pair (average, error).
 pair<double, double> weighted_average(const vector<double>& values, const vector<double>& errors) {
+  if (values.size() != errors.size() || values.empty()) {
+    return make_pair(0.0, 0.0);
+  }
   double sum_weighted_values = 0.0;
   double sum_weights = 0.0;
 
@@ -78,11 +100,19 @@ pair<double, double> weighted_average_from_data(const vector<pair<string, vector
   return weighted_average(values, errors);
 }
 
+pair<double, double> weighted_average_from_data(const vector<pair<string, vector<double>>>& data,
+                                               size_t value_colunm, size_t error_colunm,
+                                               double channel, size_t filter_columnn, double filter_value, string condition = ">") {
+  vector<double> values = get_channel_data(data, value_colunm, channel, filter_columnn, filter_value, condition);
+  vector<double> errors = get_channel_data(data, error_colunm, channel, filter_columnn, filter_value, condition);
+  return weighted_average(values, errors);
+}
+
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
 vector<int> modules = {1, 2, 3, 4, 5, 6};
 // --- INPUT -----------------------------------------------------
-string ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/VGain_Scans/";
+string ana_folder = "/eos/home-f/fegalizz/ColdBox_VD/November25/SpyBuffer/VGain_Scans/allowed_bsl_rms_3/";
 
 size_t channel_colunm         = 1;
 size_t bias_volt_colunm       = 3;
@@ -128,12 +158,19 @@ void VGainScan_ResultAnalyzer(){
     }
 
     vector<TGraphErrors*> g_CX_OV_vec = {};
+    vector<TGraphErrors*> g_CESNR_OV_vec = {};
     for (size_t i = 1; i <= 2; i++) {
       g_CX_OV_vec.push_back(new TGraphErrors());
       g_CX_OV_vec.back()->SetTitle(Form("M%i_CX_OV_Ch%i", module, int(i)));
       g_CX_OV_vec.back()->SetName(Form("M%i_CX_OV_Ch%i", module, int(i)));
       g_CX_OV_vec.back()->GetXaxis()->SetTitle("Overvoltage [V]");
       g_CX_OV_vec.back()->GetYaxis()->SetTitle("Cross Talk [%]");
+
+      g_CESNR_OV_vec.push_back(new TGraphErrors());
+      g_CESNR_OV_vec.back()->SetTitle(Form("M%i_CESNR_OV_Ch%i", module, int(i)));
+      g_CESNR_OV_vec.back()->SetName(Form("M%i_CESNR_OV_Ch%i", module, int(i)));
+      g_CESNR_OV_vec.back()->GetXaxis()->SetTitle("Overvoltage [V]");
+      g_CESNR_OV_vec.back()->GetYaxis()->SetTitle("CE SNR");
     }
 
     // --- LOOP OVER CSV FILES ------------------------------------
@@ -171,7 +208,16 @@ void VGainScan_ResultAnalyzer(){
         g_CX_OV_vec[ch_index]->SetPointError(g_CX_OV_vec[ch_index]->GetN()-1,
                                              0., cx_avg.second);
 
-
+        pair<double, double> snr_avg = weighted_average_from_data(input_data,
+                                                       snr_colunm, err_snr_colunm,
+                                                       channel,
+                                                       spe_ampl_colunm, ce_snr_edge, ">");
+        if (snr_avg.first != 0.) {
+          g_CESNR_OV_vec[ch_index]->SetPoint(g_CESNR_OV_vec[ch_index]->GetN(),
+                                             overvoltage, snr_avg.first);
+          g_CESNR_OV_vec[ch_index]->SetPointError(g_CESNR_OV_vec[ch_index]->GetN()-1,
+                                                  0., snr_avg.second);
+        }
 
         // --- TGRAPHS --------------------------------------------
         string graph_title = Form("M%i_Ch%i_BiasVolt_%.2f_OV_%.2f", module, int(channel), bias_volt, overvoltage);
@@ -227,6 +273,7 @@ void VGainScan_ResultAnalyzer(){
     
     out_file->cd();
     for (auto g_CX_OV : g_CX_OV_vec) g_CX_OV->Write();
+    for (auto g_CESNR_OV : g_CESNR_OV_vec) g_CESNR_OV->Write();
 
     out_file->Close();
   }
