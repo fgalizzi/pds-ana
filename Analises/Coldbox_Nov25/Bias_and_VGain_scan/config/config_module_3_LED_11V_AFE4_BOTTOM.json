@@ -9,7 +9,7 @@
   "nmaxpeaks": 7,
   "module": 3,
   "modules_in_foldername": "M3_M4",
-  "led_afe_extension": "_LED_11V_AFE4_TOP",
+  "led_afe_extension": "_LED_11V_AFE4_BOTTOM",
   "module_channels": [36, 37],
 
   "daphne_biases": [30.3, 31.3, 33.8],
