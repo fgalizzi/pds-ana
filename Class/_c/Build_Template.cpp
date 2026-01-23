@@ -84,7 +84,7 @@ void cla::Build_Template() {
   if (plot == true){
     // normalize the averages for the plots
     norm = 1./ *max_element(std::begin(avg_calib), std::end(avg_calib));
-    for(auto& e: avg_calib) e*=norm;
+    for(auto& e: avg_calib) e*=norm*spe_ampl;
     norm = 1./ *max_element(std::begin(avg_template), std::end(avg_template));
     for(auto& e: avg_template) e*=norm*spe_ampl;
     
