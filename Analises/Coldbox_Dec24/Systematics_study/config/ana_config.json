@@ -4,14 +4,14 @@
   "print": false,
   "memorydepth": 1024,
   "tick_len": 0.016,
-  "nbins": 300,
+  "nbins": 150,
   "nmaxpeaks": 6,
   "data_format": "esteban",
   
   "runs_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/",
   "input_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/",
   "rms_result_file": "VGain_RMS_LED0_Membrane.csv",
-  "output_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/FineBiasScan/",
+  "output_ana_folder": "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/Systematics_study/",
   "allowed_bsl_rms": 3,
   "print_results": true
 }

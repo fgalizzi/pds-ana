@@ -6,9 +6,9 @@ using namespace std;
 void NoiseVGain_ana(){
   // --------------------------------------------------------------
   // --- HARD CODE ------------------------------------------------
-  string base_path   = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/Daphne_DAQ/binaries/";
-  string output_ana_folder  = "/eos/home-g/gpiemont/ColdBox_VD/December24/Daphne_DAQ/Noise_RMS_FFTs/";
-  int LED = 0; // 0 or 1
+  string base_path   = "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/December2024run/TestStand_data/M4/";
+  string output_ana_folder  = "/eos/home-g/gpiemont/ColdBox_VD/December24/TestStand/";
+  int bias = 32;
   // Class settings
   auto a = cla();
   a.data_format = "esteban";
@@ -21,31 +21,29 @@ void NoiseVGain_ana(){
 
   // --- CODE ----------------------------------------------------
   string fft_outfile, ana_outfile;
-  fft_outfile = output_ana_folder+Form("FFT_VGainScans_LED%i_Cathode.root", LED);
-  //fft_outfile = output_ana_folder+Form("FFT_VGainScans_LED%i_Membrane.root", LED);
-  //ana_outfile = output_ana_folder+Form("VGain_RMS_LED%i_Membrane.csv", LED);
-  ana_outfile = output_ana_folder+Form("VGain_RMS_LED%i_Cathode.csv", LED);
+  fft_outfile = output_ana_folder+Form("FFT_VGainScans_%iV_Membrane.root", bias);
+  ana_outfile = output_ana_folder+Form("VGain_RMS_%iV_Membrane.csv", bias);
   
-  vector<int> channels = {31, 36};
-  //vector<int> channels = {0,1,2,3,20,21,26,27};
+  vector<int> channels = {0,2};
 
-  vector<int> runs;
-  for(int i=9; i<300; i++){
+  vector<int> runs = {6038, 6519, 7087, 782};
+  /*for(int i=9; i<300; i++){
     if((i+(LED+1))%2==0) runs.push_back(33300+i);
     if(i==66) i=10000;
   }
-
-  int vgain = 100;
+*/
+  int vgain;
 
   // Tuple input file, run, vgain, channel
   vector<tuple<string,int,int,int>> my_tuple;
   vector<string> ifiles;
   for(auto& run : runs){
+	  vgain = (3.99/1.5)*run;
     for(auto& ch : channels){
-      string ifile = base_path+"run_"+to_string(run)+"/channel_"+to_string(ch)+".dat";
+      string ifile = base_path+to_string(bias)+"V"+Form("/noise_0%i", run)+"/channel_"+to_string(ch)+".dat";
       my_tuple.push_back(make_tuple(ifile,run,vgain,ch));
     }
-    vgain += 100;
+    vgain = 0;
   }
 
   TFile fft_ofile(fft_outfile.c_str(), "recreate");

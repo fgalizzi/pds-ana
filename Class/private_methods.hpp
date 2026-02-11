@@ -44,7 +44,7 @@ TF1* cla::set_charge_fit_function(TH1D* hI, TH1D* hFind, bool avoid_auto_peak){
     par[2] = (s0_low+s0_up)/2;  //sigma_0
     par[3] = (sc_low+sc_up)/2;  //sigma_cell
   }
-  if(hI->GetBinContent(hI->GetMaximumBin())<70) hI->Rebin(2);
+ // if(hI->GetBinContent(hI->GetMaximumBin())<70) hI->Rebin(2);
   if(npeaks<nmaxpeaks) npeaks=nmaxpeaks;
   for(int i = 0 ; i < npeaks ; i++){
     par[i+4] = hI->GetBinContent(hI->GetMaximumBin())*0.8;//peaky[i];

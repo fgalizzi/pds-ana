@@ -5,10 +5,10 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////
 //////// HARD CODE ////////////////////////////////////////////////
-vector<int> modules = {3,4}; // M1, M2, M3, M4
-//vector<int> modules = {1,2,3,4}; // M1, M2, M3, M4
-vector<vector<int>> module_channels = {{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
-//vector<vector<int>> module_channels = {{20,27},{21,26},{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
+//vector<int> modules = {1,2}; // M1, M2, M3, M4
+vector<int> modules = {1,2,3,4}; // M1, M2, M3, M4
+//vector<vector<int>> module_channels = {{20,27},{21,26}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
+vector<vector<int>> module_channels = {{20,27},{21,26},{0,2},{1,3}}; // M1 (20,27), M2 (21,26), M3 (0,2), M4 (1,3)
 
 vector<int> m1_m2_biases = {1148, 1161, 1174, 1187, 1200};
 vector<int> m3_m4_biases = {754, 767, 780, 793, 806};
