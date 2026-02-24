@@ -198,6 +198,10 @@ void VGainScan_ResultAnalyzer(){
 
         int ch_index = distance(channels.begin(),
                                 find(channels.begin(), channels.end(), channel));
+       
+        // COULD MAKE SENSE FOR MODULE WHEN SWAPPING CHANNELS !!! ------------------------------
+        // if (dir_name.size() < 20) ch_index = 0;
+        // else ch_index = 1;
 
         // Fill CX vs OV graph
         pair<double, double> cx_avg = weighted_average_from_data(input_data,
@@ -212,7 +216,7 @@ void VGainScan_ResultAnalyzer(){
                                                        snr_colunm, err_snr_colunm,
                                                        channel,
                                                        spe_ampl_colunm, ce_snr_edge, ">");
-        if (snr_avg.first != 0.) {
+        if (snr_avg.first != 0. && dir_name.size() < 11) {
           g_CESNR_OV_vec[ch_index]->SetPoint(g_CESNR_OV_vec[ch_index]->GetN(),
                                              overvoltage, snr_avg.first);
           g_CESNR_OV_vec[ch_index]->SetPointError(g_CESNR_OV_vec[ch_index]->GetN()-1,
