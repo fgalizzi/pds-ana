@@ -268,6 +268,31 @@ void RiseFallTimeUndershoot(std::vector<double>& waveform, const double& tick_le
   std::cout << "Rise time 10%->90% [ns] " << r_time << "\nFall time 90%->10% [ns] " << f_time << std::endl;
   std::cout << "Undershoot [%]: " << undershoot << std::endl;
 
+  return;
+}
+
+//*********************************************
+void RiseFallTimeUndershoot(TGraph* g_wf, const double& tick_len, int& int_up){
+//*********************************************
+  double max_amplitude = *std::max_element(g_wf->GetY(), g_wf->GetY()+g_wf->GetN());
+  double min_amplitude = *std::min_element(g_wf->GetY(), g_wf->GetY()+g_wf->GetN());
+  double undershoot = -min_amplitude/max_amplitude*100;
+  double threshold_10 = 0.1 * max_amplitude;
+  double threshold_90 = 0.9 * max_amplitude;
+
+  size_t n_points = g_wf->GetN();
+  double xm = g_find_x(g_wf, max_amplitude*0.98, 0., double(n_points), 0.1);
+  double x0 = g_find_x(g_wf, threshold_10, 0., xm, 0.1);
+  double x1 = g_find_x(g_wf, threshold_90, x0, xm, 0.1);
+  double r_time = (x1-x0)*tick_len*1000;
+  x0 = g_find_x(g_wf, threshold_90, xm, double(n_points), 0.1);
+  x1 = g_find_x(g_wf, threshold_10, x0, double(n_points), 0.1);
+  double f_time = (x1-x0)*tick_len*1000;
+
+  std::cout << "Rise time 10%->90% [ns] " << r_time << "\nFall time 90%->10% [ns] " << f_time << std::endl;
+  std::cout << "Undershoot [%]: " << undershoot << std::endl;
+
+  return;
 }
 
 //*********************************************
