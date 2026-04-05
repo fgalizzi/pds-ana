@@ -57,6 +57,7 @@ void cla::LED_Analysis(){
   // set the upper limit of fgaus range to the minimum of the two
   spe_charge  = fgaus->GetParameter(1);
   sigma_zero  = fgaus->GetParameter(2);
+  sigma_one   = fgaus->GetParameter(3);
   double last_fitted_peak_pe; // last fitted peak in photoelectrons
   if (h_charge->GetXaxis()->GetXmax() < (nmaxpeaks-1)*spe_charge+sigma_zero){
     std::cout << "\n\n\n HERE \n\n\n" << std::endl;
@@ -113,22 +114,27 @@ void cla::LED_Analysis(){
   g_CX->Fit("f_CX", "R");
   cout << "\n---------------------------------------------------  \n" << endl;
 
-
   // --- CLASS UPDATE --------------------------------------------
   pedestal    = fgaus->GetParameter(0);
   spe_charge  = fgaus->GetParameter(1); err_spe_charge = fgaus->GetParError(1);
   sigma_zero  = fgaus->GetParameter(2); err_sigma_zero = fgaus->GetParError(2);
+  sigma_one  =  fgaus->GetParameter(3); err_sigma_one = fgaus->GetParError(3);
+
+  // ---ALTERNATIVE DEFINITION OF SNR ----------------------------
+//double den = sqrt(sigma_zero*sigma_zero + sigma_one*sigma_one);
+//SNR = spe_charge/den;
+//err_SNR  = 0.2;
+  
   SNR         = spe_charge/sigma_zero;  err_SNR = error_propagation(FitRes, fgaus, 1, 2, "div");
   avg_n_ph_cx = f_CX->GetParameter(0);  err_avg_n_ph_cx = f_CX->GetParError(0);
   cx          = f_CX->GetParameter(1);  err_cx = f_CX->GetParError(1);
   avg_n_photoelectrons = (h_charge->GetMean()-fgaus->GetParameter(0)) / fgaus->GetParameter(1);
-  
-  
 
   // --- STD::COUT -----------------------------------------------
   cout << "\n---------------------------------------------------  \n" << endl;
   cout << "Results:"  << endl;
-  cout << "SNR = " << SNR << endl;
+  cout << "SNR = " << SNR << "+/-" << err_SNR << endl;
+  //cout << "SNR new = " << SNR_new << "+/-" << err_SNR_new << endl;
   cout << "CX  = " << cx << "+/-"  << err_cx << endl;
   cout << "#Avg photons CX fit = " << avg_n_ph_cx << " +/- " << err_avg_n_ph_cx << endl;
   cout << "#Avg photons        = " << avg_n_photons << endl;

@@ -70,6 +70,7 @@ class cla{
     double spe_under;
     double spe_charge;
     double sigma_zero;
+    double sigma_one;
     double pedestal;
 
     //Waveform selection
@@ -100,7 +101,7 @@ class cla{
     TF1* fgaus = nullptr; //Fit function
     TH1D* h_charge = nullptr;
     double SNR, spe_ampl_correction;
-    double err_spe_charge, err_sigma_zero, err_SNR;
+    double err_spe_charge, err_sigma_zero, err_sigma_one, err_SNR;
     double avg_n_photons, avg_n_photoelectrons;
     double avg_n_ph_cx, err_avg_n_ph_cx, cx, err_cx;
 
