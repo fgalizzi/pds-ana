@@ -27,7 +27,7 @@ void cla::LED_Analysis(){
       if(mov_win == true){
         MovingAverageWF(sel_wf, sel_wf, win);   
         h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low+win, int_up+win, nbins);
-      } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins);
+      } else h_charge = BuildRawChargeHisto(sel_wf, int_wf, int_low, int_up, nbins, statlost_low, statlost_up);
     }
     else {
       if(mov_win == true){

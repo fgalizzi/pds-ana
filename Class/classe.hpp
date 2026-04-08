@@ -97,6 +97,8 @@ class cla{
     double fit_up;        //Upper
     double hmin;          //Histo lower limit 
     double hmax;          //Upper
+    double statlost_low=0.005;  //Lower limit to compute the stat loss
+    double statlost_up=0.99;   //Upper limit to compute the stat loss
     TF1* fgaus = nullptr; //Fit function
     TH1D* h_charge = nullptr;
     double SNR, spe_ampl_correction;
