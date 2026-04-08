@@ -25,6 +25,20 @@ Weird behaviour: the electronics noise is lower for the +7 OV (bias 874 DAC) run
 that are reduced are the high-grequency bursts we observe in the waveforms. We cannot be 100% sure whether this is
 actually due to the bias or it was an environmental effect. Actually, the data-taking was interrupted in the middle of
 this scan... To investigate more looking at the data in the original folders.
+#### About the reduction in noise
+In this folder we put the good data originally sparse in different folders:
+- "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/2026March/20260318_daphne-13_led_vgain_bias_scan_remote_rerun/"
+    Bias 784 VGain [500, 2500], Bias 810 VGain [500, 2300]
+- "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/2026March/20260318_daphne-13_led_vgain_bias_scan_remote_rerun_resume1/"
+    Bias 810 VGain [2300, 2500], Bias 874 VGain [2300, 2500]
+- "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/2026March/20260318_daphne-13_led_vgain_bias_scan_remote_rerun_resume2/"
+    Bias 874 VGain [500, 2200]
+
+We have vgain scans (500->2500, step of 100) at three bias voltage [784, 810, 874] in DAC unit.
+
+We noted a reduction noise between the runs coming from the first folder (acquired at "2026-03-18T13:27:43.018788+00:00") and
+the second (acquired at "2026-03-18T13:20:31.398904+00:00"). This is quite in coincidence with the message
+"FEMBs have been turned back ON" in the slack channel #testing-crp-ehn1-daq, March 18th 2026
 
 ### Module 3
 Quite poor SNR, we should probably go for more aggressive cuts given the high background rate.

@@ -1,0 +1,14 @@
+{
+  "display": false,
+  "plot": false,
+  "print": false,
+  "tick_len": 0.016,
+  "nbins": 300,
+  "data_format": "esteban",
+  
+  "runs_folder": "/eos/experiment/neutplatform/protodune/experiments/ColdBoxVD/March2026run/",
+  "input_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/March26/Noise_Analysis/",
+  "output_ana_folder": "/eos/home-f/fegalizz/ColdBox_VD/March26/VGain_Scans/",
+  "allowed_bsl_rms": 3,
+  "print_results": true
+}

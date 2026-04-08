@@ -1,0 +1,25 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 135,
+  "int_low": 138,
+  "int_up" : 158,
+
+  "bias_offset": 47.65,
+  "bias_slope": 0,
+  
+  "nmaxpeaks": 6,
+  "module": 5,
+  "module_channels": [20, 21],
+  "rms_result_file": "HD.csv",
+
+  "daphne_biases": [0],
+
+  "folder_extension": "_ch20to23_MembraneOFF",
+  "led_folders": ["led_830_ch20", "led_800_ch21"],
+  
+  "vgains": [500, 600, 700, 800, 900,
+             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800]
+}

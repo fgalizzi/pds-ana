@@ -1,0 +1,24 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 121,
+  "int_low": 123,
+  "int_up" : 144,
+
+  "bias_offset": 0.1701,
+  "bias_slope": 0.0387945,
+  
+  "nmaxpeaks": 5,
+  "module": 2,
+  "module_channels": [2, 3],
+  "rms_result_file": "VD.csv",
+
+  "daphne_biases": [1143, 1169, 1195],
+
+  "folder_extension": "_20260325",
+  "led_folders": ["led_750_ch2", "led_755_ch3"],
+  
+  "vgains": [1500, 1600, 1700, 1800, 1900,
+             2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700]
+}

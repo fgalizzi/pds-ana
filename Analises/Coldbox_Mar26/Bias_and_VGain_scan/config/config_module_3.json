@@ -1,0 +1,25 @@
+{
+  "memorydepth": 1024,
+  "invert" : false,
+  "n_wf": -1,
+  "prepulse_ticks": 125,
+  "int_low": 126,
+  "int_up" : 150,
+
+  "bias_offset": -0.1168,
+  "bias_slope": 0.0389,
+  
+  "nmaxpeaks": 6,
+  "module": 3,
+  "module_channels": [12, 13],
+  "rms_result_file": "HD.csv",
+
+  "daphne_biases": [784, 810, 874],
+
+  "folder_extension": "",
+  "led_folders": ["led_1100_ch12", "led_1150_ch13"],
+  
+  "vgains": [500, 600, 700, 800, 900,
+             1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+             2000, 2100, 2200, 2300, 2400, 2500]
+}
